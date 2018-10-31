@@ -1,0 +1,11 @@
+{
+	"name": "svelte-intellisense",
+	"engines": {
+		"node": "*"
+	},
+	"dependencies": {
+		"vscode-languageserver": "^4.1.3",
+		"sveltedoc-parser": "^1.0.0"
+	},
+	"scripts": {}
+}

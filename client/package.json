@@ -1,0 +1,14 @@
+{
+	"name": "svelte-intellisense",
+	"engines": {
+		"vscode": "^1.28.2"
+	},
+	"scripts": {
+		"update-vscode": "yarn vscode-install",
+		"postinstall": "yarn vscode-install"
+	},
+	"dependencies": {
+		"vscode": "^1.1.21",
+		"vscode-languageclient": "^5.1.1"
+	}
+}

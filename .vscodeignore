@@ -1,0 +1,10 @@
+.vscode/**
+.vscode-test/**
+client/out/test/**
+client/out/**/*.map
+client/src/**
+server/out/**/*.map
+server/src/**
+.gitignore
+tsconfig.base.json
+tslint.json

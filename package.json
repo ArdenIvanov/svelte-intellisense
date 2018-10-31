@@ -1,0 +1,59 @@
+{
+	"name": "svelte-intellisense",
+	"displayName": "Svelte Intellisense",
+	"description": "Provides intellisense for data, events, slots etc. in components.",
+	"version": "0.0.1",
+	"publisher": "ardenivanov",
+	"keywords": [
+        "svelte",
+        "vscode"
+	],
+	"author": "Aleksandr Ivanov",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.28.2"
+	},
+	"categories": [
+        "Programming Languages",
+        "Formatters"
+    ],
+	"activationEvents": [
+		"onLanguage:svelte"
+	],
+	"main": "./client/out/extension",
+	"contributes": {
+		"configuration": {
+			"type": "object",
+			"title": "Svelte Intellisense configuration",
+			"properties": {
+				"svelte-intellisense.trace.server": {
+					"scope": "window",
+					"type": "string",
+					"enum": [
+						"off",
+						"messages",
+						"verbose"
+					],
+					"default": "off",
+					"description": "Traces the communication between VS Code and the language server."
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "cd client && yarn update-vscode && cd .. && yarn compile",
+		"compile:client": "tsc -p ./client/tsconfig.json",
+		"compile:server": "tsc -p ./server/tsconfig.json",
+		"watch:client": "tsc -w -p ./client/tsconfig.json",
+		"watch:server": "tsc -w -p ./server/tsconfig.json",
+		"compile": "yarn compile:client && yarn compile:server",
+		"postinstall": "cd client && yarn install && cd ../server && yarn install && cd .."
+	},
+	"devDependencies": {
+		"typescript": "^2.6.1",
+		"vscode": "^1.1.21",
+		"tslint": "^5.8.0",
+		"@types/node": "^8.10.25",
+		"@types/mocha": "^2.2.42"
+	}
+}
