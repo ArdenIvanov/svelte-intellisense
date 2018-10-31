@@ -3,6 +3,10 @@
 	"engines": {
 		"vscode": "^1.28.2"
 	},
+	"repository": {
+		"url": "https://github.com/ArdenIvanov/svelte-intellisense.git"
+	},
+	"license": "MIT",
 	"scripts": {
 		"update-vscode": "yarn vscode-install",
 		"postinstall": "yarn vscode-install"

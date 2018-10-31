@@ -2,6 +2,9 @@
 	"name": "svelte-intellisense",
 	"displayName": "Svelte Intellisense",
 	"description": "Provides intellisense for data, events, slots etc. in components.",
+	"repository": {
+		"url": "https://github.com/ArdenIvanov/svelte-intellisense.git"
+	},
 	"version": "0.0.1",
 	"publisher": "ardenivanov",
 	"keywords": [

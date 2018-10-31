@@ -3,6 +3,10 @@
 	"engines": {
 		"node": "*"
 	},
+	"repository": {
+		"url": "https://github.com/ArdenIvanov/svelte-intellisense.git"
+	},
+	"license": "MIT",
 	"dependencies": {
 		"vscode-languageserver": "^4.1.3",
 		"sveltedoc-parser": "^1.0.0"
