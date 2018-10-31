@@ -8,9 +8,6 @@
         "sourceMap": true,
         "rootDir": "src",
     },
-	"include": [
-		"src", "../server/src/utils.ts"
-	],
     "exclude": [
         "node_modules",
     ]
