@@ -9,6 +9,8 @@ import {
     TextDocuments
 } from 'vscode-languageserver';
 
+import * as svelteLanguage from './svelteLanguage';
+
 import {parse} from 'sveltedoc-parser';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -22,7 +24,7 @@ connection.onInitialize(() => {
 		capabilities: {
 			completionProvider: {
                 resolveProvider: true,
-                triggerCharacters: ['<', '.']
+                triggerCharacters: ['<', '.', ':', '#']
             },
             textDocumentSync: documents.syncKind
 		}
@@ -79,77 +81,88 @@ function reloadDocumentCompletions(documentPath: string, componentMetadata: any)
             return <CompletionItem>{
                 label: item.name,
                 kind: CompletionItemKind.Field,
-                documentation: item.description
+                documentation: item.description,
+                preselect: true
             };
         }),
         events: (<Array<any>>componentMetadata.events).map((item) => {
             return <CompletionItem>{
                 label: item.name,
                 kind: CompletionItemKind.Event,
-                documentation: item.description
+                documentation: item.description,
+                preselect: true
             };
         }),
         publicEvents: (<Array<any>>componentMetadata.events).filter(visibilityFilter).map((item) => {
             return <CompletionItem>{
                 label: item.name,
                 kind: CompletionItemKind.Event,
-                documentation: item.description
+                documentation: item.description,
+                preselect: true
             };
         }),
         publicSlots: (<Array<any>>componentMetadata.slots).map((item) => {
             return <CompletionItem>{
                 label: item.name,
                 kind: CompletionItemKind.Field,
-                documentation: item.description
+                documentation: item.description,
+                preselect: true
             };
         }),        
         methods: (<Array<any>>componentMetadata.methods).map((item) => {
             return <CompletionItem>{
                 label: item.name,
                 kind: CompletionItemKind.Method,
-                documentation: item.description
+                documentation: item.description,
+                preselect: true
             };
         }),
         publicMethods: (<Array<any>>componentMetadata.methods).filter(visibilityFilter).map((item) => {
             return <CompletionItem>{
                 label: item.name,
                 kind: CompletionItemKind.Method,
-                documentation: item.description
+                documentation: item.description,
+                preselect: true
             };
         }),
         helpers: (<Array<any>>componentMetadata.helpers).map((item) => {
             return <CompletionItem>{
                 label: item.name,
                 kind: CompletionItemKind.Method,
-                documentation: item.description
+                documentation: item.description,
+                preselect: true
             };
         }),
         refs: (<Array<any>>componentMetadata.refs).map((item) => {
             return <CompletionItem>{
                 label: item.name,
                 kind: CompletionItemKind.Field,
-                documentation: item.description
+                documentation: item.description,
+                preselect: true
             };
         }),
         computed: (<Array<any>>componentMetadata.computed).map((item) => {
             return <CompletionItem>{
                 label: item.name,
                 kind: CompletionItemKind.Field,
-                documentation: item.description
+                documentation: item.description,
+                preselect: true
             };
         }),
         publicData: (<Array<any>>componentMetadata.data).filter(visibilityFilter).map((item) => {
             return <CompletionItem>{
                 label: item.name,
                 kind: CompletionItemKind.Field,
-                documentation: item.description
+                documentation: item.description,
+                preselect: true
             };
         }),
         components: (<Array<any>>componentMetadata.components).map((item) => {
             return <CompletionItem>{
                 label: item.name,
                 kind: CompletionItemKind.Class,
-                documentation: item.description
+                documentation: item.description,
+                preselect: true
             };
         })
     };
@@ -210,6 +223,35 @@ connection.onCompletion(
         const offset = utils.Utils.offsetAt(content, _textDocumentPosition.position);
 
         const prevContent = content.substring(0, offset);
+
+        const openBlockIndex = prevContent.lastIndexOf('{#');
+        if (openBlockIndex >= 0 && prevContent.indexOf('{/', openBlockIndex) < 0) {
+            const blockContent = prevContent.substring(openBlockIndex);
+
+            if (prevContent.indexOf('}', openBlockIndex) < 0) {
+                if (/\{\#$/g.test(blockContent)) {
+                    return svelteLanguage.markupBlockCompletitionItems;
+                }
+            }
+
+            const openBlockMatch = /^\{\#([\w]+)\s*/g.exec(blockContent);
+            console.log(openBlockMatch);
+            if (openBlockMatch) {
+                const blockName = openBlockMatch[1].toLowerCase();
+
+                if (svelteLanguage.markupBlockInnerCompletitionItems.hasOwnProperty(blockName)) {
+                    const innerBlockOpenIndex = blockContent.lastIndexOf('{:');
+                    if (innerBlockOpenIndex >= 0 && blockContent.indexOf('}', innerBlockOpenIndex) <= 0) {
+                        const innerBlockContent = blockContent.substring(innerBlockOpenIndex);
+                        
+                        if (/\{\:$/g.test(innerBlockContent)) {
+                            return svelteLanguage.markupBlockInnerCompletitionItems[blockName];
+                        }
+                    }
+                }
+            }
+        }
+
         const openTagIndex = prevContent.lastIndexOf('<');
         if (openTagIndex >= 0 && prevContent.indexOf('>', openTagIndex) < 0) {
             const tagContent = prevContent.substring(openTagIndex);
