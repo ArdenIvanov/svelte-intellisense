@@ -235,7 +235,6 @@ connection.onCompletion(
             }
 
             const openBlockMatch = /^\{\#([\w]+)\s*/g.exec(blockContent);
-            console.log(openBlockMatch);
             if (openBlockMatch) {
                 const blockName = openBlockMatch[1].toLowerCase();
 
