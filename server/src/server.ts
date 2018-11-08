@@ -19,12 +19,15 @@ import * as utils from './utils';
 let connection = createConnection(ProposedFeatures.all);
 let documents: TextDocuments = new TextDocuments();
 
+let workspaceNodeModulesPath = null;
+let workspaceNodeModulesPathInitialized = false;
+
 connection.onInitialize(() => {
 	return {
 		capabilities: {
 			completionProvider: {
                 resolveProvider: true,
-                triggerCharacters: ['<', '.', ':', '#']
+                triggerCharacters: ['<', '.', ':', '#', '/']
             },
             textDocumentSync: documents.syncKind
 		}
@@ -56,6 +59,17 @@ let documentImportsCache: Map<string, ImportedComponent[]> = new Map();
 let documentsContent: Map<string, string> = new Map();
 
 documents.onDidChangeContent(change => {
+    if (!workspaceNodeModulesPathInitialized) {
+        workspaceNodeModulesPathInitialized = true;
+        connection.workspace.getWorkspaceFolders()
+            .then(folders => {
+                const workspaceFolder = folders.find(folder => fs.existsSync(path.resolve(utils.Utils.fileUriToPath(folder.uri), 'node_modules')));
+                if (workspaceFolder) {
+                    workspaceNodeModulesPath = path.resolve(utils.Utils.fileUriToPath(workspaceFolder.uri), 'node_modules');
+                }
+            });
+    }
+
     documentsContent.set(change.document.uri, change.document.getText());
 
     parse({
@@ -64,8 +78,8 @@ documents.onDidChangeContent(change => {
         const docPath = utils.Utils.fileUriToPath(change.document.uri);
         reloadDocumentImports(docPath, sveltedoc.components);
         reloadDocumentCompletions(docPath, sveltedoc);
-    }).catch(error => {
-        console.log(error);
+    }).catch(() => {
+        // supress error
     });
 });
 
@@ -187,9 +201,9 @@ function reloadDocumentImports(documentPath: string, components: any[]) {
                             filename: realFilePath
                         }).then(sveltedoc => {
                             reloadDocumentCompletions(importFilePath, sveltedoc);
-                        }).catch(error => {
-                            console.log(error);
-                        });
+                        }).catch(() => {
+                            // supress error
+                        });;
                     }
                 });
             } else {
@@ -197,8 +211,8 @@ function reloadDocumentImports(documentPath: string, components: any[]) {
                     filename: realFilePath
                 }).then(sveltedoc => {
                     reloadDocumentCompletions(importFilePath, sveltedoc);
-                }).catch(error => {
-                    console.log(error);
+                }).catch(() => {
+                    // supress error
                 });
             }
         }
@@ -224,27 +238,139 @@ connection.onCompletion(
 
         const prevContent = content.substring(0, offset);
 
-        const openBlockIndex = prevContent.lastIndexOf('{#');
-        if (openBlockIndex >= 0 && prevContent.indexOf('{/', openBlockIndex) < 0) {
-            const blockContent = prevContent.substring(openBlockIndex);
-
-            if (prevContent.indexOf('}', openBlockIndex) < 0) {
-                if (/\{\#$/g.test(blockContent)) {
-                    return svelteLanguage.markupBlockCompletitionItems;
-                }
+        const openComponentsBlockIndex = prevContent.lastIndexOf('components');
+        if (/components\s*:\s*\{/g.test(prevContent) && prevContent.indexOf('}', openComponentsBlockIndex) < 0) {
+            let quote = '\'';
+            let openQuoteIndex = prevContent.lastIndexOf(quote);
+            if (openQuoteIndex < 0) {
+                quote = '"';
+                openQuoteIndex = prevContent.lastIndexOf(quote);
+            }
+            if (openQuoteIndex < 0) {
+                quote = '`';
+                openQuoteIndex = prevContent.lastIndexOf(quote);
             }
 
-            const openBlockMatch = /^\{\#([\w]+)\s*/g.exec(blockContent);
-            if (openBlockMatch) {
-                const blockName = openBlockMatch[1].toLowerCase();
+            if (openQuoteIndex > openComponentsBlockIndex && prevContent.indexOf(quote, openQuoteIndex + 1) < 0) {
+                const partialPath = prevContent.substring(openQuoteIndex + 1);
+                const baseDocumentPath = path.dirname(docPath);
 
-                if (svelteLanguage.markupBlockInnerCompletitionItems.hasOwnProperty(blockName)) {
-                    const innerBlockOpenIndex = blockContent.lastIndexOf('{:');
-                    if (innerBlockOpenIndex >= 0 && blockContent.indexOf('}', innerBlockOpenIndex) <= 0) {
-                        const innerBlockContent = blockContent.substring(innerBlockOpenIndex);
-                        
-                        if (/\{\:$/g.test(innerBlockContent)) {
-                            return svelteLanguage.markupBlockInnerCompletitionItems[blockName];
+                const result = [];
+
+                // Search in local folder
+                if (partialPath.startsWith('./')) {
+                    const searchFolderPath = path.resolve(baseDocumentPath, partialPath.endsWith('/') ? partialPath : path.dirname(partialPath));
+
+                    if (fs.existsSync(searchFolderPath)) {
+                        const foundItems = fs.readdirSync(searchFolderPath);
+    
+                        foundItems
+                            .map((foundPath) => {
+                                const itemStats = fs.lstatSync(path.resolve(searchFolderPath, foundPath));
+                                const basename = path.basename(foundPath);
+    
+                                if (itemStats.isDirectory()) {
+                                    return <CompletionItem>{
+                                        label: path.basename(foundPath),
+                                        kind: CompletionItemKind.Folder,
+                                        commitCharacters: ['/'],
+                                        sortText: `1.${basename}`
+                                    }
+                                }
+    
+                                if (itemStats.isFile() && path.extname(foundPath) === '.svelte') {
+                                    return <CompletionItem>{
+                                        label: path.basename(foundPath),
+                                        kind: CompletionItemKind.Class,
+                                        commitCharacters: ['/'],
+                                        sortText: `2.${basename}`
+                                    }
+                                }
+    
+                                return null;
+                            })
+                            .filter(item => item != null)
+                            .forEach(item => result.push(item));
+                    }    
+                } else {
+                    // Search in node modules folder
+                    if (workspaceNodeModulesPath != null) {
+                        const searchFolderPath = path.resolve(workspaceNodeModulesPath, partialPath.endsWith('/') ? partialPath : path.dirname(partialPath));
+
+                        if (fs.existsSync(searchFolderPath)) {
+                            const foundItems = fs.readdirSync(searchFolderPath);
+
+                            foundItems
+                                .map((foundPath) => {
+                                    const itemStats = fs.lstatSync(path.resolve(searchFolderPath, foundPath));
+                                    const basename = path.basename(foundPath);
+
+                                    if (itemStats.isDirectory()) {
+                                        return <CompletionItem>{
+                                            label: basename,
+                                            kind: CompletionItemKind.Folder,
+                                            detail: 'from node_modules',
+                                            commitCharacters: ['/'],
+                                            filterText: basename.startsWith('@') ? basename.substring(1) : basename,
+                                            sortText: `1.${basename}` 
+                                        }
+                                    }
+
+                                    if (itemStats.isFile() && path.extname(foundPath) === '.svelte') {
+                                        return <CompletionItem>{
+                                            label: basename,
+                                            kind: CompletionItemKind.Class,
+                                            detail: 'from node_modules',
+                                            commitCharacters: ['/'],
+                                            sortText: `2.${basename}`
+                                        }
+                                    }
+
+                                    return null;
+                                })
+                                .filter(item => item != null)
+                                .forEach(item => result.push(item));
+                        }
+                    }  
+                }
+
+                return result;
+            }
+        }
+
+        const openBlockIndex = prevContent.lastIndexOf('{#');
+        if (openBlockIndex >= 0) {
+            if (prevContent.indexOf('{/', openBlockIndex) < 0 || /\{\/[\w]*$/g.test(prevContent)) {
+                const blockContent = prevContent.substring(openBlockIndex);
+
+                if (prevContent.indexOf('}', openBlockIndex) < 0) {
+                    if (/\{\#$/g.test(blockContent)) {
+                        return svelteLanguage.markupBlockCompletitionItems;
+                    }
+                }
+
+                const openBlockMatch = /^\{\#([\w]+)\s*/g.exec(blockContent);
+                if (openBlockMatch) {
+                    const blockName = openBlockMatch[1].toLowerCase();
+
+                    if (/\{\/[\w]*$/g.test(blockContent)) {
+                        return [
+                            <CompletionItem>{
+                                label: blockName,
+                                kind: CompletionItemKind.Keyword,
+                                preselect: true
+                            }
+                        ]
+                    }
+
+                    if (svelteLanguage.markupBlockInnerCompletitionItems.hasOwnProperty(blockName)) {
+                        const innerBlockOpenIndex = blockContent.lastIndexOf('{:');
+                        if (innerBlockOpenIndex >= 0 && blockContent.indexOf('}', innerBlockOpenIndex) <= 0) {
+                            const innerBlockContent = blockContent.substring(innerBlockOpenIndex);
+                            
+                            if (/\{\:$/g.test(innerBlockContent)) {
+                                return svelteLanguage.markupBlockInnerCompletitionItems[blockName];
+                            }
                         }
                     }
                 }
