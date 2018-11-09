@@ -29,7 +29,7 @@ connection.onInitialize(() => {
 		capabilities: {
 			completionProvider: {
                 resolveProvider: true,
-                triggerCharacters: ['<', '.', ':', '#', '/']
+                triggerCharacters: ['<', '.', ':', '#', '/', '@']
             },
             textDocumentSync: documents.syncKind
 		}
@@ -334,6 +334,8 @@ connection.onCompletion(
                                         return null;
                                     }
 
+                                    const partialBaseName = path.basename(partialPath);
+
                                     const itemStats = fs.lstatSync(path.resolve(searchFolderPath, foundPath));
 
                                     if (itemStats.isDirectory()) {
@@ -342,7 +344,12 @@ connection.onCompletion(
                                             kind: CompletionItemKind.Folder,
                                             detail: 'from node_modules',
                                             commitCharacters: ['/'],
-                                            filterText: basename.startsWith('@') ? basename.substring(1) : basename,
+                                            insertText: basename.startsWith('@') && partialBaseName.startsWith('@') 
+                                                ? basename.substring(1) 
+                                                : basename,
+                                            filterText: basename.startsWith('@') 
+                                                ? basename.substring(1) 
+                                                : basename,
                                             sortText: `1.${basename}`
                                         }
                                     }
