@@ -265,12 +265,17 @@ connection.onCompletion(
                 const partialPath = prevContent.substring(openQuoteIndex + 1);
                 const baseDocumentPath = path.dirname(docPath);
 
-                const result = [];
-
                 // Do nothing if partial path started from root folder
                 if (partialPath.startsWith('/')) {
-                    return result;
+                    return [];
                 }
+
+                // Don't show auto-completion for hidden items
+                if (/[\\\/]\.+$/g.test(partialPath)) {
+                    return [];
+                }
+
+                const result = [];
 
                 // Search in local folder
                 if (partialPath.startsWith('./') || partialPath.startsWith('../')) {
@@ -281,8 +286,14 @@ connection.onCompletion(
     
                         foundItems
                             .map((foundPath) => {
-                                const itemStats = fs.lstatSync(path.resolve(searchFolderPath, foundPath));
                                 const basename = path.basename(foundPath);
+
+                                // Don't include hidden items
+                                if (basename.startsWith('.')) {
+                                    return null;
+                                }
+
+                                const itemStats = fs.lstatSync(path.resolve(searchFolderPath, foundPath));
     
                                 if (itemStats.isDirectory()) {
                                     return <CompletionItem>{
