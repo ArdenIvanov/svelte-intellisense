@@ -10,7 +10,7 @@ export interface ICompletionService {
      * @param document The svelte document.
      * @param position The current cursor position in specified document.
      */
-    isApplyable(document: SvelteDocument, position: Position): boolean;
+    isApplyable(document: SvelteDocument, position: DocumentPosition): boolean;
 
     /**
      * Returns all applyable completition items for required context.
@@ -18,7 +18,15 @@ export interface ICompletionService {
      * @param position The current cursor position in specified document.
      * @param context The workspace context data.
      */
-    getCompletitionItems(document: SvelteDocument, position: Position, context: WorkspaceContext): Array<CompletionItem>;
+    getCompletitionItems(document: SvelteDocument, position: DocumentPosition, context: WorkspaceContext): Array<CompletionItem>;
+}
+
+export interface DocumentPosition extends Position {
+    /**
+     * Index of cursor offset in document.
+     * Handful to use with `String.substr` like methods.
+     */
+    offset: number;
 }
 
 export interface WorkspaceContext {

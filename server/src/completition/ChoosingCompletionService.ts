@@ -1,6 +1,6 @@
-import { ICompletionService, WorkspaceContext } from './interfaces';
+import { ICompletionService, WorkspaceContext, DocumentPosition } from './interfaces';
 import { SvelteDocument } from '../SvelteDocument';
-import { Position, CompletionItem } from 'vscode-languageserver';
+import { CompletionItem } from 'vscode-languageserver';
 
 /**
  * Implements a composite completition services, that checks all inner services
@@ -13,11 +13,11 @@ export class ChoosingCompletionService implements ICompletionService {
         this._innerServices = innerServices;
     }
 
-    public isApplyable(document: SvelteDocument, position: Position): boolean {
+    public isApplyable(document: SvelteDocument, position: DocumentPosition): boolean {
         return this.findCompletitionService(document, position) != null;
     }
 
-    public getCompletitionItems(document: SvelteDocument, position: Position, context: WorkspaceContext): Array<CompletionItem> {
+    public getCompletitionItems(document: SvelteDocument, position: DocumentPosition, context: WorkspaceContext): Array<CompletionItem> {
         const service = this.findCompletitionService(document, position);
 
         if (service == null) {
@@ -27,7 +27,7 @@ export class ChoosingCompletionService implements ICompletionService {
         return service.getCompletitionItems(document, position, context);
     }
 
-    private findCompletitionService(document: SvelteDocument, position: Position): ICompletionService {
+    private findCompletitionService(document: SvelteDocument, position: DocumentPosition): ICompletionService {
         return this._innerServices.find(service => service.isApplyable(document, position));
     }
 }

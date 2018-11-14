@@ -1,7 +1,7 @@
 import { ChoosingCompletionService } from "../ChoosingCompletionService";
 import { SvelteDocument } from "../../SvelteDocument";
-import { Position } from "vscode-languageserver";
 import { ComponentPathCompletionService } from "./ComponentPathCompletionService";
+import { DocumentPosition } from "../interfaces";
 
 export class ScriptCompletionService extends ChoosingCompletionService {
     public constructor() {
@@ -10,9 +10,8 @@ export class ScriptCompletionService extends ChoosingCompletionService {
         ]);
     }
 
-    public isApplyable(document: SvelteDocument, position: Position): boolean {
-        const positionIndex = document.offsetAt(position);
-        const previousContent = document.content.substr(0, positionIndex);
+    public isApplyable(document: SvelteDocument, position: DocumentPosition): boolean {
+        const previousContent = document.content.substr(0, position.offset);
 
         const openScriptTagIndex = previousContent.lastIndexOf("<script");
         if (openScriptTagIndex < 0) {

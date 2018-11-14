@@ -1,20 +1,18 @@
-import { ICompletionService } from "../interfaces";
+import { ICompletionService, DocumentPosition } from "../interfaces";
 import { SvelteDocument } from "../../SvelteDocument";
-import { Position, CompletionItem } from "vscode-languageserver";
+import { CompletionItem } from "vscode-languageserver";
 import { markupBlockInnerCompletitionItems } from "../../svelteLanguage";
 import { findNearestNotClosedBlock, findLastInnerBlockIndex } from "./BlockHelpers";
 
 export class BlockInnerCompletionService implements ICompletionService {
 
-    public isApplyable(document: SvelteDocument, position: Position): boolean {
-        const offset = document.offsetAt(position);
-        return findNearestNotClosedBlock(document, offset) !== null
-            && findLastInnerBlockIndex(document, offset) >= 0;
+    public isApplyable(document: SvelteDocument, position: DocumentPosition): boolean {
+        return findNearestNotClosedBlock(document, position.offset) !== null
+            && findLastInnerBlockIndex(document, position.offset) >= 0;
     }
 
-    public getCompletitionItems(document: SvelteDocument, position: Position): Array<CompletionItem> {
-        const offset = document.offsetAt(position);
-        const nearestBlock = findNearestNotClosedBlock(document, offset);
+    public getCompletitionItems(document: SvelteDocument, position: DocumentPosition): Array<CompletionItem> {
+        const nearestBlock = findNearestNotClosedBlock(document, position.offset);
         if (nearestBlock == null) {
             return [];
         }
@@ -23,8 +21,8 @@ export class BlockInnerCompletionService implements ICompletionService {
             return [];
         };
 
-        const openIndex = findLastInnerBlockIndex(document, offset);
-        const contentPart = document.content.substring(openIndex, offset);
+        const openIndex = findLastInnerBlockIndex(document, position.offset);
+        const contentPart = document.content.substring(openIndex, position.offset);
         if (/{:[\w\d_]*$/g.test(contentPart)) {
             return markupBlockInnerCompletitionItems[nearestBlock.blockName];
         }

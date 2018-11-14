@@ -20,6 +20,7 @@ import * as fs from 'fs';
 import * as utils from './utils';
 import * as docUtils from './svelteDocUtils';
 import { DocumentCompletionService } from './completition/DocumentCompletionService';
+import { WorkspaceContext, DocumentPosition } from './completition/interfaces';
 
 let connection = createConnection(ProposedFeatures.all);
 let documents: TextDocuments = new TextDocuments();
@@ -185,52 +186,21 @@ connection.onCompletion(
         // info and always provide the same completion items.
         const document = getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri))
 
-        return completitionService.getCompletitionItems(document, _textDocumentPosition.position, {
+        const position = <DocumentPosition>{
+            line: _textDocumentPosition.position.line,
+            character: _textDocumentPosition.position.character,
+            offset: document.offsetAt(_textDocumentPosition.position)
+        };
+
+        const workspaceContext = <WorkspaceContext>{
             nodeModulesPath: workspaceNodeModulesPath
-        });
+        };
+
+        return completitionService.getCompletitionItems(document, position, workspaceContext);
 
         const offset = utils.Utils.offsetAt(document.content, _textDocumentPosition.position);
 
         const prevContent = document.content.substring(0, offset);
-
-        const openBlockIndex = prevContent.lastIndexOf('{#');
-        if (openBlockIndex >= 0) {
-            if (prevContent.indexOf('{/', openBlockIndex) < 0 || /\{\/[\w]*$/g.test(prevContent)) {
-                const blockContent = prevContent.substring(openBlockIndex);
-
-                if (prevContent.indexOf('}', openBlockIndex) < 0) {
-                    if (/\{\#$/g.test(blockContent)) {
-                        return svelteLanguage.markupBlockCompletitionItems;
-                    }
-                }
-
-                const openBlockMatch = /^\{\#([\w]+)\s*/g.exec(blockContent);
-                if (openBlockMatch) {
-                    const blockName = openBlockMatch[1].toLowerCase();
-
-                    if (/\{\/[\w]*$/g.test(blockContent)) {
-                        return [
-                            <CompletionItem>{
-                                label: blockName,
-                                kind: CompletionItemKind.Keyword,
-                                preselect: true
-                            }
-                        ]
-                    }
-
-                    if (svelteLanguage.markupBlockInnerCompletitionItems.hasOwnProperty(blockName)) {
-                        const innerBlockOpenIndex = blockContent.lastIndexOf('{:');
-                        if (innerBlockOpenIndex >= 0 && blockContent.indexOf('}', innerBlockOpenIndex) <= 0) {
-                            const innerBlockContent = blockContent.substring(innerBlockOpenIndex);
-                            
-                            if (/\{\:$/g.test(innerBlockContent)) {
-                                return svelteLanguage.markupBlockInnerCompletitionItems[blockName];
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
         const openTagIndex = prevContent.lastIndexOf('<');
         if (openTagIndex >= 0 && prevContent.indexOf('>', openTagIndex) < 0) {

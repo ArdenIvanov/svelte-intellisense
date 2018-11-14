@@ -1,15 +1,14 @@
 import * as path from 'path';
 import * as fs from 'fs';
 
-import { ICompletionService, WorkspaceContext } from "../interfaces";
+import { ICompletionService, WorkspaceContext, DocumentPosition } from "../interfaces";
 import { SvelteDocument } from "../../SvelteDocument";
-import { Position, CompletionItem, CompletionItemKind } from "vscode-languageserver";
+import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
 
 export class ComponentPathCompletionService implements ICompletionService {
 
-    public isApplyable(document: SvelteDocument, position: Position): boolean {
-        const offsetIndex = document.offsetAt(position);
-        const prevContent = document.content.substring(0, offsetIndex);
+    public isApplyable(document: SvelteDocument, position: DocumentPosition): boolean {
+        const prevContent = document.content.substring(0, position.offset);
 
         const openComponentsBlockIndex = prevContent.lastIndexOf('components');
         if (/components\s*:\s*\{/g.test(prevContent) && prevContent.indexOf('}', openComponentsBlockIndex) < 0) {
@@ -37,9 +36,8 @@ export class ComponentPathCompletionService implements ICompletionService {
         return false;
     }
 
-    public getCompletitionItems(document: SvelteDocument, position: Position, context: WorkspaceContext): Array<CompletionItem> {
-        const offsetIndex = document.offsetAt(position);
-        const prevContent = document.content.substring(0, offsetIndex);
+    public getCompletitionItems(document: SvelteDocument, position: DocumentPosition, context: WorkspaceContext): Array<CompletionItem> {
+        const prevContent = document.content.substring(0, position.offset);
 
         // Find open quote for component path
         let quote = '\'';

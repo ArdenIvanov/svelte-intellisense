@@ -1,23 +1,21 @@
-import { ICompletionService } from "../interfaces";
+import { ICompletionService, DocumentPosition } from "../interfaces";
 import { SvelteDocument } from "../../SvelteDocument";
-import { Position, CompletionItem } from "vscode-languageserver";
+import { CompletionItem } from "vscode-languageserver";
 import { markupBlockCompletitionItems } from "../../svelteLanguage";
 import { findLastOpenBlockIndex } from "./BlockHelpers";
 
 export class BlockOpenCompletionService implements ICompletionService {
-    public isApplyable(document: SvelteDocument, position: Position): boolean {
-        const offset = document.offsetAt(position);
-        return findLastOpenBlockIndex(document, offset) >= 0;
+    public isApplyable(document: SvelteDocument, position: DocumentPosition): boolean {
+        return findLastOpenBlockIndex(document, position.offset) >= 0;
     }
 
-    public getCompletitionItems(document: SvelteDocument, position: Position): Array<CompletionItem> {
-        const offset = document.offsetAt(position);
-        const openBlockIndex = findLastOpenBlockIndex(document, offset);
+    public getCompletitionItems(document: SvelteDocument, position: DocumentPosition): Array<CompletionItem> {
+        const openBlockIndex = findLastOpenBlockIndex(document, position.offset);
         if (openBlockIndex < 0) {
             return [];
         }
 
-        const blockContent = document.content.substring(openBlockIndex, offset);
+        const blockContent = document.content.substring(openBlockIndex, position.offset);
         if (/^{#([\w\d_]*)$/g.test(blockContent)) {
             return markupBlockCompletitionItems;
         }
