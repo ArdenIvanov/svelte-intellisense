@@ -6,9 +6,14 @@ import {
 	CompletionItem,
 	CompletionItemKind,
     TextDocumentPositionParams,
-    TextDocuments,
-    MarkupContent
+    TextDocuments
 } from 'vscode-languageserver';
+
+import {
+	ConfigurationItem,
+	ImportedComponent,
+	ComponentMetadata
+} from './interfaces';
 
 import * as svelteLanguage from './svelteLanguage';
 
@@ -24,37 +29,27 @@ let documents: TextDocuments = new TextDocuments();
 let workspaceNodeModulesPath = null;
 let workspaceNodeModulesPathInitialized = false;
 
+const mappingConfigurations: Array<ConfigurationItem> = [
+    {documentationItemName: 'data', completionItemKind: CompletionItemKind.Field, metadataName: 'data', hasPublic: true},
+    {documentationItemName: 'events', completionItemKind: CompletionItemKind.Event, metadataName: 'events', hasPublic: true},
+    {documentationItemName: 'slots', completionItemKind: CompletionItemKind.Field, metadataName: 'slots', hasPublic: true},
+    {documentationItemName: 'methods', completionItemKind: CompletionItemKind.Method, metadataName: 'methods', hasPublic: true},
+    {documentationItemName: 'helpers', completionItemKind: CompletionItemKind.Method, metadataName: 'helpers', hasPublic: false},
+    {documentationItemName: 'refs', completionItemKind: CompletionItemKind.Field, metadataName: 'refs', hasPublic: false},
+    {documentationItemName: 'computed', completionItemKind: CompletionItemKind.Field, metadataName: 'computed', hasPublic: false},
+    {documentationItemName: 'components', completionItemKind: CompletionItemKind.Class, metadataName: 'components', hasPublic: true}
+];
+
 connection.onInitialize(() => {
 	return {
 		capabilities: {
 			completionProvider: {
-                resolveProvider: true,
                 triggerCharacters: ['<', '.', ':', '#', '/', '@']
             },
             textDocumentSync: documents.syncKind
 		}
 	};
 });
-
-interface ImportedComponent {
-    name: string;
-    filePath: string;
-}
-
-interface ComponentMetadata {
-    publicEvents: CompletionItem[];
-    publicMethods: CompletionItem[];
-    publicData: CompletionItem[];
-    publicSlots:  CompletionItem[];
-    
-    data: CompletionItem[];
-    events: CompletionItem[];
-    methods: CompletionItem[];
-    refs: CompletionItem[];
-    computed: CompletionItem[];
-    helpers: CompletionItem[];
-    components: CompletionItem[];
-}
 
 let documentsCache: Map<string, ComponentMetadata> = new Map();
 let documentImportsCache: Map<string, ImportedComponent[]> = new Map();
@@ -90,103 +85,37 @@ documents.onDidClose(event => {
 });
 
 function reloadDocumentCompletions(documentPath: string, componentMetadata: any) {
-    const visibilityFilter = (item) => item.visibility === 'public';
+    let metadata = {};
+    mappingConfigurations.forEach((value) => {
+        metadata[value.metadataName] = [];
+        if (value.hasPublic) {
+            metadata['public_' + value.metadataName] = [];
+        }
 
-    const metadata: ComponentMetadata = {
-        data: (<Array<any>>componentMetadata.data).map((item) => {
-            return <CompletionItem>{
+        componentMetadata[value.documentationItemName].forEach((item) => {
+            let description =  item.description;
+            if (value.metadataName === 'components') {
+                description = documentsCache.has(item.value) 
+                    ? {
+                        value: docUtils.buildDocumentation(documentsCache.get(item.value)),
+                        kind: 'markdown'
+                    } 
+                    : item.name;
+            }
+            const completionItem = <CompletionItem>{
                 label: item.name,
-                kind: CompletionItemKind.Field,
-                documentation: item.description,
+                kind: value.completionItemKind,
+                documentation: description,
                 preselect: true
             };
-        }),
-        events: (<Array<any>>componentMetadata.events).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Event,
-                documentation: item.description,
-                preselect: true
-            };
-        }),
-        publicEvents: (<Array<any>>componentMetadata.events).filter(visibilityFilter).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Event,
-                documentation: item.description,
-                preselect: true
-            };
-        }),
-        publicSlots: (<Array<any>>componentMetadata.slots).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Field,
-                documentation: item.description,
-                preselect: true
-            };
-        }),        
-        methods: (<Array<any>>componentMetadata.methods).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Method,
-                documentation: item.description,
-                preselect: true
-            };
-        }),
-        publicMethods: (<Array<any>>componentMetadata.methods).filter(visibilityFilter).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Method,
-                documentation: item.description,
-                preselect: true
-            };
-        }),
-        helpers: (<Array<any>>componentMetadata.helpers).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Method,
-                documentation: item.description,
-                preselect: true
-            };
-        }),
-        refs: (<Array<any>>componentMetadata.refs).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Field,
-                documentation: item.description,
-                preselect: true
-            };
-        }),
-        computed: (<Array<any>>componentMetadata.computed).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Field,
-                documentation: item.description,
-                preselect: true
-            };
-        }),
-        publicData: (<Array<any>>componentMetadata.data).filter(visibilityFilter).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Field,
-                documentation: item.description,
-                preselect: true
-            };
-        }),
-        components: (<Array<any>>componentMetadata.components).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Class,
-                documentation: documentsCache.has(item.value) ? {
-                    value: docUtils.buildDocumentation(documentsCache.get(item.value)),
-                    kind: 'markdown'
-                } : item.name,
-                preselect: true
-            };
-        })
-    };
+            metadata[value.metadataName].push(completionItem);
+            if (value.hasPublic && item.visibility === 'public') {
+                metadata['public_' + value.metadataName].push(completionItem);
+            }
+        });
+    });
 
-    documentsCache.set(documentPath, metadata);
+    documentsCache.set(documentPath, <ComponentMetadata>metadata);
 }
 
 function reloadDocumentImports(documentPath: string, components: any[]) {
@@ -301,7 +230,7 @@ connection.onCompletion(
                                         kind: CompletionItemKind.Folder,
                                         commitCharacters: ['/'],
                                         sortText: `1.${basename}`
-                                    }
+                                    };
                                 }
     
                                 if (itemStats.isFile() && path.extname(foundPath) === '.svelte') {
@@ -431,9 +360,9 @@ connection.onCompletion(
                     const importedMetadata = documentsCache.get(importedComponent.filePath);
                     if (importedMetadata) {
                         if (/on:[\w_-\d]*$/.test(tagContent)) {
-                            return importedMetadata.publicEvents;
+                            return importedMetadata.public_events;
                         }
-                        return importedMetadata.publicData;
+                        return importedMetadata.public_data;
                     }
                 }
             }
@@ -442,8 +371,6 @@ connection.onCompletion(
         return [];
     }
 );
-
-connection.onCompletionResolve(item => item);
 
 documents.listen(connection);
 connection.listen();
