@@ -4,14 +4,14 @@ import { CompletionItem } from 'vscode-languageserver';
 import { DocumentPosition, WorkspaceContext } from '../interfaces';
 
 /**
- * Implements a composite completition services, that checks all inner services
- *  and find first applyable for current context.
+ * Implements a choosing completition services, find first applyable services 
+ *  and use it to getting completion items.
  */
 export class ChoosingCompletionService implements ICompletionService {
-    private _innerServices: Array<ICompletionService>;
+    private _services: Array<ICompletionService>;
 
-    public constructor(innerServices: Array<ICompletionService>) {
-        this._innerServices = innerServices;
+    public constructor(services: Array<ICompletionService>) {
+        this._services = services;
     }
 
     public isApplyable(document: SvelteDocument, position: DocumentPosition): boolean {
@@ -29,6 +29,6 @@ export class ChoosingCompletionService implements ICompletionService {
     }
 
     private findCompletitionService(document: SvelteDocument, position: DocumentPosition): ICompletionService {
-        return this._innerServices.find(service => service.isApplyable(document, position));
+        return this._services.find(service => service.isApplyable(document, position));
     }
 }

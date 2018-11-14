@@ -6,6 +6,6 @@ export class ComponentDataCompletionService extends BaseComponentCompletionServi
     }
 
     public getCompletitionItems() {
-        return this.componentDocument.metadata.data;
+        return this.componentDocument.metadata.public_data;
     }
 }

@@ -4,20 +4,20 @@ import { CompletionItem } from "vscode-languageserver";
 import { DocumentPosition } from "../../../interfaces";
 import { findLastDirectiveIndex } from "./ComponentHelpers";
 
-export class ComponentEventCompletionService extends BaseComponentCompletionService {
+export class ComponentBindCompletionService extends BaseComponentCompletionService {
     public isApplyable(document: SvelteDocument, position: DocumentPosition): boolean {
-        return findLastDirectiveIndex(document, position.offset, 'on') >= 0;
+        return findLastDirectiveIndex(document, position.offset, 'bind') >= 0;
     }
 
     public getCompletitionItems(document: SvelteDocument, position: DocumentPosition): Array<CompletionItem> {
-        const index = findLastDirectiveIndex(document, position.offset, 'on');
+        const index = findLastDirectiveIndex(document, position.offset, 'bind');
         if (index < 0) {
             return [];
         }
 
         const contentPart = document.content.substring(index, position.offset);
-        if (/on:[\w\d_]*$/g.test(contentPart)) {
-            return this.componentDocument.metadata.public_events;
+        if (/bind:[\w\d_]*$/g.test(contentPart)) {
+            return this.componentDocument.metadata.public_data;
         }
 
         return [];
