@@ -19,6 +19,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as utils from './utils';
 import * as docUtils from './svelteDocUtils';
+import { DocumentCompletitionService } from './completition/DocumentCompletitionService';
 
 let connection = createConnection(ProposedFeatures.all);
 let documents: TextDocuments = new TextDocuments();
@@ -174,6 +175,8 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
     });
 }
 
+const completitionService = new DocumentCompletitionService();
+
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
 	(_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
@@ -181,6 +184,10 @@ connection.onCompletion(
 		// which code complete got requested. For the example we ignore this
         // info and always provide the same completion items.
         const document = getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri))
+
+        return completitionService.getCompletitionItems(document, _textDocumentPosition.position, {
+            nodeModulesPath: workspaceNodeModulesPath
+        });
 
         const offset = utils.Utils.offsetAt(document.content, _textDocumentPosition.position);
 
