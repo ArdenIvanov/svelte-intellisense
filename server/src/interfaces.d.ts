@@ -1,7 +1,6 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
 
 export interface ConfigurationItem {
-    documentationItemName: string;
     completionItemKind: CompletionItemKind;
     metadataName: string;
     hasPublic: boolean;

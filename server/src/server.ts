@@ -27,14 +27,14 @@ let workspaceNodeModulesPath = null;
 let workspaceNodeModulesPathInitialized = false;
 
 const mappingConfigurations: Array<ConfigurationItem> = [
-    {documentationItemName: 'data', completionItemKind: CompletionItemKind.Field, metadataName: 'data', hasPublic: true},
-    {documentationItemName: 'events', completionItemKind: CompletionItemKind.Event, metadataName: 'events', hasPublic: true},
-    {documentationItemName: 'slots', completionItemKind: CompletionItemKind.Field, metadataName: 'slots', hasPublic: true},
-    {documentationItemName: 'methods', completionItemKind: CompletionItemKind.Method, metadataName: 'methods', hasPublic: true},
-    {documentationItemName: 'helpers', completionItemKind: CompletionItemKind.Method, metadataName: 'helpers', hasPublic: false},
-    {documentationItemName: 'refs', completionItemKind: CompletionItemKind.Field, metadataName: 'refs', hasPublic: false},
-    {documentationItemName: 'computed', completionItemKind: CompletionItemKind.Field, metadataName: 'computed', hasPublic: false},
-    {documentationItemName: 'components', completionItemKind: CompletionItemKind.Class, metadataName: 'components', hasPublic: true}
+    {completionItemKind: CompletionItemKind.Field, metadataName: 'data', hasPublic: true},
+    {completionItemKind: CompletionItemKind.Event, metadataName: 'events', hasPublic: true},
+    {completionItemKind: CompletionItemKind.Field, metadataName: 'slots', hasPublic: true},
+    {completionItemKind: CompletionItemKind.Method, metadataName: 'methods', hasPublic: true},
+    {completionItemKind: CompletionItemKind.Method, metadataName: 'helpers', hasPublic: false},
+    {completionItemKind: CompletionItemKind.Field, metadataName: 'refs', hasPublic: false},
+    {completionItemKind: CompletionItemKind.Field, metadataName: 'computed', hasPublic: false},
+    {completionItemKind: CompletionItemKind.Class, metadataName: 'components', hasPublic: true}
 ];
 
 connection.onInitialize(() => {
@@ -50,7 +50,7 @@ connection.onInitialize(() => {
 
 let documentsCache: Map<string, SvelteDocument> = new Map();
 
-function getDocumentFromCache(path: string, createIfNotExists = true) {
+function getOrCreateDocumentFromCache(path: string, createIfNotExists = true) {
     if (!documentsCache.has(path)) {
         if (createIfNotExists) {
             documentsCache.set(path, new SvelteDocument(path));
@@ -62,7 +62,7 @@ function getDocumentFromCache(path: string, createIfNotExists = true) {
 }
 
 documents.onDidChangeContent(change => {
-    const document = getDocumentFromCache(utils.Utils.fileUriToPath(change.document.uri));
+    const document = getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(change.document.uri));
     
     if (!workspaceNodeModulesPathInitialized) {
         workspaceNodeModulesPathInitialized = true;
@@ -88,7 +88,7 @@ documents.onDidChangeContent(change => {
 });
 
 documents.onDidClose(event => {
-    const document = getDocumentFromCache(utils.Utils.fileUriToPath(event.document.uri));
+    const document = getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(event.document.uri));
 
     document.content = null;
 });
@@ -101,7 +101,7 @@ function reloadDocumentMetadata(document: SvelteDocument, componentMetadata: any
             metadata['public_' + value.metadataName] = [];
         }
 
-        componentMetadata[value.documentationItemName].forEach((item) => {
+        componentMetadata[value.metadataName].forEach((item) => {
             let description =  item.description;
 
             if (value.metadataName === 'components') {
@@ -135,11 +135,11 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
 
     components.forEach(c => {
         const importFilePath = path.resolve(path.dirname(document.path), c.value);
-        let importedDocument = getDocumentFromCache(importFilePath, false);
+        let importedDocument = getOrCreateDocumentFromCache(importFilePath, false);
 
         if (importedDocument === null) {
             if (fs.existsSync(importFilePath)) {
-                importedDocument = getDocumentFromCache(importFilePath);                        
+                importedDocument = getOrCreateDocumentFromCache(importFilePath);                        
             } else {
                 connection.workspace.getWorkspaceFolders()
                     .then(folders => {
@@ -147,7 +147,7 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
                         if (workspaceFolder) {
                             const realFilePath = path.resolve(utils.Utils.fileUriToPath(workspaceFolder.uri), 'node_modules', c.value);
                             if (fs.existsSync(realFilePath)) {
-                                importedDocument = getDocumentFromCache(realFilePath);                        
+                                importedDocument = getOrCreateDocumentFromCache(realFilePath);                        
                             }
                         }
                     });
@@ -174,7 +174,7 @@ connection.onCompletion(
         // The pass parameter contains the position of the text document in
 		// which code complete got requested. For the example we ignore this
         // info and always provide the same completion items.
-        const document = getDocumentFromCache(utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri))
+        const document = getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri))
 
         const offset = utils.Utils.offsetAt(document.content, _textDocumentPosition.position);
 
@@ -365,7 +365,7 @@ connection.onCompletion(
                 const tagName = openedTagMatch[1];
                 const importedComponent = document.importedComponents.find(c => c.name === tagName);
                 if (importedComponent) {
-                    const importedDocument = getDocumentFromCache(importedComponent.filePath, false);
+                    const importedDocument = getOrCreateDocumentFromCache(importedComponent.filePath, false);
                     if (importedDocument !== null) {
                         if (/on:[\w_-\d]*$/.test(tagContent)) {
                             return importedDocument.metadata.public_events;
