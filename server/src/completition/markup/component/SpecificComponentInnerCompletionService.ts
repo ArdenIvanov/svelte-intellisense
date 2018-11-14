@@ -1,5 +1,5 @@
-import { ChoosingCompletionService } from "../ChoosingCompletionService";
-import { SvelteDocument } from "../../SvelteDocument";
+import { ChoosingCompletionService } from "../../ChoosingCompletionService";
+import { SvelteDocument } from "../../../SvelteDocument";
 import { ComponentEventCompletionService } from "./ComponentEventCompletionService";
 import { ComponentDataCompletionService } from "./ComponentDataCompletionService";
 

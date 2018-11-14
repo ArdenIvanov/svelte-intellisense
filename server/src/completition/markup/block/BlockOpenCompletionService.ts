@@ -1,9 +1,9 @@
-import { ICompletionService } from "../interfaces";
-import { SvelteDocument } from "../../SvelteDocument";
+import { ICompletionService } from "../../interfaces";
+import { SvelteDocument } from "../../../SvelteDocument";
 import { CompletionItem } from "vscode-languageserver";
-import { markupBlockCompletitionItems } from "../../svelteLanguage";
+import { markupBlockCompletitionItems } from "../../../svelteLanguage";
 import { findLastOpenBlockIndex } from "./BlockHelpers";
-import { DocumentPosition } from "../../interfaces";
+import { DocumentPosition } from "../../../interfaces";
 
 export class BlockOpenCompletionService implements ICompletionService {
     public isApplyable(document: SvelteDocument, position: DocumentPosition): boolean {

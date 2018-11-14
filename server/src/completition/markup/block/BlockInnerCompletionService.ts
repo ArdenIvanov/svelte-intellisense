@@ -1,9 +1,9 @@
-import { ICompletionService } from "../interfaces";
-import { SvelteDocument } from "../../SvelteDocument";
+import { ICompletionService } from "../../interfaces";
+import { SvelteDocument } from "../../../SvelteDocument";
 import { CompletionItem } from "vscode-languageserver";
-import { markupBlockInnerCompletitionItems } from "../../svelteLanguage";
+import { markupBlockInnerCompletitionItems } from "../../../svelteLanguage";
 import { findNearestNotClosedBlock, findLastInnerBlockIndex } from "./BlockHelpers";
-import { DocumentPosition } from "../../interfaces";
+import { DocumentPosition } from "../../../interfaces";
 
 export class BlockInnerCompletionService implements ICompletionService {
 

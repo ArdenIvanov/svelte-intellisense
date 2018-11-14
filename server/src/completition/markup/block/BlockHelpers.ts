@@ -1,4 +1,4 @@
-import { SvelteDocument } from "../../SvelteDocument";
+import { SvelteDocument } from "../../../SvelteDocument";
 
 export function findLastOpenBlockIndex(document: SvelteDocument, position: number) {
     const openBlockIndex = document.content.lastIndexOf('{#', position);

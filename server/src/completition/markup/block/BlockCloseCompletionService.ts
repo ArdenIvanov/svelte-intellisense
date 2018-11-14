@@ -1,8 +1,8 @@
-import { ICompletionService } from "../interfaces";
-import { SvelteDocument } from "../../SvelteDocument";
+import { ICompletionService } from "../../interfaces";
+import { SvelteDocument } from "../../../SvelteDocument";
 import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
 import { findNearestNotClosedBlock, findLastCloseBlockIndex } from "./BlockHelpers";
-import { DocumentPosition } from "../../interfaces";
+import { DocumentPosition } from "../../../interfaces";
 
 export class BlockCloseCompletetionService implements ICompletionService {
     public isApplyable(document: SvelteDocument, position: DocumentPosition): boolean {

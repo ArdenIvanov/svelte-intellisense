@@ -1,7 +1,7 @@
-import { ICompletionService } from "../interfaces";
-import { SvelteDocument } from "../../SvelteDocument";
+import { ICompletionService } from "../../interfaces";
+import { SvelteDocument } from "../../../SvelteDocument";
 import { CompletionItem } from "vscode-languageserver";
-import { DocumentPosition, WorkspaceContext } from "../../interfaces";
+import { DocumentPosition, WorkspaceContext } from "../../../interfaces";
 
 export abstract class BaseComponentCompletionService implements ICompletionService {
     protected componentDocument: SvelteDocument;

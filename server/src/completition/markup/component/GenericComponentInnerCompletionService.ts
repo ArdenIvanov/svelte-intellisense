@@ -1,8 +1,8 @@
-import { SvelteDocument } from "../../SvelteDocument";
-import { ICompletionService } from "../interfaces";
-import { findLastOpenTag } from "./TagHelpers";
+import { SvelteDocument } from "../../../SvelteDocument";
+import { ICompletionService } from "../../interfaces";
+import { findLastOpenTag } from "../TagHelpers";
 import { CompletionItem } from "vscode-languageserver";
-import { DocumentPosition, WorkspaceContext } from "../../interfaces";
+import { DocumentPosition, WorkspaceContext } from "../../../interfaces";
 import { SpecificComponentCompletionService } from "./SpecificComponentInnerCompletionService";
 
 export class GenericComponentInnerCompletionService implements ICompletionService {
