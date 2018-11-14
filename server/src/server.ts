@@ -9,10 +9,8 @@ import {
     TextDocuments
 } from 'vscode-languageserver';
 
-import { ConfigurationItem, ComponentMetadata } from './interfaces';
+import { ConfigurationItem, ComponentMetadata, WorkspaceContext, DocumentPosition } from './interfaces';
 import { SvelteDocument } from './SvelteDocument';
-
-import * as svelteLanguage from './svelteLanguage';
 
 import {parse} from 'sveltedoc-parser';
 import * as path from 'path';
@@ -20,7 +18,7 @@ import * as fs from 'fs';
 import * as utils from './utils';
 import * as docUtils from './svelteDocUtils';
 import { DocumentCompletionService } from './completition/DocumentCompletionService';
-import { WorkspaceContext, DocumentPosition } from './completition/interfaces';
+import { DocumentsCache } from './DocumentsCache';
 
 let connection = createConnection(ProposedFeatures.all);
 let documents: TextDocuments = new TextDocuments();
@@ -50,21 +48,10 @@ connection.onInitialize(() => {
 	};
 });
 
-let documentsCache: Map<string, SvelteDocument> = new Map();
-
-function getOrCreateDocumentFromCache(path: string, createIfNotExists = true) {
-    if (!documentsCache.has(path)) {
-        if (createIfNotExists) {
-            documentsCache.set(path, new SvelteDocument(path));
-        } else {
-            return null;
-        }
-    }
-    return documentsCache.get(path);
-}
+const documentsCache: DocumentsCache = new DocumentsCache();
 
 documents.onDidChangeContent(change => {
-    const document = getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(change.document.uri));
+    const document = documentsCache.getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(change.document.uri));
     
     if (!workspaceNodeModulesPathInitialized) {
         workspaceNodeModulesPathInitialized = true;
@@ -90,7 +77,7 @@ documents.onDidChangeContent(change => {
 });
 
 documents.onDidClose(event => {
-    const document = getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(event.document.uri));
+    const document = documentsCache.getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(event.document.uri));
 
     document.content = null;
 });
@@ -151,11 +138,11 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
 
     components.forEach(c => {
         const importFilePath = path.resolve(path.dirname(document.path), c.value);
-        let importedDocument = getOrCreateDocumentFromCache(importFilePath, false);
+        let importedDocument = documentsCache.getOrCreateDocumentFromCache(importFilePath, false);
 
         if (importedDocument === null) {
             if (fs.existsSync(importFilePath)) {
-                importedDocument = getOrCreateDocumentFromCache(importFilePath);                        
+                importedDocument = documentsCache.getOrCreateDocumentFromCache(importFilePath);                        
             } else {
                 connection.workspace.getWorkspaceFolders()
                     .then(folders => {
@@ -163,7 +150,7 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
                         if (workspaceFolder) {
                             const realFilePath = path.resolve(utils.Utils.fileUriToPath(workspaceFolder.uri), 'node_modules', c.value);
                             if (fs.existsSync(realFilePath)) {
-                                importedDocument = getOrCreateDocumentFromCache(realFilePath);                        
+                                importedDocument = documentsCache.getOrCreateDocumentFromCache(realFilePath);                        
                                 reloadDocumentImport(document, importedDocument, c.name);
                             }
                         }
@@ -184,7 +171,7 @@ connection.onCompletion(
         // The pass parameter contains the position of the text document in
 		// which code complete got requested. For the example we ignore this
         // info and always provide the same completion items.
-        const document = getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri))
+        const document = documentsCache.getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri))
 
         const position = <DocumentPosition>{
             line: _textDocumentPosition.position.line,
@@ -193,40 +180,11 @@ connection.onCompletion(
         };
 
         const workspaceContext = <WorkspaceContext>{
-            nodeModulesPath: workspaceNodeModulesPath
+            nodeModulesPath: workspaceNodeModulesPath,
+            documentsCache: documentsCache
         };
 
         return completitionService.getCompletitionItems(document, position, workspaceContext);
-
-        const offset = utils.Utils.offsetAt(document.content, _textDocumentPosition.position);
-
-        const prevContent = document.content.substring(0, offset);
-
-        const openTagIndex = prevContent.lastIndexOf('<');
-        if (openTagIndex >= 0 && prevContent.indexOf('>', openTagIndex) < 0) {
-            const tagContent = prevContent.substring(openTagIndex);
-
-            if (document.metadata && /<[\w_-\d]*$/g.test(tagContent)) {
-                return document.metadata.components;
-            }
-
-            const openedTagMatch = /<([\w_-\d]*)\s*/g.exec(tagContent);
-            if (openedTagMatch) {
-                const tagName = openedTagMatch[1];
-                const importedComponent = document.importedComponents.find(c => c.name === tagName);
-                if (importedComponent) {
-                    const importedDocument = getOrCreateDocumentFromCache(importedComponent.filePath, false);
-                    if (importedDocument !== null) {
-                        if (/on:[\w_-\d]*$/.test(tagContent)) {
-                            return importedDocument.metadata.public_events;
-                        }
-                        return importedDocument.metadata.public_data;
-                    }
-                }
-            }
-        }
-        
-        return [];
     }
 );
 

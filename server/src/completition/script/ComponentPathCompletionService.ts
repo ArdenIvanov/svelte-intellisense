@@ -1,9 +1,10 @@
 import * as path from 'path';
 import * as fs from 'fs';
 
-import { ICompletionService, WorkspaceContext, DocumentPosition } from "../interfaces";
+import { ICompletionService } from "../interfaces";
 import { SvelteDocument } from "../../SvelteDocument";
 import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
+import { DocumentPosition, WorkspaceContext } from '../../interfaces';
 
 export class ComponentPathCompletionService implements ICompletionService {
 

@@ -1,6 +1,6 @@
 import { ChoosingCompletionService } from "../ChoosingCompletionService";
 import { SvelteDocument } from "../../SvelteDocument";
-import { DocumentPosition } from "../interfaces";
+import { DocumentPosition } from "../../interfaces";
 
 export class StyleCompletionService extends ChoosingCompletionService {
     public constructor() {

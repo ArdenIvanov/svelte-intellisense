@@ -3,6 +3,7 @@ import { BlockInnerCompletionService } from "./BlockInnerCompletionService";
 import { BlockOpenCompletionService } from "./BlockOpenCompletionService";
 import { BlockCloseCompletetionService } from "./BlockCloseCompletionService";
 import { OpenTagCompletionService } from "./OpenTagCompletionService";
+import { GenericComponentInnerCompletionService } from "./GenericComponentInnerCompletionService";
 
 export class MarkupCompletionService extends ChoosingCompletionService {
     public constructor() {
@@ -11,6 +12,7 @@ export class MarkupCompletionService extends ChoosingCompletionService {
             new BlockInnerCompletionService(),
             new BlockCloseCompletetionService(),
             new OpenTagCompletionService(),
+            new GenericComponentInnerCompletionService()
         ]);
     }
 

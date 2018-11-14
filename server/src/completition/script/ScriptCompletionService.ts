@@ -1,7 +1,7 @@
 import { ChoosingCompletionService } from "../ChoosingCompletionService";
 import { SvelteDocument } from "../../SvelteDocument";
 import { ComponentPathCompletionService } from "./ComponentPathCompletionService";
-import { DocumentPosition } from "../interfaces";
+import { DocumentPosition } from "../../interfaces";
 
 export class ScriptCompletionService extends ChoosingCompletionService {
     public constructor() {

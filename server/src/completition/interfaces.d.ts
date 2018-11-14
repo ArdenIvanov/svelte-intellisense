@@ -1,5 +1,6 @@
 import { CompletionItem, Position } from 'vscode-languageserver';
 import { SvelteDocument } from '../SvelteDocument';
+import { DocumentPosition, WorkspaceContext } from '../interfaces';
 
 /**
  * Provide methods to implementing a completions HFSM.
@@ -19,16 +20,4 @@ export interface ICompletionService {
      * @param context The workspace context data.
      */
     getCompletitionItems(document: SvelteDocument, position: DocumentPosition, context: WorkspaceContext): Array<CompletionItem>;
-}
-
-export interface DocumentPosition extends Position {
-    /**
-     * Index of cursor offset in document.
-     * Handful to use with `String.substr` like methods.
-     */
-    offset: number;
-}
-
-export interface WorkspaceContext {
-    nodeModulesPath: string|null;
 }

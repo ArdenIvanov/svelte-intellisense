@@ -1,7 +1,8 @@
-import { ICompletionService, DocumentPosition } from "../interfaces";
+import { ICompletionService } from "../interfaces";
 import { SvelteDocument } from "../../SvelteDocument";
 import { findLastOpenTagIndex } from "./TagHelpers";
 import { CompletionItem } from "vscode-languageserver";
+import { DocumentPosition } from "../../interfaces";
 
 export class OpenTagCompletionService implements ICompletionService {
     public isApplyable(document: SvelteDocument, position: DocumentPosition): boolean {

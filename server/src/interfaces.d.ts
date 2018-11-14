@@ -1,4 +1,5 @@
-import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
+import { CompletionItem, CompletionItemKind, Position } from 'vscode-languageserver';
+import { DocumentsCache } from './DocumentsCache';
 
 export interface ConfigurationItem {
     completionItemKind: CompletionItemKind;
@@ -28,4 +29,18 @@ export interface ComponentMetadata {
     computed: CompletionItem[];
     helpers: CompletionItem[];
     components: CompletionItem[];
+}
+
+export interface DocumentPosition extends Position {
+    /**
+     * Index of cursor offset in document.
+     * Handful to use with `String.substr` like methods.
+     */
+    offset: number;
+}
+
+export interface WorkspaceContext {
+    documentsCache: DocumentsCache;
+    
+    nodeModulesPath: string|null;
 }

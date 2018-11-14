@@ -1,6 +1,7 @@
-import { ICompletionService, WorkspaceContext, DocumentPosition } from './interfaces';
+import { ICompletionService } from './interfaces';
 import { SvelteDocument } from '../SvelteDocument';
 import { CompletionItem } from 'vscode-languageserver';
+import { DocumentPosition, WorkspaceContext } from '../interfaces';
 
 /**
  * Implements a composite completition services, that checks all inner services
