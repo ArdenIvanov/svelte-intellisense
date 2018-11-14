@@ -9,11 +9,8 @@ import {
     TextDocuments
 } from 'vscode-languageserver';
 
-import {
-	ConfigurationItem,
-	ImportedComponent,
-	ComponentMetadata
-} from './interfaces';
+import { ConfigurationItem, ComponentMetadata } from './interfaces';
+import { SvelteDocument } from './SvelteDocument';
 
 import * as svelteLanguage from './svelteLanguage';
 
@@ -51,11 +48,22 @@ connection.onInitialize(() => {
 	};
 });
 
-let documentsCache: Map<string, ComponentMetadata> = new Map();
-let documentImportsCache: Map<string, ImportedComponent[]> = new Map();
-let documentsContent: Map<string, string> = new Map();
+let documentsCache: Map<string, SvelteDocument> = new Map();
+
+function getDocumentFromCache(path: string, createIfNotExists = true) {
+    if (!documentsCache.has(path)) {
+        if (createIfNotExists) {
+            documentsCache.set(path, new SvelteDocument(path));
+        } else {
+            return null;
+        }
+    }
+    return documentsCache.get(path);
+}
 
 documents.onDidChangeContent(change => {
+    const document = getDocumentFromCache(utils.Utils.fileUriToPath(change.document.uri));
+    
     if (!workspaceNodeModulesPathInitialized) {
         workspaceNodeModulesPathInitialized = true;
         connection.workspace.getWorkspaceFolders()
@@ -67,24 +75,25 @@ documents.onDidChangeContent(change => {
             });
     }
 
-    documentsContent.set(change.document.uri, change.document.getText());
+    document.content = change.document.getText();
 
     parse({
-        fileContent: change.document.getText()
+        fileContent: document.content
     }).then(sveltedoc => {
-        const docPath = utils.Utils.fileUriToPath(change.document.uri);
-        reloadDocumentImports(docPath, sveltedoc.components);
-        reloadDocumentCompletions(docPath, sveltedoc);
+        reloadDocumentImports(document, sveltedoc.components);
+        reloadDocumentMetadata(document, sveltedoc);
     }).catch(() => {
         // supress error
     });
 });
 
 documents.onDidClose(event => {
-    documentsContent.delete(utils.Utils.fileUriToPath(event.document.uri));
+    const document = getDocumentFromCache(utils.Utils.fileUriToPath(event.document.uri));
+
+    document.content = null;
 });
 
-function reloadDocumentCompletions(documentPath: string, componentMetadata: any) {
+function reloadDocumentMetadata(document: SvelteDocument, componentMetadata: any) {
     let metadata = {};
     mappingConfigurations.forEach((value) => {
         metadata[value.metadataName] = [];
@@ -94,6 +103,7 @@ function reloadDocumentCompletions(documentPath: string, componentMetadata: any)
 
         componentMetadata[value.documentationItemName].forEach((item) => {
             let description =  item.description;
+
             if (value.metadataName === 'components') {
                 description = documentsCache.has(item.value) 
                     ? {
@@ -102,12 +112,14 @@ function reloadDocumentCompletions(documentPath: string, componentMetadata: any)
                     } 
                     : item.name;
             }
+
             const completionItem = <CompletionItem>{
                 label: item.name,
                 kind: value.completionItemKind,
                 documentation: description,
                 preselect: true
             };
+
             metadata[value.metadataName].push(completionItem);
             if (value.hasPublic && item.visibility === 'public') {
                 metadata['public_' + value.metadataName].push(completionItem);
@@ -115,46 +127,45 @@ function reloadDocumentCompletions(documentPath: string, componentMetadata: any)
         });
     });
 
-    documentsCache.set(documentPath, <ComponentMetadata>metadata);
+    document.metadata = <ComponentMetadata>metadata;
 }
 
-function reloadDocumentImports(documentPath: string, components: any[]) {
+function reloadDocumentImports(document: SvelteDocument, components: any[]) {
+    document.importedComponents = [];
+
     components.forEach(c => {
-        const importFilePath = path.resolve(path.dirname(documentPath), c.value);
-        if (!documentsCache.has(importFilePath)) {
-            let realFilePath = importFilePath;
-            
-            if (!fs.existsSync(realFilePath))
-            {
-                connection.workspace.getWorkspaceFolders()
-                .then(folders => {
-                    const workspaceFolder = folders.find(folder => fs.existsSync(path.resolve(utils.Utils.fileUriToPath(folder.uri), 'node_modules')));
-                    if (workspaceFolder) {
-                        realFilePath = path.resolve(utils.Utils.fileUriToPath(workspaceFolder.uri), 'node_modules', c.value);
-                        parse({
-                            filename: realFilePath
-                        }).then(sveltedoc => {
-                            reloadDocumentCompletions(importFilePath, sveltedoc);
-                        }).catch(() => {
-                            // supress error
-                        });;
-                    }
-                });
+        const importFilePath = path.resolve(path.dirname(document.path), c.value);
+        let importedDocument = getDocumentFromCache(importFilePath, false);
+
+        if (importedDocument === null) {
+            if (fs.existsSync(importFilePath)) {
+                importedDocument = getDocumentFromCache(importFilePath);                        
             } else {
-                parse({
-                    filename: realFilePath
-                }).then(sveltedoc => {
-                    reloadDocumentCompletions(importFilePath, sveltedoc);
-                }).catch(() => {
-                    // supress error
-                });
+                connection.workspace.getWorkspaceFolders()
+                    .then(folders => {
+                        const workspaceFolder = folders.find(folder => fs.existsSync(path.resolve(utils.Utils.fileUriToPath(folder.uri), 'node_modules')));
+                        if (workspaceFolder) {
+                            const realFilePath = path.resolve(utils.Utils.fileUriToPath(workspaceFolder.uri), 'node_modules', c.value);
+                            if (fs.existsSync(realFilePath)) {
+                                importedDocument = getDocumentFromCache(realFilePath);                        
+                            }
+                        }
+                    });
             }
         }
-    });
 
-    documentImportsCache.set(documentPath, components.map(item => {
-        return {name: item.name, filePath: path.resolve(path.dirname(documentPath), item.value)}; 
-    }));
+        if (importedDocument !== null) {
+            document.importedComponents.push({name: c.name, filePath: importedDocument.path});
+            
+            parse({
+                filename: importedDocument.path
+            }).then(sveltedoc => {
+                reloadDocumentMetadata(importedDocument, sveltedoc);
+            }).catch(() => {
+                // supress error
+            });
+        }
+    });
 }
 
 // This handler provides the initial list of the completion items.
@@ -163,14 +174,11 @@ connection.onCompletion(
         // The pass parameter contains the position of the text document in
 		// which code complete got requested. For the example we ignore this
         // info and always provide the same completion items.
-        const docPath = utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri);
-        const docImports = documentImportsCache.get(docPath) || [];
-        const metadata = documentsCache.get(docPath);
+        const document = getDocumentFromCache(utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri))
 
-        const content = documentsContent.get(_textDocumentPosition.textDocument.uri);
-        const offset = utils.Utils.offsetAt(content, _textDocumentPosition.position);
+        const offset = utils.Utils.offsetAt(document.content, _textDocumentPosition.position);
 
-        const prevContent = content.substring(0, offset);
+        const prevContent = document.content.substring(0, offset);
 
         const openComponentsBlockIndex = prevContent.lastIndexOf('components');
         if (/components\s*:\s*\{/g.test(prevContent) && prevContent.indexOf('}', openComponentsBlockIndex) < 0) {
@@ -192,7 +200,7 @@ connection.onCompletion(
                 && prevContent.lastIndexOf(quote, openQuoteIndex - 1) <= prevContent.lastIndexOf(':', openQuoteIndex - 1)
             ) {
                 const partialPath = prevContent.substring(openQuoteIndex + 1);
-                const baseDocumentPath = path.dirname(docPath);
+                const baseDocumentPath = path.dirname(document.path);
 
                 // Do nothing if partial path started from root folder
                 if (partialPath.startsWith('/')) {
@@ -348,21 +356,21 @@ connection.onCompletion(
         if (openTagIndex >= 0 && prevContent.indexOf('>', openTagIndex) < 0) {
             const tagContent = prevContent.substring(openTagIndex);
 
-            if (metadata && /<[\w_-\d]*$/g.test(tagContent)) {
-                return metadata.components;
+            if (document.metadata && /<[\w_-\d]*$/g.test(tagContent)) {
+                return document.metadata.components;
             }
 
             const openedTagMatch = /<([\w_-\d]*)\s*/g.exec(tagContent);
             if (openedTagMatch) {
                 const tagName = openedTagMatch[1];
-                const importedComponent = docImports.find(c => c.name === tagName);
+                const importedComponent = document.importedComponents.find(c => c.name === tagName);
                 if (importedComponent) {
-                    const importedMetadata = documentsCache.get(importedComponent.filePath);
-                    if (importedMetadata) {
+                    const importedDocument = getDocumentFromCache(importedComponent.filePath, false);
+                    if (importedDocument !== null) {
                         if (/on:[\w_-\d]*$/.test(tagContent)) {
-                            return importedMetadata.public_events;
+                            return importedDocument.metadata.public_events;
                         }
-                        return importedMetadata.public_data;
+                        return importedDocument.metadata.public_data;
                     }
                 }
             }

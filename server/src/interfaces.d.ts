@@ -1,7 +1,4 @@
-import {
-	CompletionItem,
-	CompletionItemKind
-} from 'vscode-languageserver';
+import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
 
 export interface ConfigurationItem {
     documentationItemName: string;
