@@ -1,5 +1,5 @@
 import { BaseComponentCompletionService } from "./BaseComponentCompletionService";
-import { CompletionItem } from "vscode-languageserver";
+import { CompletionItem, MarkupContent, MarkupKind, CompletionItemKind } from "vscode-languageserver";
 
 export class ComponentDefaultCompletionService extends BaseComponentCompletionService {
     public isApplyable() {
@@ -28,6 +28,41 @@ export class ComponentDefaultCompletionService extends BaseComponentCompletionSe
                 return item;
             })
         );
+
+        result.push(...[
+            <CompletionItem>{
+                label: 'bind:...',
+                kind: CompletionItemKind.Keyword,
+                detail: '[Svelte] bind:<data>={data}',
+                commitCharacters: [':'],
+                insertText: 'bind:',
+                preselect: true,
+            },
+            <CompletionItem>{
+                label: 'on:...',
+                kind: CompletionItemKind.Keyword,
+                detail: '[Svelte] on:<event>="handler"',
+                commitCharacters: [':'],
+                insertText: 'on:',
+                preselect: true,
+            },
+            <CompletionItem>{
+                label: 'class:...',
+                kind: CompletionItemKind.Keyword,
+                detail: '[Svelte] class:<css-class>="condition"',
+                commitCharacters: [':'],
+                insertText: 'class:',
+                preselect: true,
+            },
+            <CompletionItem>{
+                label: 'ref:...',
+                kind: CompletionItemKind.Keyword,
+                detail: '[Svelte] ref:<name>',
+                commitCharacters: [':'],
+                insertText: 'ref:',
+                preselect: true,
+            }
+        ]);
 
         return result;
     }
