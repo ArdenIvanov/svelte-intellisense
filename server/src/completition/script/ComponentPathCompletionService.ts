@@ -1,11 +1,11 @@
 import * as path from 'path';
 import * as fs from 'fs';
 
-import { ICompletitionService, WorkspaceContext } from "../interfaces";
+import { ICompletionService, WorkspaceContext } from "../interfaces";
 import { SvelteDocument } from "../../SvelteDocument";
 import { Position, CompletionItem, CompletionItemKind } from "vscode-languageserver";
 
-export class ComponentPathCompletitionService implements ICompletitionService {
+export class ComponentPathCompletionService implements ICompletionService {
 
     public isApplyable(document: SvelteDocument, position: Position): boolean {
         const offsetIndex = document.offsetAt(position);

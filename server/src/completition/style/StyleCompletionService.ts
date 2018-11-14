@@ -1,8 +1,8 @@
-import { CompositeCompletitionService } from "../CompositeCompletitionService";
+import { ChoosingCompletionService } from "../ChoosingCompletionService";
 import { SvelteDocument } from "../../SvelteDocument";
 import { Position } from "vscode-languageserver";
 
-export class StyleCompletitionService extends CompositeCompletitionService {
+export class StyleCompletionService extends ChoosingCompletionService {
     public constructor() {
         super([]);
     }

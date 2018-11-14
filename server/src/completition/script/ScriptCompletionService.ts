@@ -1,12 +1,12 @@
-import { CompositeCompletitionService } from "../CompositeCompletitionService";
+import { ChoosingCompletionService } from "../ChoosingCompletionService";
 import { SvelteDocument } from "../../SvelteDocument";
 import { Position } from "vscode-languageserver";
-import { ComponentPathCompletitionService } from "./ComponentPathCompletitionService";
+import { ComponentPathCompletionService } from "./ComponentPathCompletionService";
 
-export class ScriptCompletitionService extends CompositeCompletitionService {
+export class ScriptCompletionService extends ChoosingCompletionService {
     public constructor() {
         super([
-            new ComponentPathCompletitionService()
+            new ComponentPathCompletionService()
         ]);
     }
 

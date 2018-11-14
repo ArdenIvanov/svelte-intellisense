@@ -2,9 +2,9 @@ import { CompletionItem, Position } from 'vscode-languageserver';
 import { SvelteDocument } from '../SvelteDocument';
 
 /**
- * Provide methods to implementing a completitions HFSM.
+ * Provide methods to implementing a completions HFSM.
  */
-export interface ICompletitionService {
+export interface ICompletionService {
     /**
      * Check that this service is applyable for required context.
      * @param document The svelte document.
