@@ -130,6 +130,20 @@ function reloadDocumentMetadata(document: SvelteDocument, componentMetadata: any
     document.metadata = <ComponentMetadata>metadata;
 }
 
+function reloadDocumentImport(document: SvelteDocument, importedDocument: SvelteDocument, importName: string) {
+    if (importedDocument !== null) {
+        document.importedComponents.push({name: importName, filePath: importedDocument.path});
+        
+        parse({
+            filename: importedDocument.path
+        }).then(sveltedoc => {
+            reloadDocumentMetadata(importedDocument, sveltedoc);
+        }).catch(() => {
+            // supress error
+        });
+    }
+}
+
 function reloadDocumentImports(document: SvelteDocument, components: any[]) {
     document.importedComponents = [];
 
@@ -148,23 +162,15 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
                             const realFilePath = path.resolve(utils.Utils.fileUriToPath(workspaceFolder.uri), 'node_modules', c.value);
                             if (fs.existsSync(realFilePath)) {
                                 importedDocument = getOrCreateDocumentFromCache(realFilePath);                        
+                                reloadDocumentImport(document, importedDocument, c.name);
                             }
                         }
                     });
+                    return;
             }
         }
 
-        if (importedDocument !== null) {
-            document.importedComponents.push({name: c.name, filePath: importedDocument.path});
-            
-            parse({
-                filename: importedDocument.path
-            }).then(sveltedoc => {
-                reloadDocumentMetadata(importedDocument, sveltedoc);
-            }).catch(() => {
-                // supress error
-            });
-        }
+        reloadDocumentImport(document, importedDocument, c.name);
     });
 }
 
