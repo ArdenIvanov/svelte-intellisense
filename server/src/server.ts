@@ -29,11 +29,12 @@ let workspaceNodeModulesPathInitialized = false;
 const mappingConfigurations: Array<ConfigurationItem> = [
     {completionItemKind: CompletionItemKind.Field, metadataName: 'data', hasPublic: true},
     {completionItemKind: CompletionItemKind.Event, metadataName: 'events', hasPublic: true},
-    {completionItemKind: CompletionItemKind.Field, metadataName: 'slots', hasPublic: true},
+    {completionItemKind: CompletionItemKind.Reference, metadataName: 'slots', hasPublic: true},
     {completionItemKind: CompletionItemKind.Method, metadataName: 'methods', hasPublic: true},
     {completionItemKind: CompletionItemKind.Method, metadataName: 'helpers', hasPublic: false},
-    {completionItemKind: CompletionItemKind.Field, metadataName: 'refs', hasPublic: false},
-    {completionItemKind: CompletionItemKind.Field, metadataName: 'computed', hasPublic: false},
+    {completionItemKind: CompletionItemKind.Method, metadataName: 'actions', hasPublic: false},
+    {completionItemKind: CompletionItemKind.Reference, metadataName: 'refs', hasPublic: false},
+    {completionItemKind: CompletionItemKind.Property, metadataName: 'computed', hasPublic: false},
     {completionItemKind: CompletionItemKind.Class, metadataName: 'components', hasPublic: true}
 ];
 

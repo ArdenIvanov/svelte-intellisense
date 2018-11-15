@@ -4,11 +4,13 @@ import { HtmlTagDefaultCompletionService } from "./HtmlTagDefaultCompletionServi
 import { SvelteDocument } from "../../../SvelteDocument";
 import { DocumentPosition } from "../../../interfaces";
 import { findLastOpenTag } from "../TagHelpers";
+import { HtmlTagActionCompletionService } from "./HtmlTagActionCompletionService";
 
 export class HtmlTagInnerCompletionService extends ChoosingCompletionService {
     public constructor() {
         super([
             new HtmlTagBindCompletionService(),
+            new HtmlTagActionCompletionService(),
             new HtmlTagDefaultCompletionService()
         ]);
     }

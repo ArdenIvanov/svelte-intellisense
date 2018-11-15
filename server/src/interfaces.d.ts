@@ -25,6 +25,7 @@ export interface ComponentMetadata {
     slots:  CompletionItem[];
     public_slots:  CompletionItem[];
 
+    actions: CompletionItem[];
     refs: CompletionItem[];
     computed: CompletionItem[];
     helpers: CompletionItem[];

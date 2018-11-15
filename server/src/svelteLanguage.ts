@@ -213,6 +213,30 @@ You can only add class directives to elements.
     preselect: true,
 };
 
+export const DefaultActionCompletionItem: CompletionItem = {
+    label: 'use:...',
+    kind: CompletionItemKind.Keyword,
+    detail: '[Svelte] use:<action>="data"',
+    documentation: {
+        kind: MarkupKind.Markdown,
+        value:
+`
+Actions let you decorate elements with additional functionality. 
+Actions are functions which may return an object with lifecycle methods, \`update\` and \`destroy\`. 
+The action will be called when its element is added to the DOM.
+
+Use actions for things like:
+
+- tooltips
+- lazy loading images as the page is scrolled, e.g. \`<img use:lazyload data-src='giant-photo.jpg'/>\`
+- capturing link clicks for your client router
+- adding drag and drop
+`
+    },
+    insertText: 'use:',
+    preselect: true,
+};
+
 export const DefaultEventHandlerCompletionItem: CompletionItem = {
     label: 'on:...',
     kind: CompletionItemKind.Keyword,

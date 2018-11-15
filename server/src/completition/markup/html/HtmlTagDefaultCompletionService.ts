@@ -1,5 +1,5 @@
 import { ICompletionService } from "../../interfaces";
-import { DefaultRefCompletionItem, DefaultBindCompletionItem, DefaultClassCompletionItem, getHtmlTagDefaultBindCompletionItems } from "../../../svelteLanguage";
+import { DefaultRefCompletionItem, DefaultBindCompletionItem, DefaultClassCompletionItem, getHtmlTagDefaultBindCompletionItems, DefaultActionCompletionItem } from "../../../svelteLanguage";
 import { CompletionItem } from "vscode-languageserver";
 import { SvelteDocument } from "../../../SvelteDocument";
 import { DocumentPosition } from "../../../interfaces";
@@ -14,8 +14,20 @@ export class HtmlTagDefaultCompletionService implements ICompletionService {
         const result = [
             DefaultBindCompletionItem,
             DefaultClassCompletionItem,
+            DefaultActionCompletionItem,
             DefaultRefCompletionItem
         ];
+
+        result.push(...document.metadata.actions
+            .map(this.cloneItem)
+            .map(item => {
+                item.filterText = `use:${item.label}`;
+                item.sortText = `use:${item.label}`;
+                item.insertText = `use:${item.label}`;
+                item.commitCharacters = ['='];
+                return item;
+            })
+        );
 
         const openTag = findLastOpenTag(document, position.offset);
 
