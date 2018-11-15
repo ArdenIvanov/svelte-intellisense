@@ -500,3 +500,34 @@ Event listeners are automatically removed when the component is destroyed.`
         },
     }
 ];
+
+export const PlaceholderModifiers: Array<CompletionItem> = [
+    {
+        label: '@html',
+        kind: CompletionItemKind.Keyword,
+        insertText: 'html',
+        detail: '[Svelte] Expression',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: `Ordinary tags render expressions as plain text. If you need your expression interpreted as HTML, wrap it in a special \`@html\` tag.`
+        },
+        sortText: '1',
+    },
+    {
+        label: '@debug',
+        kind: CompletionItemKind.Keyword,
+        insertText: 'debug',
+        detail: '[Svelte] Expression',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: 
+`To inspect data as it changes and flows through your app, use a \`{@debug ...}\` tag.
+You can debug multiple values simultaneously (\`{@debug foo, bar, baz}\`), or use \`{@debug}\` to pause execution whenever the surrounding markup is updated.
+
+**Keep attention!**
+Debug tags only have an effect when compiling with the \`dev: true\` compiler option.
+`
+        },
+        sortText: '2',
+    },
+];
