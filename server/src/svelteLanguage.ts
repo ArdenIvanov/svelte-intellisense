@@ -444,3 +444,59 @@ export const markupBlockCompletitionItems: Array<CompletionItem> = [
         preselect: true
     },
 ];
+
+export const SpecialComponentNamespace = 'svelte';
+
+export const SpecialComponents: Array<CompletionItem> = [
+    {
+        label: 'self',
+        kind: CompletionItemKind.Class,
+        detail: '[Svelte] Special component',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: 
+`Sometimes, a component needs to embed itself recursively — for example if you have a tree-like data structure.`
+        },
+    },
+    {
+        label: 'component',
+        kind: CompletionItemKind.Class,
+        detail: '[Svelte] Special component',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: 
+`If you don't know what kind of component to render until the app runs — in other words, it's driven by state.`
+        },
+    },
+    {
+        label: 'document',
+        kind: CompletionItemKind.Class,
+        detail: '[Svelte] Special component',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: 
+``
+        },
+    },
+    {
+        label: 'window',
+        kind: CompletionItemKind.Class,
+        detail: '[Svelte] Special component',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: 
+`The \`<svelte:window>\` tag gives you a convenient way to declaratively add event listeners to window. 
+Event listeners are automatically removed when the component is destroyed.`
+        },
+    },
+    {
+        label: 'head',
+        kind: CompletionItemKind.Class,
+        detail: '[Svelte] Special component',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: 
+`If you're building an application with Svelte — particularly if you're using Sapper — then it's likely you'll need to add some content to the \`<head>\` of your page, such as adding a \`<title>\` element.`
+        },
+    }
+];
