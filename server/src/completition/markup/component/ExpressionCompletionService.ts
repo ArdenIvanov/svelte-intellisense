@@ -2,6 +2,7 @@ import { CompletionItem } from "vscode-languageserver";
 import { ICompletionService } from "../../interfaces";
 import { DocumentPosition } from "../../../interfaces";
 import { SvelteDocument } from "../../../SvelteDocument";
+import { DefaultComponentMethods } from "../../../svelteLanguage";
 
 export class ExpressionCompletionService implements ICompletionService {
     public isApplyable(document: SvelteDocument, position: DocumentPosition): boolean {
@@ -13,7 +14,8 @@ export class ExpressionCompletionService implements ICompletionService {
             ...document.metadata.data,
             ...document.metadata.computed,
             ...document.metadata.methods,
-            ...document.metadata.helpers
+            ...document.metadata.helpers,
+            ...DefaultComponentMethods
         ];
 
         return result;
@@ -35,9 +37,7 @@ export class ExpressionCompletionService implements ICompletionService {
             return -1;
         }
 
-        if (document.content.startsWith('on:', spaceIndex + 1) ||
-            document.content.startsWith('class:', spaceIndex + 1)
-        ) {
+        if (document.content.startsWith('on:', spaceIndex + 1)) {
             return openIndex + 1;
         }
 

@@ -1,5 +1,6 @@
 import { BaseComponentCompletionService } from "./BaseComponentCompletionService";
-import { CompletionItem, MarkupContent, MarkupKind, CompletionItemKind } from "vscode-languageserver";
+import { CompletionItem } from "vscode-languageserver";
+import { DefaultRefCompletionItem, DefaultEventHandlerCompletionItem, DefaultBindCompletionItem } from "../../../svelteLanguage";
 
 export class ComponentDefaultCompletionService extends BaseComponentCompletionService {
     public isApplyable() {
@@ -12,8 +13,9 @@ export class ComponentDefaultCompletionService extends BaseComponentCompletionSe
         result.push(...this.componentDocument.metadata.public_events
             .map(this.cloneItem)
             .map(item => {
-                item.label = `on:${item.label}`,
-                item.insertText = null;
+                item.filterText = `on:${item.label}`;
+                item.sortText = `on:${item.label}`;
+                item.insertText = `on:${item.label}`;
                 item.commitCharacters = ['='];
                 return item;
             })
@@ -22,46 +24,18 @@ export class ComponentDefaultCompletionService extends BaseComponentCompletionSe
         result.push(...this.componentDocument.metadata.public_data
             .map(this.cloneItem)
             .map(item => {
-                item.label = `bind:${item.label}`;
-                item.insertText = null;
+                item.filterText = `bind:${item.label}`;
+                item.sortText = `bind:${item.label}`;
+                item.insertText = `bind:${item.label}`;
                 item.commitCharacters = ['='];
                 return item;
             })
         );
 
         result.push(...[
-            <CompletionItem>{
-                label: 'bind:...',
-                kind: CompletionItemKind.Keyword,
-                detail: '[Svelte] bind:<data>={data}',
-                commitCharacters: [':'],
-                insertText: 'bind:',
-                preselect: true,
-            },
-            <CompletionItem>{
-                label: 'on:...',
-                kind: CompletionItemKind.Keyword,
-                detail: '[Svelte] on:<event>="handler"',
-                commitCharacters: [':'],
-                insertText: 'on:',
-                preselect: true,
-            },
-            <CompletionItem>{
-                label: 'class:...',
-                kind: CompletionItemKind.Keyword,
-                detail: '[Svelte] class:<css-class>="condition"',
-                commitCharacters: [':'],
-                insertText: 'class:',
-                preselect: true,
-            },
-            <CompletionItem>{
-                label: 'ref:...',
-                kind: CompletionItemKind.Keyword,
-                detail: '[Svelte] ref:<name>',
-                commitCharacters: [':'],
-                insertText: 'ref:',
-                preselect: true,
-            }
+            DefaultBindCompletionItem,
+            DefaultEventHandlerCompletionItem,
+            DefaultRefCompletionItem
         ]);
 
         return result;
