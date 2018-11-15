@@ -22,14 +22,34 @@ export function findLastOpenTag(document: SvelteDocument, offset: number) {
 
     const tagContent = document.content.substring(startIndex, offset);
 
-    const match = /<([\w_]+[\w\d_]*)\s*/g.exec(tagContent);
+    const match = /<(([\w\d_]+:)?[\w_]+[\w\d_]*)\s*/g.exec(tagContent);
     if (match) {
         return {
             tagName: match[1],
+            tagNamespace: match[2],
             startIndex: startIndex,
             content: tagContent,
         };
     }
 
     return null;
+}
+
+export function findLastDirectiveIndex(document: SvelteDocument, offset: number, directiveName: string) {
+    const index = document.content.lastIndexOf(`${directiveName}:`, offset);
+    if (index < 0) {
+        return -1;
+    }
+
+    const equalIndex = document.content.indexOf('=', index);
+    if (equalIndex > 0 && equalIndex < offset) {
+        return -1;
+    }
+
+    const spaceIndex = document.content.indexOf(' ', index);
+    if (spaceIndex > 0 && spaceIndex < offset) {
+        return -1;
+    }
+
+    return index;
 }

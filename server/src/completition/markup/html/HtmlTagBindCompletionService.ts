@@ -1,10 +1,11 @@
-import { BaseComponentCompletionService } from "./BaseComponentCompletionService";
 import { SvelteDocument } from "../../../SvelteDocument";
 import { CompletionItem } from "vscode-languageserver";
 import { DocumentPosition } from "../../../interfaces";
-import { findLastDirectiveIndex } from "../TagHelpers";
+import { ICompletionService } from "../../interfaces";
+import { findLastDirectiveIndex, findLastOpenTag } from "../TagHelpers";
+import { getHtmlTagDefaultBindCompletionItems } from "../../../svelteLanguage";
 
-export class ComponentBindCompletionService extends BaseComponentCompletionService {
+export class HtmlTagBindCompletionService implements ICompletionService {
     public isApplyable(document: SvelteDocument, position: DocumentPosition): boolean {
         return findLastDirectiveIndex(document, position.offset, 'bind') >= 0;
     }
@@ -15,11 +16,13 @@ export class ComponentBindCompletionService extends BaseComponentCompletionServi
             return [];
         }
 
+        const openTag = findLastOpenTag(document, position.offset);
+
         const contentPart = document.content.substring(index, position.offset);
         if (/bind:[\w\d_]*$/g.test(contentPart)) {
-            return this.componentDocument.metadata.public_data;
+            return getHtmlTagDefaultBindCompletionItems(openTag.tagName)
         }
 
-        return [];
+        return [];        
     }
 }

@@ -3,6 +3,174 @@ import {
     MarkupContent, MarkupKind, InsertTextFormat
 } from 'vscode-languageserver';
 
+export function getHtmlTagDefaultBindCompletionItems(tagName: string): Array<CompletionItem> {
+    const result = [];
+
+    DefaultHtmlTagBindCompletionItems.forEach(rule => {
+        if (rule.restrictedHtmlTags) {
+            if (rule.restrictedHtmlTags.some(restrictedTagName => restrictedTagName === tagName)) {
+                return;
+            }
+        }
+
+        if (rule.allowedHtmlTags) {
+            if (rule.allowedHtmlTags.every(allowedTagName => allowedTagName !== tagName)) {
+                return;
+            }
+        }
+
+        result.push(...rule.items);
+    });
+
+    return result;
+}
+
+export const DefaultHtmlTagBindCompletionItems = [
+    {
+        allowedHtmlTags: ['input', 'textarea', 'select'],
+        items: [{
+            label: 'value',
+            kind: CompletionItemKind.Property,
+            detail: '[Svelte] bind:value={data}',
+            documentation: {
+                kind: MarkupKind.Markdown,
+                value: `Handle HTML input controls \`value\` binding.`
+            }
+        }]
+    },
+    {
+        allowedHtmlTags: ['input'],
+        items: [
+            {
+                label: 'checked',
+                kind: CompletionItemKind.Property,
+                detail: '[Svelte] bind:checked={data}',
+                documentation: {
+                    kind: MarkupKind.Markdown,
+                    value: `Handle HTML input with \`type="checkbox"\` attribute check-state binding.`
+                }
+            },
+            {
+                label: 'group',
+                kind: CompletionItemKind.Property,
+                detail: '[Svelte] bind:group={data}',
+                documentation: {
+                    kind: MarkupKind.Markdown,
+                    value: 
+`\`group\` bindings allow you to capture the current value of a set of radio inputs, or all the selected values of a set of checkbox inputs.`
+                }
+            },
+        ]
+    },
+    {
+        allowedHtmlTags: ['audio', 'video'],
+        items: [
+            {
+                label: 'currentTime',
+                kind: CompletionItemKind.Property,
+                detail: '[Svelte] bind:currentTime={data}',
+            },
+            {
+                label: 'paused',
+                kind: CompletionItemKind.Property,
+                detail: '[Svelte] bind:paused={data}',
+            },
+            {
+                label: 'played',
+                kind: CompletionItemKind.Property,
+                detail: '[Svelte] bind:played={data}',
+            },
+            {
+                label: 'volume',
+                kind: CompletionItemKind.Property,
+                detail: '[Svelte] bind:volume={data}',
+            },
+            {
+                label: 'buffered',
+                kind: CompletionItemKind.Constant,
+                detail: '[Svelte] bind:buffered={data} (One-Way)',
+            },
+            {
+                label: 'duration',
+                kind: CompletionItemKind.Constant,
+                detail: '[Svelte] bind:duration={data} (One-Way)',
+            },
+            {
+                label: 'seekable',
+                kind: CompletionItemKind.Constant,
+                detail: '[Svelte] bind:seekable={data} (One-Way)',
+            }
+        ]
+    },
+    {
+        allowedHtmlTags: null,
+        restrictedHtmlTags: ['svelte:window'],
+        items: [
+            {
+                label: 'offsetWidth',
+                kind: CompletionItemKind.Constant,
+                detail: '[Svelte] bind:offsetWidth={data} (One-Way)',
+            },
+            {
+                label: 'offsetHeight',
+                kind: CompletionItemKind.Constant,
+                detail: '[Svelte] bind:offsetHeight={data} (One-Way)',
+            },
+            {
+                label: 'clientWidth',
+                kind: CompletionItemKind.Constant,
+                detail: '[Svelte] bind:clientWidth={data} (One-Way)',
+            },
+            {
+                label: 'clientHeight',
+                kind: CompletionItemKind.Constant,
+                detail: '[Svelte] bind:clientHeight={data} (One-Way)',
+            }
+        ]
+    },
+    {
+        allowedHtmlTags: ['svelte:window'],
+        items: [
+            {
+                label: 'scrollX',
+                kind: CompletionItemKind.Property,
+                detail: '[Svelte] bind:scrollX={data}',
+            },
+            {
+                label: 'scrollY',
+                kind: CompletionItemKind.Property,
+                detail: '[Svelte] bind:scrollX={data}',
+            },
+
+            {
+                label: 'online',
+                kind: CompletionItemKind.Constant,
+                detail: '[Svelte] bind:online={data} (One-Way)',
+            },
+            {
+                label: 'innerWidth',
+                kind: CompletionItemKind.Constant,
+                detail: '[Svelte] bind:innerWidth={data} (One-Way)',
+            },
+            {
+                label: 'innerHeight',
+                kind: CompletionItemKind.Constant,
+                detail: '[Svelte] bind:innerHeight={data} (One-Way)',
+            },
+            {
+                label: 'outerWidth',
+                kind: CompletionItemKind.Constant,
+                detail: '[Svelte] bind:outerWidth={data} (One-Way)',
+            },
+            {
+                label: 'outerHeight',
+                kind: CompletionItemKind.Constant,
+                detail: '[Svelte] bind:outerHeight={data} (One-Way)',
+            }
+        ]
+    }
+];
+
 export const DefaultRefCompletionItem: CompletionItem = {
     label: 'ref:...',
     kind: CompletionItemKind.Keyword,

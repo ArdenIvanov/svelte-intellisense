@@ -2,7 +2,7 @@ import { BaseComponentCompletionService } from "./BaseComponentCompletionService
 import { SvelteDocument } from "../../../SvelteDocument";
 import { CompletionItem } from "vscode-languageserver";
 import { DocumentPosition } from "../../../interfaces";
-import { findLastDirectiveIndex } from "./ComponentHelpers";
+import { findLastDirectiveIndex } from "../TagHelpers";
 
 export class ComponentEventCompletionService extends BaseComponentCompletionService {
     public isApplyable(document: SvelteDocument, position: DocumentPosition): boolean {
