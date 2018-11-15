@@ -6,195 +6,162 @@ import {
 	CompletionItem,
 	CompletionItemKind,
     TextDocumentPositionParams,
-    TextDocuments
+    TextDocuments,
+    Hover,
+    MarkupContent,
+    MarkupKind
 } from 'vscode-languageserver';
+
+import { ConfigurationItem, ComponentMetadata, WorkspaceContext, DocumentPosition } from './interfaces';
+import { SvelteDocument } from './SvelteDocument';
 
 import {parse} from 'sveltedoc-parser';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as utils from './utils';
+import { DocumentCompletionService } from './completition/DocumentCompletionService';
+import { DocumentHoverService } from './hover/DocumentHoverService';
+import { DocumentsCache } from './DocumentsCache';
 
 let connection = createConnection(ProposedFeatures.all);
 let documents: TextDocuments = new TextDocuments();
+
+let workspaceNodeModulesPath = null;
+let workspaceNodeModulesPathInitialized = false;
+
+const mappingConfigurations: Array<ConfigurationItem> = [
+    {completionItemKind: CompletionItemKind.Field, metadataName: 'data', hasPublic: true},
+    {completionItemKind: CompletionItemKind.Event, metadataName: 'events', hasPublic: true},
+    {completionItemKind: CompletionItemKind.Reference, metadataName: 'slots', hasPublic: true},
+    {completionItemKind: CompletionItemKind.Method, metadataName: 'methods', hasPublic: true},
+    {completionItemKind: CompletionItemKind.Method, metadataName: 'helpers', hasPublic: false},
+    {completionItemKind: CompletionItemKind.Method, metadataName: 'actions', hasPublic: false},
+    {completionItemKind: CompletionItemKind.Reference, metadataName: 'refs', hasPublic: false},
+    {completionItemKind: CompletionItemKind.Property, metadataName: 'computed', hasPublic: false},
+    {completionItemKind: CompletionItemKind.Class, metadataName: 'components', hasPublic: true}
+];
 
 connection.onInitialize(() => {
 	return {
 		capabilities: {
 			completionProvider: {
-                resolveProvider: true,
-                triggerCharacters: ['<', '.']
+                triggerCharacters: ['<', '.', ':', '#', '/', '@', '"']
             },
-            textDocumentSync: documents.syncKind
+            textDocumentSync: documents.syncKind,
+            hoverProvider : true,
 		}
 	};
 });
 
-interface ImportedComponent {
-    name: string;
-    filePath: string;
-}
-
-interface ComponentMetadata {
-    publicEvents: CompletionItem[];
-    publicMethods: CompletionItem[];
-    publicData: CompletionItem[];
-    publicSlots:  CompletionItem[];
-    
-    data: CompletionItem[];
-    events: CompletionItem[];
-    methods: CompletionItem[];
-    refs: CompletionItem[];
-    computed: CompletionItem[];
-    helpers: CompletionItem[];
-    components: CompletionItem[];
-}
-
-let documentsCache: Map<string, ComponentMetadata> = new Map();
-let documentImportsCache: Map<string, ImportedComponent[]> = new Map();
-let documentsContent: Map<string, string> = new Map();
+const documentsCache: DocumentsCache = new DocumentsCache();
 
 documents.onDidChangeContent(change => {
-    documentsContent.set(change.document.uri, change.document.getText());
+    const document = documentsCache.getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(change.document.uri));
+    
+    if (!workspaceNodeModulesPathInitialized) {
+        workspaceNodeModulesPathInitialized = true;
+        connection.workspace.getWorkspaceFolders()
+            .then(folders => {
+                const workspaceFolder = folders.find(folder => fs.existsSync(path.resolve(utils.Utils.fileUriToPath(folder.uri), 'node_modules')));
+                if (workspaceFolder) {
+                    workspaceNodeModulesPath = path.resolve(utils.Utils.fileUriToPath(workspaceFolder.uri), 'node_modules');
+                }
+            });
+    }
+
+    document.content = change.document.getText();
 
     parse({
-        fileContent: change.document.getText()
+        fileContent: document.content
     }).then(sveltedoc => {
-        const docPath = utils.Utils.fileUriToPath(change.document.uri);
-        reloadDocumentImports(docPath, sveltedoc.components);
-        reloadDocumentCompletions(docPath, sveltedoc);
-    }).catch(error => {
-        console.log(error);
+        reloadDocumentImports(document, sveltedoc.components);
+        reloadDocumentMetadata(document, sveltedoc);
+    }).catch(() => {
+        // supress error
     });
 });
 
 documents.onDidClose(event => {
-    documentsContent.delete(utils.Utils.fileUriToPath(event.document.uri));
+    const document = documentsCache.getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(event.document.uri));
+
+    document.content = null;
 });
 
-function reloadDocumentCompletions(documentPath: string, componentMetadata: any) {
-    const visibilityFilter = (item) => item.visibility === 'public';
+function reloadDocumentMetadata(document: SvelteDocument, componentMetadata: any) {
+    document.sveltedoc = componentMetadata;
+    document.sveltedoc.name = path.basename(document.path, '.svelte');
 
-    const metadata: ComponentMetadata = {
-        data: (<Array<any>>componentMetadata.data).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Field,
-                documentation: item.description
-            };
-        }),
-        events: (<Array<any>>componentMetadata.events).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Event,
-                documentation: item.description
-            };
-        }),
-        publicEvents: (<Array<any>>componentMetadata.events).filter(visibilityFilter).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Event,
-                documentation: item.description
-            };
-        }),
-        publicSlots: (<Array<any>>componentMetadata.slots).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Field,
-                documentation: item.description
-            };
-        }),        
-        methods: (<Array<any>>componentMetadata.methods).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Method,
-                documentation: item.description
-            };
-        }),
-        publicMethods: (<Array<any>>componentMetadata.methods).filter(visibilityFilter).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Method,
-                documentation: item.description
-            };
-        }),
-        helpers: (<Array<any>>componentMetadata.helpers).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Method,
-                documentation: item.description
-            };
-        }),
-        refs: (<Array<any>>componentMetadata.refs).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Field,
-                documentation: item.description
-            };
-        }),
-        computed: (<Array<any>>componentMetadata.computed).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Field,
-                documentation: item.description
-            };
-        }),
-        publicData: (<Array<any>>componentMetadata.data).filter(visibilityFilter).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Field,
-                documentation: item.description
-            };
-        }),
-        components: (<Array<any>>componentMetadata.components).map((item) => {
-            return <CompletionItem>{
-                label: item.name,
-                kind: CompletionItemKind.Class,
-                documentation: item.description
-            };
-        })
-    };
-
-    documentsCache.set(documentPath, metadata);
-}
-
-function reloadDocumentImports(documentPath: string, components: any[]) {
-    components.forEach(c => {
-        const importFilePath = path.resolve(path.dirname(documentPath), c.value);
-        if (!documentsCache.has(importFilePath)) {
-            let realFilePath = importFilePath;
-            
-            if (!fs.existsSync(realFilePath))
-            {
-                connection.workspace.getWorkspaceFolders()
-                .then(folders => {
-                    const workspaceFolder = folders.find(folder => fs.existsSync(path.resolve(utils.Utils.fileUriToPath(folder.uri), 'node_modules')));
-                    if (workspaceFolder) {
-                        realFilePath = path.resolve(utils.Utils.fileUriToPath(workspaceFolder.uri), 'node_modules', c.value);
-                        parse({
-                            filename: realFilePath
-                        }).then(sveltedoc => {
-                            reloadDocumentCompletions(importFilePath, sveltedoc);
-                        }).catch(error => {
-                            console.log(error);
-                        });
-                    }
-                });
-            } else {
-                parse({
-                    filename: realFilePath
-                }).then(sveltedoc => {
-                    reloadDocumentCompletions(importFilePath, sveltedoc);
-                }).catch(error => {
-                    console.log(error);
-                });
-            }
+    let metadata = {};
+    mappingConfigurations.forEach((value) => {
+        metadata[value.metadataName] = [];
+        if (value.hasPublic) {
+            metadata['public_' + value.metadataName] = [];
         }
+
+        componentMetadata[value.metadataName].forEach((item) => {
+            const completionItem = <CompletionItem>{
+                label: item.name,
+                kind: value.completionItemKind,
+                documentation: item.description,
+                preselect: true
+            };
+
+            metadata[value.metadataName].push(completionItem);
+            if (value.hasPublic && item.visibility === 'public') {
+                metadata['public_' + value.metadataName].push(completionItem);
+            }
+        });
     });
 
-    documentImportsCache.set(documentPath, components.map(item => {
-        return {name: item.name, filePath: path.resolve(path.dirname(documentPath), item.value)}; 
-    }));
+    document.metadata = <ComponentMetadata>metadata;
 }
+
+function reloadDocumentImport(document: SvelteDocument, importedDocument: SvelteDocument, importName: string) {
+    if (importedDocument !== null) {
+        document.importedComponents.push({name: importName, filePath: importedDocument.path});
+        
+        parse({
+            filename: importedDocument.path
+        }).then(sveltedoc => {
+            reloadDocumentMetadata(importedDocument, sveltedoc);
+        }).catch(() => {
+            // supress error
+        });
+    }
+}
+
+function reloadDocumentImports(document: SvelteDocument, components: any[]) {
+    document.importedComponents = [];
+
+    components.forEach(c => {
+        const importFilePath = path.resolve(path.dirname(document.path), c.value);
+        let importedDocument = documentsCache.getOrCreateDocumentFromCache(importFilePath, false);
+
+        if (importedDocument === null) {
+            if (fs.existsSync(importFilePath)) {
+                importedDocument = documentsCache.getOrCreateDocumentFromCache(importFilePath);                        
+            } else {
+                connection.workspace.getWorkspaceFolders()
+                    .then(folders => {
+                        const workspaceFolder = folders.find(folder => fs.existsSync(path.resolve(utils.Utils.fileUriToPath(folder.uri), 'node_modules')));
+                        if (workspaceFolder) {
+                            const realFilePath = path.resolve(utils.Utils.fileUriToPath(workspaceFolder.uri), 'node_modules', c.value);
+                            if (fs.existsSync(realFilePath)) {
+                                importedDocument = documentsCache.getOrCreateDocumentFromCache(realFilePath);                        
+                                reloadDocumentImport(document, importedDocument, c.name);
+                            }
+                        }
+                    });
+                    return;
+            }
+        }
+
+        reloadDocumentImport(document, importedDocument, c.name);
+    });
+}
+
+const completitionService = new DocumentCompletionService();
+const hoverService = new DocumentHoverService();
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
@@ -202,43 +169,46 @@ connection.onCompletion(
         // The pass parameter contains the position of the text document in
 		// which code complete got requested. For the example we ignore this
         // info and always provide the same completion items.
-        const docPath = utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri);
-        const docImports = documentImportsCache.get(docPath) || [];
-        const metadata = documentsCache.get(docPath);
+        const document = documentsCache.getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri))
 
-        const content = documentsContent.get(_textDocumentPosition.textDocument.uri);
-        const offset = utils.Utils.offsetAt(content, _textDocumentPosition.position);
+        const position = <DocumentPosition>{
+            line: _textDocumentPosition.position.line,
+            character: _textDocumentPosition.position.character,
+            offset: document.offsetAt(_textDocumentPosition.position)
+        };
 
-        const prevContent = content.substring(0, offset);
-        const openTagIndex = prevContent.lastIndexOf('<');
-        if (openTagIndex >= 0 && prevContent.indexOf('>', openTagIndex) < 0) {
-            const tagContent = prevContent.substring(openTagIndex);
+        const workspaceContext = <WorkspaceContext>{
+            nodeModulesPath: workspaceNodeModulesPath,
+            documentsCache: documentsCache
+        };
 
-            if (metadata && /<[\w_-\d]*$/g.test(tagContent)) {
-                return metadata.components;
-            }
-
-            const openedTagMatch = /<([\w_-\d]*)\s*/g.exec(tagContent);
-            if (openedTagMatch) {
-                const tagName = openedTagMatch[1];
-                const importedComponent = docImports.find(c => c.name === tagName);
-                if (importedComponent) {
-                    const importedMetadata = documentsCache.get(importedComponent.filePath);
-                    if (importedMetadata) {
-                        if (/on:[\w_-\d]*$/.test(tagContent)) {
-                            return importedMetadata.publicEvents;
-                        }
-                        return importedMetadata.publicData;
-                    }
-                }
-            }
-        }
-        
-        return [];
+        return completitionService.getCompletitionItems(document, position, workspaceContext);
     }
 );
 
-connection.onCompletionResolve(item => item);
+// This handler provides the hover information.
+connection.onHover(
+    (_textDocumentPosition: TextDocumentPositionParams) : Hover => {
+        if (!hoverService) {
+            return null;
+        }
+
+        const document = documentsCache.getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri));
+
+        const position = <DocumentPosition>{
+            line: _textDocumentPosition.position.line,
+            character: _textDocumentPosition.position.character,
+            offset: document.offsetAt(_textDocumentPosition.position)
+        };
+
+        const workspaceContext = <WorkspaceContext>{
+            nodeModulesPath: workspaceNodeModulesPath,
+            documentsCache: documentsCache
+        };
+
+        return hoverService.getHover(document, position, workspaceContext);
+    }
+);
 
 documents.listen(connection);
 connection.listen();

@@ -54,40 +54,4 @@ export module Utils{
 
     return host + path;
   }
-  
-  export function offsetAt(content: string, position) :number {
-    var lineOffsets = getLineOffsets(content);
-    if (position.line >= lineOffsets.length) {
-        return content.length;
-    } else if (position.line < 0) {
-        return 0;
-    }
-    var lineOffset = lineOffsets[position.line];
-    var nextLineOffset = (position.line + 1 < lineOffsets.length) ? lineOffsets[position.line + 1] : content.length;
-    return Math.max(Math.min(lineOffset + position.character, nextLineOffset), lineOffset);
-  }
-
-  function getLineOffsets(content: string) {
-    var offsets = [];
-    var text = content;
-    var isLineStart = true;
-    var i = 0;
-    while (i < text.length) {
-        if (isLineStart) {
-            offsets.push(i);
-            isLineStart = false;
-        }
-        var ch = text.charAt(i);
-        isLineStart = (ch === '\r' || ch === '\n');
-        if (ch === '\r' && i + 1 < text.length && text.charAt(i + 1) === '\n') {
-            i++;
-        }
-        i++;
-    }
-    if (isLineStart && text.length > 0) {
-        offsets.push(text.length);
-    }
-
-    return offsets;
-  }
 }
