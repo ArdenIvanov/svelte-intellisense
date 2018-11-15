@@ -6,7 +6,10 @@ import {
 	CompletionItem,
 	CompletionItemKind,
     TextDocumentPositionParams,
-    TextDocuments
+    TextDocuments,
+    Hover,
+    MarkupContent,
+    MarkupKind
 } from 'vscode-languageserver';
 
 import { ConfigurationItem, ComponentMetadata, WorkspaceContext, DocumentPosition } from './interfaces';
@@ -16,8 +19,8 @@ import {parse} from 'sveltedoc-parser';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as utils from './utils';
-import * as docUtils from './svelteDocUtils';
 import { DocumentCompletionService } from './completition/DocumentCompletionService';
+import { DocumentHoverService } from './hover/DocumentHoverService';
 import { DocumentsCache } from './DocumentsCache';
 
 let connection = createConnection(ProposedFeatures.all);
@@ -44,7 +47,8 @@ connection.onInitialize(() => {
 			completionProvider: {
                 triggerCharacters: ['<', '.', ':', '#', '/', '@', '"']
             },
-            textDocumentSync: documents.syncKind
+            textDocumentSync: documents.syncKind,
+            hoverProvider : true,
 		}
 	};
 });
@@ -84,6 +88,9 @@ documents.onDidClose(event => {
 });
 
 function reloadDocumentMetadata(document: SvelteDocument, componentMetadata: any) {
+    document.sveltedoc = componentMetadata;
+    document.sveltedoc.name = path.basename(document.path, '.svelte');
+
     let metadata = {};
     mappingConfigurations.forEach((value) => {
         metadata[value.metadataName] = [];
@@ -92,21 +99,10 @@ function reloadDocumentMetadata(document: SvelteDocument, componentMetadata: any
         }
 
         componentMetadata[value.metadataName].forEach((item) => {
-            let description =  item.description;
-
-            if (value.metadataName === 'components') {
-                description = documentsCache.has(item.value) 
-                    ? {
-                        value: docUtils.buildDocumentation(documentsCache.get(item.value)),
-                        kind: 'markdown'
-                    } 
-                    : item.name;
-            }
-
             const completionItem = <CompletionItem>{
                 label: item.name,
                 kind: value.completionItemKind,
-                documentation: description,
+                documentation: item.description,
                 preselect: true
             };
 
@@ -165,6 +161,7 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
 }
 
 const completitionService = new DocumentCompletionService();
+const hoverService = new DocumentHoverService();
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
@@ -186,6 +183,30 @@ connection.onCompletion(
         };
 
         return completitionService.getCompletitionItems(document, position, workspaceContext);
+    }
+);
+
+// This handler provides the hover information.
+connection.onHover(
+    (_textDocumentPosition: TextDocumentPositionParams) : Hover => {
+        if (!hoverService) {
+            return null;
+        }
+
+        const document = documentsCache.getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri));
+
+        const position = <DocumentPosition>{
+            line: _textDocumentPosition.position.line,
+            character: _textDocumentPosition.position.character,
+            offset: document.offsetAt(_textDocumentPosition.position)
+        };
+
+        const workspaceContext = <WorkspaceContext>{
+            nodeModulesPath: workspaceNodeModulesPath,
+            documentsCache: documentsCache
+        };
+
+        return hoverService.getHover(document, position, workspaceContext);
     }
 );
 

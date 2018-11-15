@@ -8,6 +8,7 @@ export class SvelteDocument {
     }
 
     path: string;
+    sveltedoc: any;
     metadata: ComponentMetadata;
     importedComponents: ImportedComponent[];
     content: string;
