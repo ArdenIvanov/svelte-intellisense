@@ -1,5 +1,5 @@
 import { BaseComponentCompletionService } from "./BaseComponentCompletionService";
-import { CompletionItem } from "vscode-languageserver";
+import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
 import { DefaultRefCompletionItem, DefaultEventHandlerCompletionItem, DefaultBindCompletionItem } from "../../../svelteLanguage";
 
 export class ComponentDefaultCompletionService extends BaseComponentCompletionService {
@@ -13,6 +13,7 @@ export class ComponentDefaultCompletionService extends BaseComponentCompletionSe
         result.push(...this.componentDocument.metadata.public_events
             .map(this.cloneItem)
             .map(item => {
+                item.detail = '[Svelte] Event';
                 item.filterText = `on:${item.label}`;
                 item.sortText = `on:${item.label}`;
                 item.insertText = `on:${item.label}`;
@@ -24,6 +25,8 @@ export class ComponentDefaultCompletionService extends BaseComponentCompletionSe
         result.push(...this.componentDocument.metadata.public_data
             .map(this.cloneItem)
             .map(item => {
+                item.kind = CompletionItemKind.Property;
+                item.detail = '[Svelte] Binding';
                 item.filterText = `bind:${item.label}`;
                 item.sortText = `bind:${item.label}`;
                 item.insertText = `bind:${item.label}`;

@@ -4,6 +4,7 @@ All notable changes to the "svelte-intellisense" extension will be documented in
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
+- [Fixed] Autocompletion for nested blocks
 - See project items
 
 ## [0.1.1]

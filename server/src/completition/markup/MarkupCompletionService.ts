@@ -10,15 +10,15 @@ import { HtmlTagInnerCompletionService } from "./html/HtmlTagInnerCompletionServ
 export class MarkupCompletionService extends ChoosingCompletionService {
     public constructor() {
         super([
+            new OpenTagCompletionService(),
+            new GenericComponentInnerCompletionService(),
+            new HtmlTagInnerCompletionService(),
+
             new BlockOpenCompletionService(),
             new BlockInnerCompletionService(),
             new BlockCloseCompletetionService(),
-
-            new PlaceholdersCompletionService(),
             
-            new OpenTagCompletionService(),
-            new GenericComponentInnerCompletionService(),
-            new HtmlTagInnerCompletionService()
+            new PlaceholdersCompletionService(),
         ]);
     }
 
