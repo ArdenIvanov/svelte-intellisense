@@ -15,13 +15,13 @@ export class ChoosingHoverService implements IHoverService {
     }
 
     public isApplyable(document: SvelteDocument, position: DocumentPosition): boolean {
-        return this.findHoverService(document, position) !== null;
+        return this.findHoverService(document, position) != null;
     }
 
     public getHover(document: SvelteDocument, position: DocumentPosition, context: WorkspaceContext): Hover {
         const service = this.findHoverService(document, position);
 
-        if (service === null) {
+        if (service == null) {
             return null;
         }
 
