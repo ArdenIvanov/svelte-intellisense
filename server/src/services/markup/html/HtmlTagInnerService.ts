@@ -4,6 +4,9 @@ import { HtmlTagDefaultService } from "./HtmlTagDefaultService";
 import { ScopeContext, GenericScopeContext } from "../../../interfaces";
 import { findLastOpenTag } from "../TagHelpers";
 import { HtmlTagActionService } from "./HtmlTagActionService";
+import { HtmlTagTransionService } from "./HtmlTagTransitionService";
+import { HtmlTagTransionOutService } from "./HtmlTagTransitionOutService";
+import { HtmlTagTransionInService } from "./HtmlTagTransitionInService";
 
 export interface HtmlTagData {
     name: string;
@@ -17,6 +20,11 @@ export class HtmlTagInnerService extends ChoosingService {
         super([
             new HtmlTagBindService(),
             new HtmlTagActionService(),
+            new HtmlTagTransionService(),
+            new HtmlTagTransionInService(),
+            new HtmlTagTransionOutService(),
+
+            // Fallback service
             new HtmlTagDefaultService()
         ]);
     }

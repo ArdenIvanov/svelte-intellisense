@@ -171,6 +171,45 @@ export const DefaultHtmlTagBindCompletionItems = [
     }
 ];
 
+export const DefaultTransitionCompletionItems: CompletionItem[] = [
+    {
+        label: 'transiontion:...',
+        kind: CompletionItemKind.Keyword,
+        detail: '[Svelte] transition:<function>="{ settings }"',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: `Transitions allow elements to enter and leave the DOM gracefully, rather than suddenly appearing and disappearing.`
+        },
+        commitCharacters: [':'],
+        insertText: 'transition:',
+        preselect: true
+    },
+    {
+        label: 'in:...',
+        kind: CompletionItemKind.Keyword,
+        detail: '[Svelte] transition:<function>="{ settings }"',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: `In transitions allow elements to enter the DOM gracefully, rather than suddenly appearing.`
+        },
+        commitCharacters: [':'],
+        insertText: 'in:',
+        preselect: true
+    },
+    {
+        label: 'out:...',
+        kind: CompletionItemKind.Keyword,
+        detail: '[Svelte] transition:<function>="{ settings }"',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: `Out transitions allow elements to leave the DOM gracefully, rather than suddenly disappearing.`
+        },
+        commitCharacters: [':'],
+        insertText: 'out:',
+        preselect: true
+    }
+]
+
 export const DefaultRefCompletionItem: CompletionItem = {
     label: 'ref:...',
     kind: CompletionItemKind.Keyword,

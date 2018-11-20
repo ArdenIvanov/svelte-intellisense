@@ -1,6 +1,5 @@
 import { BaseService } from "../../Common";
-import { DefaultRefCompletionItem, DefaultBindCompletionItem, DefaultClassCompletionItem, getHtmlTagDefaultBindCompletionItems, DefaultActionCompletionItem } from "../../../svelteLanguage";
-import { CompletionItem } from "vscode-languageserver";
+import { DefaultRefCompletionItem, DefaultBindCompletionItem, DefaultClassCompletionItem, getHtmlTagDefaultBindCompletionItems, DefaultActionCompletionItem, DefaultTransitionCompletionItems } from "../../../svelteLanguage";
 import { SvelteDocument } from "../../../SvelteDocument";
 import { HtmlTagScopeContext } from "./HtmlTagInnerService";
 import { cloneCompletionItem } from "../../Utils";
@@ -11,7 +10,8 @@ export class HtmlTagDefaultService extends BaseService {
             DefaultBindCompletionItem,
             DefaultClassCompletionItem,
             DefaultActionCompletionItem,
-            DefaultRefCompletionItem
+            DefaultRefCompletionItem,
+            ...DefaultTransitionCompletionItems
         ];
 
         result.push(...document.metadata.actions
