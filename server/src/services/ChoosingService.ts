@@ -9,7 +9,7 @@ export interface ChoosingServiceOptions {
 
 const __defaultServiceOptions: ChoosingServiceOptions = {
     exclusive: false
-}
+};
 
 /**
  * Implements a choosing completition services, find first applyable services 
@@ -25,7 +25,7 @@ export class ChoosingService implements IService {
     }
 
     public getCompletitionItems(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Array<CompletionItem> {
-        const reducedContext = this.reduceContext(context);
+        const reducedContext = this.reduceContext(context, document, workspace);
         if (reducedContext === null) {
             return null;
         }
@@ -37,7 +37,7 @@ export class ChoosingService implements IService {
     }
 
     public getHover(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Hover {
-        const reducedContext = this.reduceContext(context);
+        const reducedContext = this.reduceContext(context, document, workspace);
         if (reducedContext === null) {
             return null;
         }
@@ -48,7 +48,7 @@ export class ChoosingService implements IService {
         );
     }
 
-    protected reduceContext(context: ScopeContext): ScopeContext {
+    protected reduceContext(context: ScopeContext, _document: SvelteDocument, _workspace: WorkspaceContext): ScopeContext {
         return context;
     }
 

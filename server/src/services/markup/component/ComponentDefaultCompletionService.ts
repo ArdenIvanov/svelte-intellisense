@@ -1,14 +1,16 @@
-import { BaseComponentCompletionService } from "./BaseComponentCompletionService";
-import { CompletionItemKind } from "vscode-languageserver";
+import { CompletionItemKind, CompletionItem } from "vscode-languageserver";
 import { DefaultRefCompletionItem, DefaultEventHandlerCompletionItem, DefaultBindCompletionItem } from "../../../svelteLanguage";
 import { cloneCompletionItem } from "../../Utils";
+import { BaseService } from "../../Common";
+import { SvelteDocument } from "../../../SvelteDocument";
+import { ComponentScopeContext } from "./ComponentInnerService";
 
-export class ComponentDefaultCompletionService extends BaseComponentCompletionService {
+export class ComponentDefaultCompletionService extends BaseService {
 
-    public getCompletitionItems() {
+    public getCompletitionItems(_document: SvelteDocument, context: ComponentScopeContext): Array<CompletionItem> {
         const result = [];
 
-        result.push(...this.componentDocument.metadata.public_events
+        result.push(...context.data.component.metadata.public_events
             .map(cloneCompletionItem)
             .map(item => {
                 item.detail = '[Svelte] Event';
@@ -20,7 +22,7 @@ export class ComponentDefaultCompletionService extends BaseComponentCompletionSe
             })
         );
 
-        result.push(...this.componentDocument.metadata.public_data
+        result.push(...context.data.component.metadata.public_data
             .map(cloneCompletionItem)
             .map(item => {
                 item.kind = CompletionItemKind.Property;

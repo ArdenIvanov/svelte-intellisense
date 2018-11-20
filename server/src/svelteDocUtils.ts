@@ -1,7 +1,7 @@
 import { SvelteComponentDoc } from 'sveltedoc-parser/typings';
 
 export function buildDocumentation(componentDoc: SvelteComponentDoc) {
-    if (componentDoc == null) {
+    if (componentDoc === null || componentDoc === undefined) {
         return null;
     }
 

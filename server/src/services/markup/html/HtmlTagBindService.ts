@@ -3,11 +3,11 @@ import { CompletionItem } from "vscode-languageserver";
 import { BaseService } from "../../Common";
 import { findLastDirectiveIndex } from "../TagHelpers";
 import { getHtmlTagDefaultBindCompletionItems } from "../../../svelteLanguage";
-import { HtmlTagScopeContext } from "./HtmlTagInnerService";
+import { TagScopeContext } from "../TagInnerService";
 
 export class HtmlTagBindService extends BaseService {
     
-    public getCompletitionItems(_document: SvelteDocument, context: HtmlTagScopeContext): Array<CompletionItem> {
+    public getCompletitionItems(_document: SvelteDocument, context: TagScopeContext): Array<CompletionItem> {
         const index = findLastDirectiveIndex(context.content, context.offset, 'bind');
         if (index < 0) {
             return null;

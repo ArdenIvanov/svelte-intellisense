@@ -1,4 +1,8 @@
-import { CompletionItem } from "vscode-languageserver";
+import { CompletionItem, MarkupKind } from "vscode-languageserver";
+import { SvelteDocument } from "../SvelteDocument";
+import { WorkspaceContext } from "../interfaces";
+import { EmptyHoverContent } from "./Common";
+import * as docUtils from "../svelteDocUtils";
 
 export function cloneCompletionItem(item: CompletionItem): CompletionItem {
     return <CompletionItem>{
@@ -17,5 +21,25 @@ export function cloneCompletionItem(item: CompletionItem): CompletionItem {
         preselect: item.preselect,
         sortText: item.sortText,
         textEdit: item.textEdit
+    };
+}
+
+export function getImportedComponentDocumentation(componentName: string, document: SvelteDocument, workspace: WorkspaceContext) {
+    const component = document.importedComponents.find(c => c.name === componentName);
+
+    if (component === undefined || !workspace.documentsCache.has(component.filePath)) {
+        return EmptyHoverContent;
+    }
+
+    const componentDocument = workspace.documentsCache.get(component.filePath);
+    if (componentDocument === null) {
+        return EmptyHoverContent;
+    }
+
+    return { 
+        contents: {
+            kind: MarkupKind.Markdown,
+            value: docUtils.buildDocumentation(componentDocument.sveltedoc)
+        }
     };
 }

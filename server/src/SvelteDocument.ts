@@ -31,6 +31,7 @@ export class SvelteDocument {
         return Math.max(Math.min(lineOffset + position.character, nextLineOffset), lineOffset);
     }
     
+    // TODO optimize that - store lines
     private getLineOffsets() {
         var offsets = [];
         var text = this.content;
