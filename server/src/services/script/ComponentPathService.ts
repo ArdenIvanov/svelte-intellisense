@@ -6,6 +6,11 @@ import { SvelteDocument } from "../../SvelteDocument";
 import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
 import { WorkspaceContext, ScopeContext } from '../../interfaces';
 
+const supportedComponentFileExtensions = [
+    '.svelte',
+    '.html'
+]
+
 export class ComponentPathService extends BaseService {
 
     public getCompletitionItems(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Array<CompletionItem> {
@@ -101,7 +106,8 @@ export class ComponentPathService extends BaseService {
                     }
                 }
 
-                if (itemStats.isFile() && path.extname(foundPath) === '.svelte') {
+                const extname = path.extname(foundPath);
+                if (itemStats.isFile() && supportedComponentFileExtensions.indexOf(extname) >= 0) {
                     return <CompletionItem>{
                         label: basename,
                         kind: CompletionItemKind.Class,
