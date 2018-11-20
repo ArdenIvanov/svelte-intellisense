@@ -4,6 +4,7 @@ import { findLastOpenTagIndex } from "./TagHelpers";
 import { CompletionItem } from "vscode-languageserver";
 import { ScopeContext } from "../../interfaces";
 import { SpecialComponents, SpecialComponentNamespace } from "../../svelteLanguage";
+import { cloneCompletionItem } from "../Utils";
 
 export class OpenTagService extends BaseService {
 
@@ -33,7 +34,7 @@ export class OpenTagService extends BaseService {
                 return [
                     ...document.metadata.components,
                     ...SpecialComponents
-                        .map(this.cloneItem)
+                        .map(cloneCompletionItem)
                         .map(item => {
                             item.filterText = `${SpecialComponentNamespace}:${item.label}`;
                             item.sortText = `${SpecialComponentNamespace}:${item.label}`;
@@ -46,25 +47,5 @@ export class OpenTagService extends BaseService {
         }
 
         return null;
-    }
-
-    private cloneItem(item: CompletionItem): CompletionItem {
-        return <CompletionItem>{
-            additionalTextEdits: item.additionalTextEdits,
-            command: item.command,
-            commitCharacters: item.commitCharacters,
-            data: item.data,
-            deprecated: item.deprecated,
-            detail: item.detail,
-            documentation: item.documentation,
-            filterText: item.filterText,
-            insertText: item.insertText,
-            insertTextFormat: item.insertTextFormat,
-            kind: item.kind,
-            label: item.label,
-            preselect: item.preselect,
-            sortText: item.sortText,
-            textEdit: item.textEdit
-        };
     }
 }

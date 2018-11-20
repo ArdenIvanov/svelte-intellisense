@@ -1,6 +1,7 @@
 import { BaseComponentCompletionService } from "./BaseComponentCompletionService";
-import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
+import { CompletionItemKind } from "vscode-languageserver";
 import { DefaultRefCompletionItem, DefaultEventHandlerCompletionItem, DefaultBindCompletionItem } from "../../../svelteLanguage";
+import { cloneCompletionItem } from "../../Utils";
 
 export class ComponentDefaultCompletionService extends BaseComponentCompletionService {
 
@@ -8,7 +9,7 @@ export class ComponentDefaultCompletionService extends BaseComponentCompletionSe
         const result = [];
 
         result.push(...this.componentDocument.metadata.public_events
-            .map(this.cloneItem)
+            .map(cloneCompletionItem)
             .map(item => {
                 item.detail = '[Svelte] Event';
                 item.filterText = `on:${item.label}`;
@@ -20,7 +21,7 @@ export class ComponentDefaultCompletionService extends BaseComponentCompletionSe
         );
 
         result.push(...this.componentDocument.metadata.public_data
-            .map(this.cloneItem)
+            .map(cloneCompletionItem)
             .map(item => {
                 item.kind = CompletionItemKind.Property;
                 item.detail = '[Svelte] Binding';
@@ -39,25 +40,5 @@ export class ComponentDefaultCompletionService extends BaseComponentCompletionSe
         ]);
 
         return result;
-    }
-
-    private cloneItem(item: CompletionItem): CompletionItem {
-        return <CompletionItem>{
-            additionalTextEdits: item.additionalTextEdits,
-            command: item.command,
-            commitCharacters: item.commitCharacters,
-            data: item.data,
-            deprecated: item.deprecated,
-            detail: item.detail,
-            documentation: item.documentation,
-            filterText: item.filterText,
-            insertText: item.insertText,
-            insertTextFormat: item.insertTextFormat,
-            kind: item.kind,
-            label: item.label,
-            preselect: item.preselect,
-            sortText: item.sortText,
-            textEdit: item.textEdit
-        };
     }
 }

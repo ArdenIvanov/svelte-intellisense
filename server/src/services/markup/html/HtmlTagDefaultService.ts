@@ -2,8 +2,8 @@ import { BaseService } from "../../Common";
 import { DefaultRefCompletionItem, DefaultBindCompletionItem, DefaultClassCompletionItem, getHtmlTagDefaultBindCompletionItems, DefaultActionCompletionItem } from "../../../svelteLanguage";
 import { CompletionItem } from "vscode-languageserver";
 import { SvelteDocument } from "../../../SvelteDocument";
-import { findLastOpenTag } from "../TagHelpers";
 import { HtmlTagScopeContext } from "./HtmlTagInnerService";
+import { cloneCompletionItem } from "../../Utils";
 
 export class HtmlTagDefaultService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: HtmlTagScopeContext) {
@@ -15,7 +15,7 @@ export class HtmlTagDefaultService extends BaseService {
         ];
 
         result.push(...document.metadata.actions
-            .map(this.cloneItem)
+            .map(cloneCompletionItem)
             .map(item => {
                 item.filterText = `use:${item.label}`;
                 item.sortText = `use:${item.label}`;
@@ -26,7 +26,7 @@ export class HtmlTagDefaultService extends BaseService {
         );
 
         result.push(...getHtmlTagDefaultBindCompletionItems(context.data.name)
-            .map(this.cloneItem)
+            .map(cloneCompletionItem)
             .map(item => {
                 item.filterText = `bind:${item.label}`;
                 item.sortText = `bind:${item.label}`;
@@ -37,25 +37,5 @@ export class HtmlTagDefaultService extends BaseService {
         );
 
         return result;
-    }
-
-    private cloneItem(item: CompletionItem): CompletionItem {
-        return <CompletionItem>{
-            additionalTextEdits: item.additionalTextEdits,
-            command: item.command,
-            commitCharacters: item.commitCharacters,
-            data: item.data,
-            deprecated: item.deprecated,
-            detail: item.detail,
-            documentation: item.documentation,
-            filterText: item.filterText,
-            insertText: item.insertText,
-            insertTextFormat: item.insertTextFormat,
-            kind: item.kind,
-            label: item.label,
-            preselect: item.preselect,
-            sortText: item.sortText,
-            textEdit: item.textEdit
-        };
     }
 }

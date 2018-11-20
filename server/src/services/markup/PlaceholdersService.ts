@@ -3,6 +3,7 @@ import { ScopeContext } from "../../interfaces";
 import { BaseService } from "../Common";
 import { CompletionItem } from "vscode-languageserver";
 import { PlaceholderModifiers } from "../../svelteLanguage";
+import { cloneCompletionItem } from "../Utils";
 
 export class PlaceholdersService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: ScopeContext): Array<CompletionItem> {
@@ -25,7 +26,7 @@ export class PlaceholdersService extends BaseService {
 
         if (openIndex + 1 === context.offset) {
             result.push(...PlaceholderModifiers
-                .map(this.cloneItem)
+                .map(cloneCompletionItem)
                 .map(item => {
                     item.insertText = `@${item.label}`;
                     item.filterText = `@${item.label}`;
@@ -48,25 +49,5 @@ export class PlaceholdersService extends BaseService {
         }
 
         return openIndex;
-    }
-
-    private cloneItem(item: CompletionItem): CompletionItem {
-        return <CompletionItem>{
-            additionalTextEdits: item.additionalTextEdits,
-            command: item.command,
-            commitCharacters: item.commitCharacters,
-            data: item.data,
-            deprecated: item.deprecated,
-            detail: item.detail,
-            documentation: item.documentation,
-            filterText: item.filterText,
-            insertText: item.insertText,
-            insertTextFormat: item.insertTextFormat,
-            kind: item.kind,
-            label: item.label,
-            preselect: item.preselect,
-            sortText: item.sortText,
-            textEdit: item.textEdit
-        };
     }
 }
