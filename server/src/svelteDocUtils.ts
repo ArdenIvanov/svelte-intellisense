@@ -1,9 +1,11 @@
-export function buildDocumentation(componentDoc) {
+import { SvelteComponentDoc } from 'sveltedoc-parser/typings';
+
+export function buildDocumentation(componentDoc: SvelteComponentDoc) {
     if (componentDoc == null) {
         return null;
     }
 
-    let result = `## Svelte component: ${componentDoc.name}\n`;
+    let result = `Svelte component\n## ${componentDoc.name}\n`;
 
     if (componentDoc.description) {
         result += `${componentDoc.description}\n`;
@@ -15,7 +17,7 @@ export function buildDocumentation(componentDoc) {
             result += `\n### Data\n`;
 
             publicProperties.forEach(property => {
-                result += `- {\`${getPropertyType(property)}\`} **${property.name}**`;
+                result += `- {\`${property.type.text}\`} **${property.name}**`;
                 if (property.description) {
                     result += ` ${property.description}`;
                 }
@@ -55,26 +57,4 @@ export function buildDocumentation(componentDoc) {
     }
 
     return result;
-}
-
-function getPropertyType(property) {
-    // Try to parse JS type
-    const jsdocType = property.keywords.find(kw => kw.name === 'type');
-
-    if (jsdocType) {
-        const RE_JSDOC_TYPE = /(?:{([^}]*)})?(.*)/gim;
-        const m = RE_JSDOC_TYPE.exec(jsdocType.description);
-
-        if (m) {
-            return m[1];
-        }
-    }
-
-    // Try to parse node value
-    if (property.value !== null) {
-        return typeof(property.value);
-    }
-
-    // As a fallback, just use an generic object
-    return 'object';
 }

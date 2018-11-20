@@ -1,4 +1,5 @@
 import { ImportedComponent, ComponentMetadata } from './interfaces';
+import { SvelteComponentDoc } from 'sveltedoc-parser/typings';
 import { Position } from 'vscode-languageserver';
 
 export class SvelteDocument {
@@ -8,7 +9,7 @@ export class SvelteDocument {
     }
 
     path: string;
-    sveltedoc: any;
+    sveltedoc: SvelteComponentDoc;
     metadata: ComponentMetadata;
     importedComponents: ImportedComponent[];
     content: string;

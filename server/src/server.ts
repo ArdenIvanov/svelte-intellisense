@@ -7,20 +7,17 @@ import {
 	CompletionItemKind,
     TextDocumentPositionParams,
     TextDocuments,
-    Hover,
-    MarkupContent,
-    MarkupKind
+    Hover
 } from 'vscode-languageserver';
 
-import { ConfigurationItem, ComponentMetadata, WorkspaceContext, DocumentPosition } from './interfaces';
+import { ConfigurationItem, ComponentMetadata, WorkspaceContext, ScopeContext } from './interfaces';
 import { SvelteDocument } from './SvelteDocument';
 
 import {parse} from 'sveltedoc-parser';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as utils from './utils';
-import { DocumentCompletionService } from './completition/DocumentCompletionService';
-import { DocumentHoverService } from './hover/DocumentHoverService';
+import { DocumentService } from './services/DocumentService';
 import { DocumentsCache } from './DocumentsCache';
 
 let connection = createConnection(ProposedFeatures.all);
@@ -72,7 +69,8 @@ documents.onDidChangeContent(change => {
     document.content = change.document.getText();
 
     parse({
-        fileContent: document.content
+        fileContent: document.content,
+        ignoredVisibilities: []
     }).then(sveltedoc => {
         reloadDocumentImports(document, sveltedoc.components);
         reloadDocumentMetadata(document, sveltedoc);
@@ -89,7 +87,6 @@ documents.onDidClose(event => {
 
 function reloadDocumentMetadata(document: SvelteDocument, componentMetadata: any) {
     document.sveltedoc = componentMetadata;
-    document.sveltedoc.name = path.basename(document.path, '.svelte');
 
     let metadata = {};
     mappingConfigurations.forEach((value) => {
@@ -121,7 +118,8 @@ function reloadDocumentImport(document: SvelteDocument, importedDocument: Svelte
         document.importedComponents.push({name: importName, filePath: importedDocument.path});
         
         parse({
-            filename: importedDocument.path
+            filename: importedDocument.path,
+            ignoredVisibilities: []
         }).then(sveltedoc => {
             reloadDocumentMetadata(importedDocument, sveltedoc);
         }).catch(() => {
@@ -160,8 +158,7 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
     });
 }
 
-const completitionService = new DocumentCompletionService();
-const hoverService = new DocumentHoverService();
+const svelteDocumentService = new DocumentService();
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
@@ -169,11 +166,15 @@ connection.onCompletion(
         // The pass parameter contains the position of the text document in
 		// which code complete got requested. For the example we ignore this
         // info and always provide the same completion items.
+
+        if (!svelteDocumentService) {
+            return null;
+        }
+
         const document = documentsCache.getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri))
 
-        const position = <DocumentPosition>{
-            line: _textDocumentPosition.position.line,
-            character: _textDocumentPosition.position.character,
+        const scopeContext = <ScopeContext>{
+            content: document.content,
             offset: document.offsetAt(_textDocumentPosition.position)
         };
 
@@ -182,22 +183,21 @@ connection.onCompletion(
             documentsCache: documentsCache
         };
 
-        return completitionService.getCompletitionItems(document, position, workspaceContext);
+        return svelteDocumentService.getCompletitionItems(document, scopeContext, workspaceContext);
     }
 );
 
 // This handler provides the hover information.
 connection.onHover(
     (_textDocumentPosition: TextDocumentPositionParams) : Hover => {
-        if (!hoverService) {
+        if (!svelteDocumentService) {
             return null;
         }
 
         const document = documentsCache.getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri));
 
-        const position = <DocumentPosition>{
-            line: _textDocumentPosition.position.line,
-            character: _textDocumentPosition.position.character,
+        const scopeContext = <ScopeContext>{
+            content: document.content,
             offset: document.offsetAt(_textDocumentPosition.position)
         };
 
@@ -206,7 +206,7 @@ connection.onHover(
             documentsCache: documentsCache
         };
 
-        return hoverService.getHover(document, position, workspaceContext);
+        return svelteDocumentService.getHover(document, scopeContext, workspaceContext);
     }
 );
 

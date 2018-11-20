@@ -40,6 +40,21 @@ export interface DocumentPosition extends Position {
     offset: number;
 }
 
+export interface GenericScopeContext<TData> {
+    content: string;
+    offset: number;
+    data?: TData;
+    
+    /** TODO */
+    documentRangeStart?: number;
+    /** TODO */
+    documentRangeEnd?: number;
+}
+
+export interface ScopeContext extends GenericScopeContext<any> {
+    
+}
+
 export interface WorkspaceContext {
     documentsCache: DocumentsCache;
     
