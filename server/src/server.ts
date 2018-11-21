@@ -34,6 +34,7 @@ const mappingConfigurations: Array<ConfigurationItem> = [
     {completionItemKind: CompletionItemKind.Method, metadataName: 'helpers', hasPublic: false},
     {completionItemKind: CompletionItemKind.Method, metadataName: 'actions', hasPublic: false},
     {completionItemKind: CompletionItemKind.Reference, metadataName: 'refs', hasPublic: false},
+    {completionItemKind: CompletionItemKind.Event, metadataName: 'transitions', hasPublic: false},
     {completionItemKind: CompletionItemKind.Property, metadataName: 'computed', hasPublic: false},
     {completionItemKind: CompletionItemKind.Class, metadataName: 'components', hasPublic: true}
 ];

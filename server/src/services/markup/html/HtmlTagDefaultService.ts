@@ -1,5 +1,5 @@
 import { BaseService } from "../../Common";
-import { DefaultRefCompletionItem, DefaultBindCompletionItem, DefaultClassCompletionItem, getHtmlTagDefaultBindCompletionItems, DefaultActionCompletionItem } from "../../../svelteLanguage";
+import { DefaultRefCompletionItem, DefaultBindCompletionItem, DefaultClassCompletionItem, getHtmlTagDefaultBindCompletionItems, DefaultActionCompletionItem, DefaultTransitionCompletionItems } from "../../../svelteLanguage";
 import { SvelteDocument } from "../../../SvelteDocument";
 import { TagScopeContext } from "../TagInnerService";
 import { cloneCompletionItem } from "../../Utils";
@@ -10,7 +10,8 @@ export class HtmlTagDefaultService extends BaseService {
             DefaultBindCompletionItem,
             DefaultClassCompletionItem,
             DefaultActionCompletionItem,
-            DefaultRefCompletionItem
+            DefaultRefCompletionItem,
+            ...DefaultTransitionCompletionItems
         ];
 
         result.push(...document.metadata.actions
