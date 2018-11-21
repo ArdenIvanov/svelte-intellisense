@@ -1,7 +1,7 @@
 import { IService } from "./Common";
 import { SvelteDocument } from "../SvelteDocument";
 import { WorkspaceContext, ScopeContext } from "../interfaces";
-import { CompletionItem, Hover } from "vscode-languageserver";
+import { CompletionItem, Hover, MarkupContent, MarkedString, MarkupKind } from "vscode-languageserver";
 
 /**
  * Implements a composite completion services that find all appliable services
@@ -31,9 +31,18 @@ export class CompositeCompletionService implements IService {
             return null;
         }
 
-        return this.findServiceResults(
+        const results = this.findServiceResults(
             service => service.getHover(document, reducedContext, workspace)
         );
+        if (results && results.length > 0) {
+            let aggregatedHover = <Hover>{ contents: <MarkupContent>{ kind: MarkupKind.Markdown, value: '' } };
+            results.array.forEach((element: Hover) => {
+                (<MarkupContent>aggregatedHover.contents).value += (<MarkupContent>element.contents).value;
+            });
+            return aggregatedHover;
+        } else {
+            return null;
+        }
     }
 
     protected reduceContext(context: ScopeContext): ScopeContext {

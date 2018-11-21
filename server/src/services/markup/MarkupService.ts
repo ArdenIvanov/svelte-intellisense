@@ -3,16 +3,14 @@ import { BlockInnerService } from "./block/BlockInnerService";
 import { BlockOpenService } from "./block/BlockOpenService";
 import { BlockCloseService } from "./block/BlockCloseService";
 import { OpenTagService } from "./OpenTagService";
-import { GenericComponentInnerService } from "./component/GenericComponentInnerService";
 import { PlaceholdersService } from "./PlaceholdersService";
-import { HtmlTagInnerService } from "./html/HtmlTagInnerService";
+import { TagInnerService } from "./TagInnerService";
 
 export class MarkupService extends ChoosingService {
     public constructor() {
         super([
             new OpenTagService(),
-            new GenericComponentInnerService(),
-            new HtmlTagInnerService(),
+            new TagInnerService(),
 
             new BlockOpenService(),
             new BlockInnerService(),

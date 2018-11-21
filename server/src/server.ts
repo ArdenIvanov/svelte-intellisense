@@ -54,15 +54,15 @@ connection.onInitialize(() => {
 const documentsCache: DocumentsCache = new DocumentsCache();
 
 documents.onDidChangeContent(change => {
-    const document = documentsCache.getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(change.document.uri));
+    const document = documentsCache.getOrCreateDocumentFromCache(utils.fileUriToPath(change.document.uri));
     
     if (!workspaceNodeModulesPathInitialized) {
         workspaceNodeModulesPathInitialized = true;
         connection.workspace.getWorkspaceFolders()
             .then(folders => {
-                const workspaceFolder = folders.find(folder => fs.existsSync(path.resolve(utils.Utils.fileUriToPath(folder.uri), 'node_modules')));
+                const workspaceFolder = folders.find(folder => fs.existsSync(path.resolve(utils.fileUriToPath(folder.uri), 'node_modules')));
                 if (workspaceFolder) {
-                    workspaceNodeModulesPath = path.resolve(utils.Utils.fileUriToPath(workspaceFolder.uri), 'node_modules');
+                    workspaceNodeModulesPath = path.resolve(utils.fileUriToPath(workspaceFolder.uri), 'node_modules');
                 }
             });
     }
@@ -81,9 +81,10 @@ documents.onDidChangeContent(change => {
 });
 
 documents.onDidClose(event => {
-    const document = documentsCache.getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(event.document.uri));
-
+    const document = documentsCache.getOrCreateDocumentFromCache(utils.fileUriToPath(event.document.uri));
+    // remove content to free some space
     document.content = null;
+    // TODO remove also document or imported documents which are not required in other opened documents
 });
 
 function reloadDocumentMetadata(document: SvelteDocument, componentMetadata: any) {
@@ -114,21 +115,6 @@ function reloadDocumentMetadata(document: SvelteDocument, componentMetadata: any
     document.metadata = <ComponentMetadata>metadata;
 }
 
-function reloadDocumentImport(document: SvelteDocument, importedDocument: SvelteDocument, importName: string) {
-    if (importedDocument !== null) {
-        document.importedComponents.push({name: importName, filePath: importedDocument.path});
-        
-        parse({
-            filename: importedDocument.path,
-            ignoredVisibilities: []
-        }).then(sveltedoc => {
-            reloadDocumentMetadata(importedDocument, sveltedoc);
-        }).catch(() => {
-            // supress error
-        });
-    }
-}
-
 function reloadDocumentImports(document: SvelteDocument, components: any[]) {
     document.importedComponents = [];
 
@@ -139,75 +125,71 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
         if (importedDocument === null) {
             if (fs.existsSync(importFilePath)) {
                 importedDocument = documentsCache.getOrCreateDocumentFromCache(importFilePath);                        
-            } else {
-                connection.workspace.getWorkspaceFolders()
-                    .then(folders => {
-                        const workspaceFolder = folders.find(folder => fs.existsSync(path.resolve(utils.Utils.fileUriToPath(folder.uri), 'node_modules')));
-                        if (workspaceFolder) {
-                            const realFilePath = path.resolve(utils.Utils.fileUriToPath(workspaceFolder.uri), 'node_modules', c.value);
-                            if (fs.existsSync(realFilePath)) {
-                                importedDocument = documentsCache.getOrCreateDocumentFromCache(realFilePath);                        
-                                reloadDocumentImport(document, importedDocument, c.name);
-                            }
-                        }
-                    });
-                    return;
+            } else if (workspaceNodeModulesPathInitialized){
+                const moduleFilePath = path.resolve(workspaceNodeModulesPath, c.value);
+                if (fs.existsSync(moduleFilePath)) {
+                    importedDocument = documentsCache.getOrCreateDocumentFromCache(moduleFilePath);
+                }
             }
         }
 
-        reloadDocumentImport(document, importedDocument, c.name);
+        if (importedDocument !== null) {
+            document.importedComponents.push({name: c.name, filePath: importedDocument.path});
+            
+            parse({
+                filename: importedDocument.path,
+                ignoredVisibilities: []
+            }).then(sveltedoc => {
+                reloadDocumentMetadata(importedDocument, sveltedoc);
+            }).catch(() => {
+                // supress error
+            });
+        }
     });
 }
 
 const svelteDocumentService = new DocumentService();
 
+function executeActionInContext(_textDocumentPosition: TextDocumentPositionParams, 
+        action: (document: SvelteDocument, scopeContext: ScopeContext, workspaceContext: WorkspaceContext) => any) {
+    // The pass parameter contains the position of the text document in
+    // which code complete got requested. For the example we ignore this
+    // info and always provide the same completion items.
+
+    if (!svelteDocumentService) {
+        return null;
+    }
+
+    const document = documentsCache.getOrCreateDocumentFromCache(utils.fileUriToPath(_textDocumentPosition.textDocument.uri));
+
+    const scopeContext = <ScopeContext>{
+        content: document.content,
+        offset: document.offsetAt(_textDocumentPosition.position)
+    };
+
+    const workspaceContext = <WorkspaceContext>{
+        nodeModulesPath: workspaceNodeModulesPath,
+        documentsCache: documentsCache
+    };
+
+    return action(document, scopeContext, workspaceContext);
+}
+
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
 	(_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-        // The pass parameter contains the position of the text document in
-		// which code complete got requested. For the example we ignore this
-        // info and always provide the same completion items.
-
-        if (!svelteDocumentService) {
-            return null;
-        }
-
-        const document = documentsCache.getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri))
-
-        const scopeContext = <ScopeContext>{
-            content: document.content,
-            offset: document.offsetAt(_textDocumentPosition.position)
-        };
-
-        const workspaceContext = <WorkspaceContext>{
-            nodeModulesPath: workspaceNodeModulesPath,
-            documentsCache: documentsCache
-        };
-
-        return svelteDocumentService.getCompletitionItems(document, scopeContext, workspaceContext);
+        return executeActionInContext(_textDocumentPosition, (document, scopeContext, workspaceContext) => {
+            return svelteDocumentService.getCompletitionItems(document, scopeContext, workspaceContext);
+        });
     }
 );
 
 // This handler provides the hover information.
 connection.onHover(
     (_textDocumentPosition: TextDocumentPositionParams) : Hover => {
-        if (!svelteDocumentService) {
-            return null;
-        }
-
-        const document = documentsCache.getOrCreateDocumentFromCache(utils.Utils.fileUriToPath(_textDocumentPosition.textDocument.uri));
-
-        const scopeContext = <ScopeContext>{
-            content: document.content,
-            offset: document.offsetAt(_textDocumentPosition.position)
-        };
-
-        const workspaceContext = <WorkspaceContext>{
-            nodeModulesPath: workspaceNodeModulesPath,
-            documentsCache: documentsCache
-        };
-
-        return svelteDocumentService.getHover(document, scopeContext, workspaceContext);
+        return executeActionInContext(_textDocumentPosition, (document, scopeContext, workspaceContext) => {
+            return svelteDocumentService.getHover(document, scopeContext, workspaceContext);
+        });
     }
 );
 

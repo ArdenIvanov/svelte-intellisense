@@ -1,17 +1,16 @@
 var sep = require('path').sep || '/';
 
-export module Utils{
-  /**
-   * File URI to Path function. Taken from https://github.com/TooTallNate/file-uri-to-path.
-   *
-   * @param {String} uri
-   * @return {String} path
-   */
-  export function fileUriToPath (uri) {
+/**
+ * File URI to Path function. Taken from https://github.com/TooTallNate/file-uri-to-path.
+ *
+ * @param {String} uri
+ * @return {String} path
+ */
+export function fileUriToPath (uri) {
     if ('string' !== typeof uri ||
         uri.length <= 7 ||
         'file://' !== uri.substring(0, 7)) {
-      throw new TypeError('must pass in a file:// URI to convert to a file path');
+        throw new TypeError('must pass in a file:// URI to convert to a file path');
     }
 
     var rest = decodeURIComponent(uri.substring(7));
@@ -24,11 +23,11 @@ export module Utils{
     // string; this is interpreted as "the machine from which the URL is
     // being interpreted".
     if ('localhost' === host) {
-      host = '';
+        host = '';
     }
 
     if (host) {
-      host = sep + sep + host;
+        host = sep + sep + host;
     }
 
     // 3.2  Drives, drive letters, mount points, file system root
@@ -41,17 +40,16 @@ export module Utils{
     path = path.replace(/^(.+)\|/, '$1:');
 
     // for Windows, we need to invert the path separators from what a URI uses
-    if (sep == '\\') {
-      path = path.replace(/\//g, '\\');
+    if (sep === '\\') {
+        path = path.replace(/\//g, '\\');
     }
 
     if (/^.+\:/.test(path)) {
-      // has Windows drive at beginning of path
+        // has Windows drive at beginning of path
     } else {
-      // unix path…
-      path = sep + path;
+        // unix path…
+        path = sep + path;
     }
 
     return host + path;
-  }
 }

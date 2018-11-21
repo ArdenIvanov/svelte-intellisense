@@ -1,12 +1,12 @@
-import { BaseComponentCompletionService } from "./BaseComponentCompletionService";
 import { SvelteDocument } from "../../../SvelteDocument";
 import { CompletionItem } from "vscode-languageserver";
-import { ScopeContext } from "../../../interfaces";
 import { findLastDirectiveIndex } from "../TagHelpers";
+import { BaseService } from "../../Common";
+import { ComponentScopeContext } from "./ComponentInnerService";
 
-export class ComponentEventCompletionService extends BaseComponentCompletionService {
+export class ComponentEventCompletionService extends BaseService {
 
-    public getCompletitionItems(_document: SvelteDocument, context: ScopeContext): Array<CompletionItem> {
+    public getCompletitionItems(_document: SvelteDocument, context: ComponentScopeContext): Array<CompletionItem> {
         const index = findLastDirectiveIndex(context.content, context.offset, 'on');
         if (index < 0) {
             return null;
@@ -14,7 +14,7 @@ export class ComponentEventCompletionService extends BaseComponentCompletionServ
 
         const contentPart = context.content.substring(index, context.offset);
         if (/on:[\w\d_]*$/g.test(contentPart)) {
-            return this.componentDocument.metadata.public_events;
+            return context.data.component.metadata.public_events;
         }
 
         return null;
