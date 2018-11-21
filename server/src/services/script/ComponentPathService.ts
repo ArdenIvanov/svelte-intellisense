@@ -90,7 +90,7 @@ export class ComponentPathService extends BaseService {
 
                 const itemStats = fs.lstatSync(path.resolve(searchFolderPath, foundPath));
 
-                if (itemStats.isDirectory()) {
+                if (itemStats.isDirectory() || itemStats.isSymbolicLink()) {
                     return <CompletionItem>{
                         label: basename,
                         kind: CompletionItemKind.Folder,
