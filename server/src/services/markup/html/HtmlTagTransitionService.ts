@@ -2,11 +2,11 @@ import { SvelteDocument } from "../../../SvelteDocument";
 import { CompletionItem } from "vscode-languageserver";
 import { BaseService } from "../../Common";
 import { findLastDirectiveIndex } from "../TagHelpers";
-import { HtmlTagScopeContext } from "./HtmlTagInnerService";
+import { TagScopeContext } from "../TagInnerService";
 
 export class HtmlTagTransionService extends BaseService {
     
-    public getCompletitionItems(document: SvelteDocument, context: HtmlTagScopeContext): Array<CompletionItem> {
+    public getCompletitionItems(document: SvelteDocument, context: TagScopeContext): Array<CompletionItem> {
         const index = findLastDirectiveIndex(context.content, context.offset, 'transition');
         if (index < 0) {
             return null;
