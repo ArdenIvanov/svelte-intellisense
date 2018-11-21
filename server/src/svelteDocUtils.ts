@@ -10,18 +10,17 @@ export function buildDocumentation(componentDoc: SvelteComponentDoc) {
     if (componentDoc.description) {
         result += `${componentDoc.description}\n`;
     }
+    
+    result += '``` javascript\n';
 
     if (componentDoc.data) {
         const publicProperties = componentDoc.data.filter(p => p.visibility === 'public');
         if (publicProperties.length > 0) {
-            result += `\n### Data\n`;
-
             publicProperties.forEach(property => {
-                result += `- {\`${property.type.text}\`} **${property.name}**`;
                 if (property.description) {
-                    result += ` ${property.description}`;
+                    result += `/** ${property.description} */\n`;
                 }
-                result += '\n';
+                result += `(data) ${property.name}: ${property.type.text}\n`;
             });
         }
     }
@@ -29,14 +28,11 @@ export function buildDocumentation(componentDoc: SvelteComponentDoc) {
     if (componentDoc.events) {
         const publicEvents = componentDoc.events.filter(e => e.visibility === 'public');
         if (publicEvents.length > 0) {
-            result += `\n### Events\n`;
-
             publicEvents.forEach(event => {
-                result += `- **${event.name}**`;
                 if (event.description) {
-                    result += ` ${event.description}`;
+                    result += `/** ${event.description} */\n`;
                 }
-                result += `\n`;
+                result += `(event) ${event.name}\n`;
             });
         }
     }
@@ -44,17 +40,16 @@ export function buildDocumentation(componentDoc: SvelteComponentDoc) {
     if (componentDoc.slots) {
         const publicSlots = componentDoc.slots.filter(e => e.visibility === 'public');
         if (publicSlots.length > 0) {
-            result += `\n### Slots\n`;
-
             publicSlots.forEach(slot => {
-                result += `- **${slot.name}**`;
                 if (slot.description) {
-                    result += ` ${slot.description}`;
+                    result += `/** ${slot.description} */\n`;
                 }
-                result += '\n';
+                result += `(slot) ${slot.name}\n`;
             });
         }
     }
+
+    result += '```';
 
     return result;
 }
