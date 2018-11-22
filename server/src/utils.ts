@@ -1,4 +1,7 @@
-var sep = require('path').sep || '/';
+import * as path from 'path';
+import * as fs from 'fs';
+
+const sep = path.sep || '/';
 
 /**
  * File URI to Path function. Taken from https://github.com/TooTallNate/file-uri-to-path.
@@ -52,4 +55,29 @@ export function fileUriToPath (uri) {
     }
 
     return host + path;
+}
+
+/** 
+ * Checks if svelte file (with .svelte or .html extension) exists based on a given file path and returns its real path. 
+ * @param {String} filepath File path with or without extension.
+ * @returns {String} Full file path with extension. null if file not found
+ */
+export function findSvelteFile(filepath: string) {
+    if (fs.existsSync(filepath)) {
+        return filepath;
+    }
+    if (!filepath.endsWith('.svelte')) {
+        const svelteFilePath = filepath + '.svelte';
+        if (fs.existsSync(svelteFilePath)) {
+            return svelteFilePath;
+        }
+    }
+    if (!filepath.endsWith('.html')) {
+        const svelteFilePath = filepath + '.html';
+        if (fs.existsSync(svelteFilePath)) {
+            return svelteFilePath;
+        }
+    }
+
+    return null;
 }

@@ -119,17 +119,15 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
     document.importedComponents = [];
 
     components.forEach(c => {
-        const importFilePath = path.resolve(path.dirname(document.path), c.value);
-        let importedDocument = documentsCache.getOrCreateDocumentFromCache(importFilePath, false);
+        let importedDocument = null;
 
-        if (importedDocument === null) {
-            if (fs.existsSync(importFilePath)) {
-                importedDocument = documentsCache.getOrCreateDocumentFromCache(importFilePath);                        
-            } else if (workspaceNodeModulesPathInitialized){
-                const moduleFilePath = path.resolve(workspaceNodeModulesPath, c.value);
-                if (fs.existsSync(moduleFilePath)) {
-                    importedDocument = documentsCache.getOrCreateDocumentFromCache(moduleFilePath);
-                }
+        const importFilePath = utils.findSvelteFile(path.resolve(path.dirname(document.path), c.value));
+        if (importFilePath !== null) {
+            importedDocument = documentsCache.getOrCreateDocumentFromCache(importFilePath);                        
+        } else if (workspaceNodeModulesPathInitialized){
+            const moduleFilePath = utils.findSvelteFile(path.resolve(workspaceNodeModulesPath, c.value));
+            if (moduleFilePath !== null) {
+                importedDocument = documentsCache.getOrCreateDocumentFromCache(moduleFilePath);
             }
         }
 
