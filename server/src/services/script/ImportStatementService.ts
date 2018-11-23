@@ -1,6 +1,7 @@
 import { ChoosingService } from "../ChoosingService";
 import { ComponentPathService, SupportedComponentFileExtensions } from "./ComponentPathService";
 import { ScopeContext } from "../../interfaces";
+import { ComponentNameService } from "./ComponentNameService";
 
 const SupportedImportFileExtensions = [
     '.js',
@@ -14,6 +15,7 @@ const ExcludedFileExtensions = [
 export class ImportStatementService extends ChoosingService {
     constructor() {
         super([
+            new ComponentNameService(),
             new ComponentPathService({
                 extensionsToSearch: [
                     ...SupportedComponentFileExtensions,
@@ -32,9 +34,13 @@ export class ImportStatementService extends ChoosingService {
             return null;
         }
 
-        const importStatementContent = context.content.substring(startIndex, context.offset);
+        const endIndex = context.content.indexOf(';', context.offset);
 
-        const _importStatementRegex = /^import\s+({[^}]*}|[\w_][\w\d_]*|\*)\s+(as\s+[\w_][\w\d_]*\s+)?from\s+/i;
+        const importStatementContent = endIndex < 0
+            ? context.content.substring(startIndex)
+            : context.content.substring(startIndex, endIndex);
+
+        const _importStatementRegex = /^import\s+(({[^}]*}|[\w_][\w\d_]*|\*)\s+(as\s+[\w_][\w\d_]*\s+)?from\s+)/i;
         const match = _importStatementRegex.exec(importStatementContent);
 
         if (match) {
