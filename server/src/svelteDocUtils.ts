@@ -38,7 +38,7 @@ export function buildDocumentation(componentDoc: SvelteComponentDoc) {
     }
 
     if (componentDoc.slots) {
-        const publicSlots = componentDoc.slots.filter(e => e.visibility === 'public');
+        const publicSlots = componentDoc.slots;
         if (publicSlots.length > 0) {
             publicSlots.forEach(slot => {
                 if (slot.description) {

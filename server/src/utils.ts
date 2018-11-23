@@ -1,7 +1,10 @@
 import * as path from 'path';
 import * as fs from 'fs';
+import { DocumentsCache } from './DocumentsCache';
+import { SvelteDocument } from './SvelteDocument';
 
 const sep = path.sep || '/';
+const svelteFileExtensions = [ '', '.svelte', '.html' ];
 
 /**
  * File URI to Path function. Taken from https://github.com/TooTallNate/file-uri-to-path.
@@ -60,24 +63,37 @@ export function fileUriToPath (uri) {
 /** 
  * Checks if svelte file (with .svelte or .html extension) exists based on a given file path and returns its real path. 
  * @param {String} filepath File path with or without extension.
- * @returns {String} Full file path with extension. null if file not found
+ * @returns {String} Full file path with extension. null if file not found.
  */
 export function findSvelteFile(filepath: string) {
-    if (fs.existsSync(filepath)) {
-        return filepath;
-    }
-    if (!filepath.endsWith('.svelte')) {
-        const svelteFilePath = filepath + '.svelte';
-        if (fs.existsSync(svelteFilePath)) {
-            return svelteFilePath;
-        }
-    }
-    if (!filepath.endsWith('.html')) {
-        const svelteFilePath = filepath + '.html';
-        if (fs.existsSync(svelteFilePath)) {
-            return svelteFilePath;
+    for (let index = 0; index < svelteFileExtensions.length; index++) {
+        const extension = svelteFileExtensions[index];
+        if (extension === '' || !filepath.endsWith(extension)) {
+            const svelteFilePath = filepath + extension;
+            if (fs.existsSync(svelteFilePath)) {
+                return svelteFilePath;
+            }
         }
     }
 
+    return null;
+}
+
+/** 
+ * Checks if svelte file (with .svelte or .html extension) exists based on a given file path and returns document from cache. 
+ * @param {String} filepath File path with or without extension.
+ * @param {DocumentsCache} documentsCache Documents cache to search in.
+ * @returns {SvelteDocument} Document from cache, null if not found.
+ */
+export function findSvelteDocumentInCache(filepath: string, documentsCache: DocumentsCache) {
+    for (let index = 0; index < svelteFileExtensions.length; index++) {
+        const extension = svelteFileExtensions[index];
+        if (extension === '' || !filepath.endsWith(extension)) {
+            const svelteFilePath = filepath + extension;
+            if (documentsCache.has(svelteFilePath)) {
+                return documentsCache.get(svelteFilePath);
+            }
+        }
+    }
     return null;
 }

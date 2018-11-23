@@ -41,6 +41,7 @@ export class ComponentInnerService extends ChoosingService {
         }
 
         return {
+            documentOffset: context.documentOffset,
             content: context.content,
             offset: context.offset,
             data: Object.assign({}, context.data, { component: componentDocument })

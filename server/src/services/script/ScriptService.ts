@@ -29,6 +29,7 @@ export class ScriptService extends ChoosingService {
 
         const startPositionIndex = tagContentIndex + 1;
         return {
+            documentOffset: context.documentOffset,
             content: context.content.substring(startPositionIndex, closeTagIndex),
             offset: context.offset - startPositionIndex
         };

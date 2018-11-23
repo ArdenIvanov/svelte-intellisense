@@ -12,6 +12,52 @@ export function findLastOpenTagIndex(content: string, offset: number): number {
     return startIndex;
 }
 
+export function findNearestOpenTag(content: string, offset: number) {
+    let positionToSearch = offset;
+    let countOfUnclosedTags = 0;
+
+    while (positionToSearch > 0) {
+        const startIndex = content.lastIndexOf('<', positionToSearch);
+        if (startIndex < 0) {
+            return null;
+        }
+
+        const endIndex = findTagInnerEndIndex(content, startIndex);
+        if (endIndex < 0 || endIndex > positionToSearch) {
+            return null;
+        }
+        
+        if (content.charAt(endIndex - 1) !== '/') {
+            if (content.charAt(startIndex + 1) === '/') {
+                countOfUnclosedTags++;
+            } else {
+                if (countOfUnclosedTags > 0) {
+                    countOfUnclosedTags--;
+                } else {
+                    const tagContent = endIndex < 0 
+                        ? content.substring(startIndex) 
+                        : content.substring(startIndex, endIndex);
+
+                    const match = /<(([\w\d_]+:)?[\w_]+[\w\d_]*)\s*/g.exec(tagContent);
+                    if (match) {
+                        return {
+                            tagName: match[1],
+                            tagNamespace: match[2],
+                            startIndex: startIndex,
+                            endIndex: endIndex,
+                            content: tagContent,
+                        };
+                    }
+                }
+            }
+        }
+
+        positionToSearch = startIndex - 1;
+    }
+
+    return null;
+}
+
 export function findLastOpenTag(content: string, offset: number) {
     const startIndex = content.lastIndexOf('<', offset);
     if (startIndex < 0) {

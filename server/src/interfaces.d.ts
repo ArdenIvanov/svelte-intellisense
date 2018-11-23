@@ -47,10 +47,7 @@ export interface GenericScopeContext<TData> {
     offset: number;
     data?: TData;
     
-    /** TODO */
-    documentRangeStart?: number;
-    /** TODO */
-    documentRangeEnd?: number;
+    documentOffset: number;
 }
 
 export interface ScopeContext extends GenericScopeContext<any> {

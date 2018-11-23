@@ -32,6 +32,7 @@ export class ComponentsSectionService extends ChoosingService {
         if (match) {
             const matchOffset = match.index + match[0].length;
             return {
+                documentOffset: context.documentOffset,
                 content: innerContent.substring(matchOffset),
                 offset: context.offset - openBlockIndex - matchOffset,
                 data: context.data

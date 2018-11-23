@@ -119,15 +119,18 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
     document.importedComponents = [];
 
     components.forEach(c => {
-        let importedDocument = null;
+        let importFilePath = path.resolve(path.dirname(document.path), c.value);
+        let importedDocument = utils.findSvelteDocumentInCache(importFilePath, documentsCache);
 
-        const importFilePath = utils.findSvelteFile(path.resolve(path.dirname(document.path), c.value));
-        if (importFilePath !== null) {
-            importedDocument = documentsCache.getOrCreateDocumentFromCache(importFilePath);                        
-        } else if (workspaceNodeModulesPathInitialized){
-            const moduleFilePath = utils.findSvelteFile(path.resolve(workspaceNodeModulesPath, c.value));
-            if (moduleFilePath !== null) {
-                importedDocument = documentsCache.getOrCreateDocumentFromCache(moduleFilePath);
+        if (importedDocument === null) {
+            importFilePath = utils.findSvelteFile(importFilePath);
+            if (importFilePath !== null) {
+                importedDocument = documentsCache.getOrCreateDocumentFromCache(importFilePath);                        
+            } else if (workspaceNodeModulesPathInitialized){
+                const moduleFilePath = utils.findSvelteFile(path.resolve(workspaceNodeModulesPath, c.value));
+                if (moduleFilePath !== null) {
+                    importedDocument = documentsCache.getOrCreateDocumentFromCache(moduleFilePath);
+                }
             }
         }
 
@@ -159,10 +162,12 @@ function executeActionInContext(_textDocumentPosition: TextDocumentPositionParam
     }
 
     const document = documentsCache.getOrCreateDocumentFromCache(utils.fileUriToPath(_textDocumentPosition.textDocument.uri));
+    const offset = document.offsetAt(_textDocumentPosition.position);
 
     const scopeContext = <ScopeContext>{
+        documentOffset: offset,
         content: document.content,
-        offset: document.offsetAt(_textDocumentPosition.position)
+        offset: offset
     };
 
     const workspaceContext = <WorkspaceContext>{
