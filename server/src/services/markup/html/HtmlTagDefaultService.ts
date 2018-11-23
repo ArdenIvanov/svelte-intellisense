@@ -1,11 +1,13 @@
 import { BaseService } from "../../Common";
-import { DefaultRefCompletionItem, DefaultBindCompletionItem, DefaultClassCompletionItem, getHtmlTagDefaultBindCompletionItems, DefaultActionCompletionItem, DefaultTransitionCompletionItems } from "../../../svelteLanguage";
+import { DefaultRefCompletionItem, DefaultBindCompletionItem, DefaultClassCompletionItem, getHtmlTagDefaultBindCompletionItems, DefaultActionCompletionItem, DefaultTransitionCompletionItems, DefaultSlotCompletionItem } from "../../../svelteLanguage";
 import { SvelteDocument } from "../../../SvelteDocument";
 import { TagScopeContext } from "../TagInnerService";
 import { cloneCompletionItem } from "../../Utils";
+import { findNearestOpenComponent } from "../TagHelpers";
+import { WorkspaceContext } from "../../../interfaces";
 
 export class HtmlTagDefaultService extends BaseService {
-    public getCompletitionItems(document: SvelteDocument, context: TagScopeContext) {
+    public getCompletitionItems(document: SvelteDocument, context: TagScopeContext, workspace: WorkspaceContext) {
         const result = [
             DefaultBindCompletionItem,
             DefaultClassCompletionItem,
@@ -35,6 +37,22 @@ export class HtmlTagDefaultService extends BaseService {
                 return item;
             })
         );
+        
+        const nearestComponent = findNearestOpenComponent(context.documentOffset - context.offset - 1, document, workspace.documentsCache);
+        if (nearestComponent !== null && nearestComponent.metadata.slots.length > 0) {
+            result.push(
+                DefaultSlotCompletionItem,
+                ...nearestComponent.metadata.slots
+                    .map(cloneCompletionItem)
+                    .map(item => {
+                        item.detail = `[Svelte] Slot of ${nearestComponent.sveltedoc.name}`;
+                        item.filterText = `slot="${item.label}"`;
+                        item.sortText = `slot="${item.label}"`;
+                        item.insertText = `slot="${item.label}"`;
+                        return item;
+                    })
+            );
+        }
 
         return result;
     }

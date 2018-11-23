@@ -32,9 +32,6 @@ export function getImportedComponentDocumentation(componentName: string, documen
     }
 
     const componentDocument = workspace.documentsCache.get(component.filePath);
-    if (componentDocument === null) {
-        return EmptyHoverContent;
-    }
 
     return { 
         contents: {

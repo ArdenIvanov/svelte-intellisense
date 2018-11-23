@@ -307,6 +307,20 @@ Component bindings keep values in sync between a parent and a child.
     preselect: true,
 };
 
+export const DefaultSlotCompletionItem: CompletionItem = {
+    label: 'slot="..."',
+    kind: CompletionItemKind.Keyword,
+    detail: '[Svelte] slot="name"',
+    documentation: {
+        kind: MarkupKind.Markdown,
+        value:
+`
+Allows the current component to inject content into this component.
+`
+    },
+    insertText: 'slot='
+};
+
 export const DefaultComponentMethods: Array<CompletionItem> = [
     {
         label: 'set',

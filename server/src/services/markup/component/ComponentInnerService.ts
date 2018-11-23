@@ -8,6 +8,7 @@ import { CompositeCompletionService } from "../../CompositeService";
 import { ExpressionCompletionService } from "./ExpressionCompletionService";
 import { ChoosingService } from "../../ChoosingService";
 import { TagData, TagScopeContext } from "../TagInnerService";
+import { findImportedComponent } from "../TagHelpers";
 
 export interface ComponentTagData extends TagData {
     component: SvelteDocument;
@@ -29,14 +30,8 @@ export class ComponentInnerService extends ChoosingService {
     }
 
     protected reduceContext(context: TagScopeContext, document: SvelteDocument, workspace: WorkspaceContext): ComponentScopeContext {
-        const component = document.importedComponents.find(c => c.name === context.data.name);
-
-        if (component === undefined) {
-            return null;
-        }
-
-        const componentDocument = workspace.documentsCache.get(component.filePath);
-        if (componentDocument === null) {
+        const component = findImportedComponent(context.data.name, document, workspace.documentsCache);
+        if (component === null) {
             return null;
         }
 
@@ -44,7 +39,7 @@ export class ComponentInnerService extends ChoosingService {
             documentOffset: context.documentOffset,
             content: context.content,
             offset: context.offset,
-            data: Object.assign({}, context.data, { component: componentDocument })
+            data: Object.assign({}, context.data, { component: component })
         };
     }
 }

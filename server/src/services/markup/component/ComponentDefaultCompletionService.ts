@@ -1,13 +1,15 @@
 import { CompletionItemKind, CompletionItem } from "vscode-languageserver";
-import { DefaultRefCompletionItem, DefaultEventHandlerCompletionItem, DefaultBindCompletionItem } from "../../../svelteLanguage";
+import { DefaultRefCompletionItem, DefaultEventHandlerCompletionItem, DefaultBindCompletionItem, DefaultSlotCompletionItem } from "../../../svelteLanguage";
 import { cloneCompletionItem } from "../../Utils";
 import { BaseService } from "../../Common";
 import { SvelteDocument } from "../../../SvelteDocument";
 import { ComponentScopeContext } from "./ComponentInnerService";
+import { findNearestOpenComponent } from "../TagHelpers";
+import { WorkspaceContext } from "../../../interfaces";
 
 export class ComponentDefaultCompletionService extends BaseService {
 
-    public getCompletitionItems(_document: SvelteDocument, context: ComponentScopeContext): Array<CompletionItem> {
+    public getCompletitionItems(document: SvelteDocument, context: ComponentScopeContext, workspace: WorkspaceContext): Array<CompletionItem> {
         const result = [];
 
         result.push(...context.data.component.metadata.public_events
@@ -41,6 +43,22 @@ export class ComponentDefaultCompletionService extends BaseService {
             DefaultRefCompletionItem
         ]);
 
+        const nearestComponent = findNearestOpenComponent(context.documentOffset - context.offset - 1, document, workspace.documentsCache);
+        if (nearestComponent !== null && nearestComponent.metadata.slots.length > 0) {
+            result.push(
+                DefaultSlotCompletionItem,
+                ...nearestComponent.metadata.slots
+                    .map(cloneCompletionItem)
+                    .map(item => {
+                        item.detail = `[Svelte] Slot of ${nearestComponent.sveltedoc.name}`;
+                        item.filterText = `slot="${item.label}"`;
+                        item.sortText = `slot="${item.label}"`;
+                        item.insertText = `slot="${item.label}"`;
+                        return item;
+                    })
+            );
+        }
+        
         return result;
     }
 }

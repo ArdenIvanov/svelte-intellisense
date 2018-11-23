@@ -1,3 +1,6 @@
+import { SvelteDocument } from "../../SvelteDocument";
+import { DocumentsCache } from "../../DocumentsCache";
+
 export function findLastOpenTagIndex(content: string, offset: number): number {
     const startIndex = content.lastIndexOf('<', offset);
     if (startIndex < 0) {
@@ -108,4 +111,19 @@ export function findLastDirectiveIndex(content: string, offset: number, directiv
     }
 
     return index;
+}
+
+export function findImportedComponent(componentName: string, document: SvelteDocument, documentsCache: DocumentsCache) {
+    const component = document.importedComponents.find(c => c.name === componentName);
+
+    if (component === undefined) {
+        return null;
+    }
+
+    return documentsCache.has(component.filePath) ? documentsCache.get(component.filePath) : null;
+}
+
+export function findNearestOpenComponent(offset: number, document: SvelteDocument, documentsCache: DocumentsCache) {
+    const prevTag = findNearestOpenTag(document.content, offset);
+    return prevTag === null ? null : findImportedComponent(prevTag.tagName, document, documentsCache);
 }
