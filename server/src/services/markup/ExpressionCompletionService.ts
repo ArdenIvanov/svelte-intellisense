@@ -1,8 +1,8 @@
 import { CompletionItem } from "vscode-languageserver";
-import { BaseService } from "../../Common";
-import { ScopeContext } from "../../../interfaces";
-import { SvelteDocument } from "../../../SvelteDocument";
-import { DefaultComponentMethods } from "../../../svelteLanguage";
+import { BaseService } from "../Common";
+import { ScopeContext } from "../../interfaces";
+import { SvelteDocument } from "../../SvelteDocument";
+import { DefaultComponentMethods } from "../../svelteLanguage";
 
 export class ExpressionCompletionService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: ScopeContext): Array<CompletionItem> {

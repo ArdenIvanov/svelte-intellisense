@@ -5,7 +5,7 @@ import { ComponentDataCompletionService } from "./ComponentDataCompletionService
 import { ComponentBindCompletionService } from "./ComponentBindCompletionService";
 import { ComponentDefaultCompletionService } from "./ComponentDefaultCompletionService";
 import { CompositeCompletionService } from "../../CompositeService";
-import { ExpressionCompletionService } from "./ExpressionCompletionService";
+import { ExpressionCompletionService } from "../ExpressionCompletionService";
 import { ChoosingService } from "../../ChoosingService";
 import { TagData, TagScopeContext } from "../TagInnerService";
 import { findImportedComponent } from "../TagHelpers";
