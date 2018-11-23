@@ -73,6 +73,9 @@ documents.onDidChangeContent(change => {
         fileContent: document.content,
         ignoredVisibilities: []
     }).then(sveltedoc => {
+        if (sveltedoc.name === null) {
+            sveltedoc.name = path.basename(document.path, path.extname(document.path));
+        }
         reloadDocumentImports(document, sveltedoc.components);
         reloadDocumentMetadata(document, sveltedoc);
     }).catch(() => {
