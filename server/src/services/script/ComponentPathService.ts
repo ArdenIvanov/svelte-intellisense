@@ -6,12 +6,32 @@ import { SvelteDocument } from "../../SvelteDocument";
 import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
 import { WorkspaceContext, ScopeContext } from '../../interfaces';
 
-const supportedComponentFileExtensions = [
+export const SupportedComponentFileExtensions = [
     '.svelte',
     '.html'
-]
+];
+
+export interface ComponentPathServiceOptions {
+    extensionsToSearch?: string[];
+    extensionsToExclude?: string[];
+    includeFileExtensionToInsert?: boolean;
+}
+
+const __defaultOptions: ComponentPathServiceOptions = {
+    extensionsToSearch: SupportedComponentFileExtensions,
+    extensionsToExclude: [],
+    includeFileExtensionToInsert: true
+}
 
 export class ComponentPathService extends BaseService {
+
+    private _options: ComponentPathServiceOptions;
+
+    constructor(options?: ComponentPathServiceOptions) {
+        super();
+
+        this._options = Object.assign({}, __defaultOptions, options);
+    }
 
     public getCompletitionItems(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Array<CompletionItem> {
         const prevContent = context.content.substring(0, context.offset);
@@ -106,19 +126,45 @@ export class ComponentPathService extends BaseService {
                     }
                 }
 
-                const extname = path.extname(foundPath);
-                if (itemStats.isFile() && supportedComponentFileExtensions.indexOf(extname) >= 0) {
-                    return <CompletionItem>{
-                        label: basename,
-                        kind: CompletionItemKind.Class,
-                        detail: isFromNodeModules ? 'from node_modules' : null,
-                        commitCharacters: ['/', '\''],
-                        sortText: `2.${basename}`
+                if (itemStats.isFile()) {
+                    const extname = path.extname(foundPath);
+
+                    if (this.isIncludedFileName(basename)) {
+                        const fileNameToInsert = this._options.includeFileExtensionToInsert
+                            ? basename
+                            : path.basename(basename, extname);
+
+                        // Check that file is a Svelte component file or not?
+                        if (SupportedComponentFileExtensions.indexOf(extname) >= 0) {
+                            return <CompletionItem>{
+                                label: basename,
+                                kind: CompletionItemKind.Class,
+                                detail: '[Svelte] component' + (isFromNodeModules ? ' from node_modules' : ''),
+                                commitCharacters: ['\''],
+                                sortText: `2.${basename}`,
+                                insertText: fileNameToInsert
+                            }
+                        }
+
+                        // Return a default file item statement
+                        return <CompletionItem>{
+                            label: basename,
+                            kind: CompletionItemKind.File,
+                            detail: isFromNodeModules ? 'from node_modules' : null,
+                            commitCharacters: ['\''],
+                            sortText: `2.${basename}`,
+                            insertText: fileNameToInsert
+                        }
                     }
                 }
 
                 return null;
             })
             .filter(item => item != null);
+    }
+
+    private isIncludedFileName(basename: string): boolean {
+        return this._options.extensionsToSearch.some(ext => basename.endsWith(ext))
+            && !this._options.extensionsToExclude.some(ext => basename.endsWith(ext));
     }
 }
