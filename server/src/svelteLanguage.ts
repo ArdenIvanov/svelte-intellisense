@@ -321,6 +321,20 @@ Allows the current component to inject content into this component.
     insertText: 'slot='
 };
 
+export const DefaultComponentGetMethod: CompletionItem = {
+    label: 'get',
+        kind: CompletionItemKind.Method,
+        detail: '[Svelte] get()',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value:
+`
+Returns the component's current state.
+`
+        },
+        insertText: 'get()'
+};
+
 export const DefaultComponentMethods: Array<CompletionItem> = [
     {
         label: 'set',

@@ -2,12 +2,14 @@ import { ChoosingService } from "../ChoosingService";
 import { ScopeContext } from "../../interfaces";
 import { ComponentsSectionService } from "./ComponentsSectionService";
 import { ImportStatementService } from "./ImportStatementService";
+import { ComponentPrivateService } from "./ComponentPrivateService";
 
 export class ScriptService extends ChoosingService {
     public constructor() {
         super([
             new ImportStatementService(),
-            new ComponentsSectionService()
+            new ComponentsSectionService(),
+            new ComponentPrivateService()
         ], {
             exclusive: true
         });
