@@ -5,12 +5,14 @@ import { ImportStatementService } from "./ImportStatementService";
 import { ComponentPrivateService } from "./ComponentPrivateService";
 import { ComponentGetDataService } from "./ComponentGetDataService";
 import { ComponentSetDataService } from "./ComponentSetDataService";
+import { ComputedSectionService } from "./ComputedSectionService";
 
 export class ScriptService extends ChoosingService {
     public constructor() {
         super([
             new ImportStatementService(),
             new ComponentsSectionService(),
+            new ComputedSectionService(),
             new ComponentPrivateService(),
             new ComponentGetDataService(),
             new ComponentSetDataService()
