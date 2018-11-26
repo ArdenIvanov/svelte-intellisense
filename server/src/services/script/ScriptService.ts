@@ -3,13 +3,17 @@ import { ScopeContext } from "../../interfaces";
 import { ComponentsSectionService } from "./ComponentsSectionService";
 import { ImportStatementService } from "./ImportStatementService";
 import { ComponentPrivateService } from "./ComponentPrivateService";
+import { ComponentGetDataService } from "./ComponentGetDataService";
+import { ComponentSetDataService } from "./ComponentSetDataService";
 
 export class ScriptService extends ChoosingService {
     public constructor() {
         super([
             new ImportStatementService(),
             new ComponentsSectionService(),
-            new ComponentPrivateService()
+            new ComponentPrivateService(),
+            new ComponentGetDataService(),
+            new ComponentSetDataService()
         ], {
             exclusive: true
         });
@@ -26,7 +30,7 @@ export class ScriptService extends ChoosingService {
             return null;
         }
 
-        const tagContentIndex = context.content.indexOf(">");
+        const tagContentIndex = context.content.indexOf(">", openTagIndex);
         if (tagContentIndex < 0) {
             return null;
         }
