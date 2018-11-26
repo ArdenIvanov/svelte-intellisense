@@ -1,9 +1,12 @@
 import { ChoosingService } from "../ChoosingService";
 import { ScopeContext } from "../../interfaces";
+import { RefsStyleService } from "./RefsStyleService";
 
 export class StyleService extends ChoosingService {
     public constructor() {
-        super([], {
+        super([
+            new RefsStyleService()
+        ], {
             exclusive: true
         });
     }
