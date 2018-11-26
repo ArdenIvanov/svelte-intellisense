@@ -2,7 +2,7 @@ import { BaseService } from "../Common";
 import { SvelteDocument } from "../../SvelteDocument";
 import { CompletionItem } from "vscode-languageserver";
 import { ScopeContext } from "../../interfaces";
-import { DefaultComponentMethods, DefaultRefCompletionItem, DefaultComponentGetMethod } from "../../svelteLanguage";
+import { DefaultComponentMethods, DefaultRefCompletionItem, DefaultComponentGetMethodCompletionItem } from "../../svelteLanguage";
 import { cloneCompletionItem } from "../Utils";
 
 export class ComponentPrivateService extends BaseService {
@@ -11,7 +11,7 @@ export class ComponentPrivateService extends BaseService {
         if (/\sthis(\s)*.(\s)*[\w\d_]*$/g.test(context.content.substring(0, context.offset))) {
             return  [
                 ...DefaultComponentMethods,
-                DefaultComponentGetMethod,
+                DefaultComponentGetMethodCompletionItem,
                 DefaultRefCompletionItem,
                 ...document.metadata.methods,
                 ...document.metadata.refs

@@ -321,7 +321,7 @@ Allows the current component to inject content into this component.
     insertText: 'slot='
 };
 
-export const DefaultComponentGetMethod: CompletionItem = {
+export const DefaultComponentGetMethodCompletionItem: CompletionItem = {
     label: 'get',
         kind: CompletionItemKind.Method,
         detail: '[Svelte] get()',
@@ -329,7 +329,7 @@ export const DefaultComponentGetMethod: CompletionItem = {
             kind: MarkupKind.Markdown,
             value:
 `
-Returns the component's current state.
+Returns the component's current state. This will also retrieve the value of computed properties.
 `
         },
         insertText: 'get()'
