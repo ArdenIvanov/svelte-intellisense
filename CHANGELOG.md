@@ -4,6 +4,9 @@ All notable changes to the "svelte-intellisense" extension will be documented in
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
+- [Fixed] Fix issue #2 with `:catch` and `:then` svelte syntax auto-insertion
+- [Fixed] Fix issue #3 with `ref:`, `transition:`, `in:`, `out:`, `use:` auto-insertion when user press <kbd>:</kbd>
+- [Added] Auto-completion for data and computed properties and helper methods in `{#if _}`, `{:elseif _}`, `{#each _}`, `{#await _}` statements
 
 ## [0.2.0]
 - [Fixed] Auto-completion for nested blocks
