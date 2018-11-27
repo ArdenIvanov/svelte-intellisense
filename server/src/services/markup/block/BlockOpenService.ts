@@ -17,6 +17,18 @@ export class BlockOpenService extends BaseService {
             return markupBlockCompletitionItems;
         }
 
+        const match = /^{([#:][\w\d_]*)\s*[^}]*/g.exec(blockContent);
+        if (match) {
+            const blockName = match[1];
+            if (blockName === '#if' || blockName === ':elseif' || blockName === '#await' || blockName === '#each') {
+                return [
+                    ...document.metadata.data,
+                    ...document.metadata.computed,
+                    ...document.metadata.helpers,
+                ]
+            }
+        }
+
         return null;
     }
 }
