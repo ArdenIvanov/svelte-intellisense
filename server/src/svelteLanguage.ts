@@ -375,7 +375,7 @@ export const markupBlockInnerCompletitionItems = {
                 kind: MarkupKind.Markdown,
                 value: `Handle additional condition if previous one are failed.`
             },
-            insertText: 'elseif ${1:condition}',
+            insertText: 'elseif ${0:condition}',
             insertTextFormat: InsertTextFormat.Snippet,
             sortText: '1'
         },
@@ -410,7 +410,7 @@ export const markupBlockInnerCompletitionItems = {
                 kind: MarkupKind.Markdown,
                 value: `Handle state when JS Promise object are resolved.`
             },
-            insertText: 'then ${1:data}\n$0',
+            insertText: 'then ${0:data}',
             insertTextFormat: InsertTextFormat.Snippet,
             sortText: '1'
         },
@@ -422,7 +422,7 @@ export const markupBlockInnerCompletitionItems = {
                 kind: MarkupKind.Markdown,
                 value: `Handle state when JS Promise object are rejected.`
             },
-            insertText: 'then ${1:error}\n$0',
+            insertText: 'catch ${0:error}',
             insertTextFormat: InsertTextFormat.Snippet,
             sortText: '2'
         },

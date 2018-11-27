@@ -11,7 +11,7 @@ export function findLastOpenBlockIndex(content: string, position: number) {
 }
 
 export function findLastInnerBlockIndex(content: string, position: number): number {
-    const openIndex = content.lastIndexOf('{:');
+    const openIndex = content.lastIndexOf('{:', position);
     if (openIndex < 0) {
         return -1;
     }
