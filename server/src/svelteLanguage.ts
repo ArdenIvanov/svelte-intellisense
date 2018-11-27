@@ -180,7 +180,6 @@ export const DefaultTransitionCompletionItems: CompletionItem[] = [
             kind: MarkupKind.Markdown,
             value: `Transitions allow elements to enter and leave the DOM gracefully, rather than suddenly appearing and disappearing.`
         },
-        commitCharacters: [':'],
         insertText: 'transition:',
         preselect: true
     },
@@ -192,7 +191,6 @@ export const DefaultTransitionCompletionItems: CompletionItem[] = [
             kind: MarkupKind.Markdown,
             value: `In transitions allow elements to enter the DOM gracefully, rather than suddenly appearing.`
         },
-        commitCharacters: [':'],
         insertText: 'in:',
         preselect: true
     },
@@ -204,7 +202,6 @@ export const DefaultTransitionCompletionItems: CompletionItem[] = [
             kind: MarkupKind.Markdown,
             value: `Out transitions allow elements to leave the DOM gracefully, rather than suddenly disappearing.`
         },
-        commitCharacters: [':'],
         insertText: 'out:',
         preselect: true
     }
@@ -229,7 +226,6 @@ Note that you can use refs in your \`<style>\` blocks.
 \`\`\`
 `
     },
-    commitCharacters: [':'],
     insertText: 'ref:',
     preselect: true,
 };
