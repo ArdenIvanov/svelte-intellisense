@@ -7,6 +7,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - [Fixed] Fix issue #2 with `:catch` and `:then` svelte syntax auto-insertion
 - [Fixed] Fix issue #3 with `ref:`, `transition:`, `in:`, `out:`, `use:` auto-insertion when user press <kbd>:</kbd>
 - [Fixed] Improve auto-completion for `this.`
+- [Fixed] Fix issue with auto-completion in `this.refs.<>`
+- [Fixed] Fix issue with providing completion item of `ref:` from markup into script block, now provided a correct completion item `refs.` with proper description
 - [Added] Add auto completion for single property getter `this.get().<>`
 - [Added] Auto-completion for data and computed properties and helper methods in `{#if _}`, `{:elseif _}`, `{#each _}`, `{#await _}` statements
 

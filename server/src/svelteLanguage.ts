@@ -207,6 +207,22 @@ export const DefaultTransitionCompletionItems: CompletionItem[] = [
     }
 ]
 
+export const DefaultScriptRefsCompletionItem: CompletionItem = {
+    label: 'refs',
+    kind: CompletionItemKind.Property,
+    detail: '[Svelte] refs',
+    documentation: {
+        kind: MarkupKind.Markdown,
+        value:
+        `
+Refs are a convenient way to store a reference to particular DOM nodes or components.
+Declare a ref with \`ref:[name]\`, and access it inside your component's methods with \`this.refs.[name]\`.
+\`\`\`
+        `     
+    },
+    insertText: 'refs'
+};
+
 export const DefaultRefCompletionItem: CompletionItem = {
     label: 'ref:...',
     kind: CompletionItemKind.Keyword,
