@@ -8,8 +8,8 @@
 	"version": "0.2.0",
 	"publisher": "ardenivanov",
 	"keywords": [
-        "svelte",
-        "vscode"
+		"svelte",
+		"vscode"
 	],
 	"author": "Aleksandr Ivanov",
 	"license": "MIT",
@@ -17,9 +17,9 @@
 		"vscode": "^1.28.2"
 	},
 	"categories": [
-        "Programming Languages",
-        "Formatters"
-    ],
+		"Programming Languages",
+		"Formatters"
+	],
 	"activationEvents": [
 		"onLanguage:svelte"
 	],
@@ -54,7 +54,7 @@
 	},
 	"devDependencies": {
 		"typescript": "^2.6.1",
-		"vscode": "^1.1.21",
+		"vscode": "^1.1.22",
 		"tslint": "^5.8.0",
 		"@types/node": "^8.10.25",
 		"@types/mocha": "^2.2.42"

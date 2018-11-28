@@ -12,7 +12,7 @@
 		"postinstall": "yarn vscode-install"
 	},
 	"dependencies": {
-		"vscode": "^1.1.21",
+		"vscode": "^1.1.22",
 		"vscode-languageclient": "^5.1.1"
 	}
 }
