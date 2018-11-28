@@ -11,8 +11,10 @@
 		"update-vscode": "yarn vscode-install",
 		"postinstall": "yarn vscode-install"
 	},
+	"devDependencies": {
+		"vscode": "^1.1.22"
+	},	
 	"dependencies": {
-		"vscode": "^1.1.22",
 		"vscode-languageclient": "^5.1.1"
 	}
 }
