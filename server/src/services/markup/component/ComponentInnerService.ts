@@ -9,6 +9,7 @@ import { ExpressionCompletionService } from "../ExpressionCompletionService";
 import { ChoosingService } from "../../ChoosingService";
 import { TagData, TagScopeContext } from "../TagInnerService";
 import { findImportedComponent } from "../TagHelpers";
+import { BindTargetPropertyService } from "../BindTargetPropertyService";
 
 export interface ComponentTagData extends TagData {
     component: SvelteDocument;
@@ -22,6 +23,9 @@ export class ComponentInnerService extends ChoosingService {
             new ExpressionCompletionService(),
             new ComponentEventCompletionService(),
             new ComponentBindCompletionService(),
+            new BindTargetPropertyService(),
+
+            // Fallback
             new CompositeCompletionService([
                 new ComponentDataCompletionService(),
                 new ComponentDefaultCompletionService()

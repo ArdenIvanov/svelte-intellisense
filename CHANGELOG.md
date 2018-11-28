@@ -11,6 +11,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - [Fixed] Fix issue with providing completion item of `ref:` from markup into script block, now provided a correct completion item `refs.` with proper description
 - [Added] Add auto completion for single property getter `this.get().<>`
 - [Added] Auto-completion for data and computed properties and helper methods in `{#if _}`, `{:elseif _}`, `{#each _}`, `{#await _}` statements
+- [Added] Add auto-completion for bind target property in `bind:...=<>` syntax in markup
 
 ## [0.2.0]
 - [Fixed] Auto-completion for nested blocks
