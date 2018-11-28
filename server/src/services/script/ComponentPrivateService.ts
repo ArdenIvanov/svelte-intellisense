@@ -8,7 +8,7 @@ import { cloneCompletionItem } from "../Utils";
 export class ComponentPrivateService extends BaseService {
 
     public getCompletitionItems(document: SvelteDocument, context: ScopeContext): Array<CompletionItem> {
-        if (/\sthis(\s)*.(\s)*[\w\d_]*$/g.test(context.content.substring(0, context.offset))) {
+        if (/\bthis(\s)*.(\s)*[\w\d_]*$/g.test(context.content.substring(0, context.offset))) {
             return  [
                 ...DefaultComponentMethods,
                 DefaultComponentGetMethodCompletionItem,
@@ -27,7 +27,7 @@ export class ComponentPrivateService extends BaseService {
             ];
         }
 
-        if (/\sthis(\s)*.(\s)*refs(\s)*.(\s)*[\w\d_]*$/g.test(context.content.substring(0, context.offset))) {
+        if (/\bthis(\s)*.(\s)*refs(\s)*.(\s)*[\w\d_]*$/g.test(context.content.substring(0, context.offset))) {
             return  [
                 ...document.metadata.refs
                 .map(cloneCompletionItem)
