@@ -4,14 +4,17 @@ All notable changes to the "svelte-intellisense" extension will be documented in
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
-- [Fixed] Fix issue #2 with `:catch` and `:then` svelte syntax auto-insertion
-- [Fixed] Fix issue #3 with `ref:`, `transition:`, `in:`, `out:`, `use:` auto-insertion when user press <kbd>:</kbd>
-- [Fixed] Improve auto-completion for `this.`
-- [Fixed] Fix issue with auto-completion in `this.refs.<>`
-- [Fixed] Fix issue with providing completion item of `ref:` from markup into script block, now provided a correct completion item `refs.` with proper description
-- [Added] Add auto completion for single property getter `this.get().<>`
+
+## [0.3.0]
+- [Fixed] Issue #8: Your extension is affected by event stream and have been blocked
+- [Fixed] Issue #2 with `:catch` and `:then` svelte syntax auto-insertion
+- [Fixed] Issue #3 with `ref:`, `transition:`, `in:`, `out:`, `use:` auto-insertion when user press <kbd>:</kbd>
+- [Fixed] Improved auto-completion for `this.`
+- [Fixed] Issue with auto-completion in `this.refs.<>`
+- [Fixed] Issue with providing completion item of `ref:` from markup into script block, now provided a correct completion item `refs.` with proper description
+- [Added] Auto-completion for single property getter `this.get().<>`
 - [Added] Auto-completion for data and computed properties and helper methods in `{#if _}`, `{:elseif _}`, `{#each _}`, `{#await _}` statements
-- [Added] Add auto-completion for bind target property in `bind:...=<>` syntax in markup
+- [Added] Auto-completion for bind target property in `bind:...=<>` syntax in markup
 
 ## [0.2.0]
 - [Fixed] Auto-completion for nested blocks
