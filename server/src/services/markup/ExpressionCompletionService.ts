@@ -12,12 +12,18 @@ export class ExpressionCompletionService extends BaseService {
         }
 
         const result = [
-            ...document.metadata.data,
-            ...document.metadata.computed,
-            ...document.metadata.methods,
-            ...document.metadata.helpers,
             ...DefaultComponentMethods
         ];
+
+        if (document.metadata) {
+            result.push(...[
+                ...document.metadata.data,
+                ...document.metadata.computed,
+                ...document.metadata.methods,
+                ...document.metadata.helpers
+            ]);
+        }
+
 
         return result;
     }

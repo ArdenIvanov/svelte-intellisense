@@ -18,11 +18,15 @@ export class PlaceholdersService extends BaseService {
             return PlaceholderModifiers;
         }
 
-        const result = [
-            ...document.metadata.data,
-            ...document.metadata.computed,
-            ...document.metadata.helpers,
-        ];
+        const result = [];
+
+        if (document.metadata) {
+            result.push(...[
+                ...document.metadata.data,
+                ...document.metadata.computed,
+                ...document.metadata.helpers,
+            ]);
+        }
 
         if (openIndex + 1 === context.offset) {
             result.push(...PlaceholderModifiers

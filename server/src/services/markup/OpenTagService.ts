@@ -28,7 +28,7 @@ export class OpenTagService extends BaseService {
         const match = /<([\w\d_]+:)?[\w\d_]*$/g.exec(tagContent);
 
         if (match) {
-            if (match[1] === `${SpecialComponentNamespace}:`) {
+            if (!document.metadata || match[1] === `${SpecialComponentNamespace}:`) {
                 return [
                     ...SpecialComponents
                 ];

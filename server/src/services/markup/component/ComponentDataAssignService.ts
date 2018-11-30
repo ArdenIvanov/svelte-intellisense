@@ -2,7 +2,7 @@ import { BaseService } from "../../Common";
 import { SvelteDocument } from "../../../SvelteDocument";
 import { ComponentScopeContext } from "./ComponentInnerService";
 import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
-import { JSDocType, SvelteDataItem } from "sveltedoc-parser/typings";
+import { JSDocType } from "sveltedoc-parser/typings";
 
 export class ComponentDataAssignService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: ComponentScopeContext) {
@@ -17,11 +17,11 @@ export class ComponentDataAssignService extends BaseService {
                 const sourcePropertyName = match[2];
 
                 if (match[3].startsWith('"{') || match[3].startsWith('\'{') || match[3].startsWith('{')) {
-                    return [
+                    return document.metadata ? [
                         ...document.metadata.helpers,
                         ...document.metadata.data,
                         ...document.metadata.computed
-                    ];
+                    ] : [];
                 }
                 
                 const property = context.data.component.sveltedoc.data.find(p => p.name === sourcePropertyName && p.visibility === 'public');
@@ -44,10 +44,10 @@ export class ComponentDataAssignService extends BaseService {
             }
 
             // When source property is not specified we can use only data or computed with same names
-            const items = [
+            const items = document.metadata ? [
                 ...document.metadata.data,
                 ...document.metadata.computed
-            ];
+            ] : [];
 
             return items.filter(item => context.data.component.metadata.public_data.some(child_item => child_item.label === item.label));
         }

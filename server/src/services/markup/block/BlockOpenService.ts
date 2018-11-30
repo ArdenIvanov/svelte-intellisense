@@ -21,11 +21,11 @@ export class BlockOpenService extends BaseService {
         if (match) {
             const blockName = match[1];
             if (blockName === '#if' || blockName === ':elseif' || blockName === '#await' || blockName === '#each') {
-                return [
+                return document.metadata ? [
                     ...document.metadata.data,
                     ...document.metadata.computed,
                     ...document.metadata.helpers,
-                ]
+                ] : [];
             }
         }
 

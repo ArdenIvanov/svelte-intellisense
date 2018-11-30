@@ -14,7 +14,9 @@ export class HtmlTagTransionInService extends BaseService {
 
         const contentPart = context.content.substring(index, context.offset);
         if (/in:[\w\d_]*$/g.test(contentPart)) {
-            return document.metadata.transitions;
+            return document.metadata
+                ? document.metadata.transitions
+                : [];
         }
 
         return null;        

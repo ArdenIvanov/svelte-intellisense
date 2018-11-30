@@ -4,6 +4,7 @@ All notable changes to the "svelte-intellisense" extension will be documented in
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
+- [Fixed] Fixed some crashes of language server completion requests when medatadata of current document is not provided in some cases
 - [Added] Auto-completion for component assign properties
 - [Added] Sugestions for data properties that have `@type` attribute with union constant types, like `{('plain'|'primary'|'secondary')}`
 
