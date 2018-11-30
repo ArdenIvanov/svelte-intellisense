@@ -4,6 +4,8 @@ All notable changes to the "svelte-intellisense" extension will be documented in
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 ## [Unreleased]
+- [Added] Auto-completion for component assign properties
+- [Added] Sugestions for data properties that have `@type` attribute with union constant types, like `{('plain'|'primary'|'secondary')}`
 
 ## [0.3.0]
 - [Fixed] Issue #8: Your extension is affected by event stream and have been blocked

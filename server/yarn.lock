@@ -92,9 +92,9 @@ string_decoder@^1.1.1:
   dependencies:
     safe-buffer "~5.1.0"
 
-sveltedoc-parser@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/sveltedoc-parser/-/sveltedoc-parser-1.1.1.tgz#2f8f679699930948d4a54328ad56eef9f521b70f"
+sveltedoc-parser@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/sveltedoc-parser/-/sveltedoc-parser-1.1.2.tgz#d011cee378e89225c73fdaa0a351f023694d8997"
   dependencies:
     espree "^3.5.4"
     htmlparser2 "^3.9.2"
