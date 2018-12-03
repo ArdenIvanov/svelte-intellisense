@@ -5,8 +5,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
-## [0.3.0]
+## [0.3.1]
 - [Fixed] Issue #8: Your extension is affected by event stream and have been blocked
+
+## [0.3.0]
 - [Fixed] Issue #2 with `:catch` and `:then` svelte syntax auto-insertion
 - [Fixed] Issue #3 with `ref:`, `transition:`, `in:`, `out:`, `use:` auto-insertion when user press <kbd>:</kbd>
 - [Fixed] Improved auto-completion for `this.`
