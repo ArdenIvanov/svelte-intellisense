@@ -6,6 +6,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [Unreleased]
 - [Fixed] Fixed some crashes of language server completion requests when medatadata of current document is not provided in some cases
 - [Added] Auto-completion for component assign properties
+- [Added] Auto-completion for HTML tags attribute assign
 - [Added] Sugestions for data properties that have `@type` attribute with union constant types, like `{('plain'|'primary'|'secondary')}`
 
 ## [0.3.0]

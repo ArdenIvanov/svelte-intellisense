@@ -7,6 +7,7 @@ import { HtmlTagTransionOutService } from "./HtmlTagTransitionOutService";
 import { HtmlTagTransionInService } from "./HtmlTagTransitionInService";
 import { ExpressionCompletionService } from "../ExpressionCompletionService";
 import { BindTargetPropertyService } from "../BindTargetPropertyService";
+import { HtmlTagAttributeAssignService } from "./HtmlTagAttributeAssignService";
 
 export class HtmlTagInnerService extends ChoosingService {
     public constructor() {
@@ -19,6 +20,7 @@ export class HtmlTagInnerService extends ChoosingService {
             new HtmlTagTransionOutService(),
 
             new BindTargetPropertyService(),
+            new HtmlTagAttributeAssignService(),
 
             // Fallback service
             new HtmlTagDefaultService()
