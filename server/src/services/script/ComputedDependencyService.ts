@@ -8,7 +8,9 @@ export class ComputedDependencyService extends BaseService {
 
 
         if (/[{,]?\s*[\w_]+[\w\d_]*\s*\:?\s*\(\s*\{\s*[\w\d_,\s]*$/g.test(content)) {
-            return document.metadata.data;
+            return document.metadata
+                ? document.metadata.data
+                : [];
         }
 
         return null;

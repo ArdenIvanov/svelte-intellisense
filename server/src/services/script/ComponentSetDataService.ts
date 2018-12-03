@@ -11,7 +11,9 @@ export class ComponentSetDataService extends BaseService {
         }
 
         if (/\s*this\s*\.\s*set\s*\(\s*$/g.test(context.content.substring(0, indexOfLastOpenBrace))) {
-            return document.metadata.data;
+            return document.metadata 
+                ? document.metadata.data 
+                : [];
         }
 
         return null;

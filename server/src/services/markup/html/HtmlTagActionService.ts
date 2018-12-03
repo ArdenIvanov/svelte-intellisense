@@ -13,7 +13,9 @@ export class HtmlTagActionService extends BaseService {
 
         const contentPart = context.content.substring(index, context.offset);
         if (/use:[\w\d_]*$/g.test(contentPart)) {
-            return document.metadata.actions;
+            return document.metadata
+                ? document.metadata.actions
+                : [];
         }
 
         return null;

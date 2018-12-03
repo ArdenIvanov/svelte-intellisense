@@ -16,16 +16,19 @@ export class HtmlTagDefaultService extends BaseService {
             ...DefaultTransitionCompletionItems
         ];
 
-        result.push(...document.metadata.actions
-            .map(cloneCompletionItem)
-            .map(item => {
-                item.filterText = `use:${item.label}`;
-                item.sortText = `use:${item.label}`;
-                item.insertText = `use:${item.label}`;
-                item.commitCharacters = ['='];
-                return item;
-            })
-        );
+        // Document metadata can be is not parsed for this moment, we should check
+        if (document.metadata) {
+            result.push(...document.metadata.actions
+                .map(cloneCompletionItem)
+                .map(item => {
+                    item.filterText = `use:${item.label}`;
+                    item.sortText = `use:${item.label}`;
+                    item.insertText = `use:${item.label}`;
+                    item.commitCharacters = ['='];
+                    return item;
+                })
+            );
+        }
 
         result.push(...getHtmlTagDefaultBindCompletionItems(context.data.name)
             .map(cloneCompletionItem)
