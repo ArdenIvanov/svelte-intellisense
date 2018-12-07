@@ -19,7 +19,7 @@ export class ComponentNameService extends BaseService {
         const nextContent = context.content.substring(context.offset);
             
         const componentNameStartSearchResult = /\b([\w\d_]+)$/g.exec(prevContent);
-        const componentNameEndSearchResult = /^([\w\d_]+)\s*[:,]?/g.exec(nextContent);           
+        const componentNameEndSearchResult = /^([\w\d_]+)\s*[:,}]/g.exec(nextContent);
             
         if (componentNameStartSearchResult !== null && componentNameEndSearchResult !== null) {
             const componentName = componentNameStartSearchResult[1] + componentNameEndSearchResult[1];

@@ -3,8 +3,9 @@ import * as fs from 'fs';
 
 import { BaseService } from "../Common";
 import { SvelteDocument } from "../../SvelteDocument";
-import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
+import { CompletionItem, CompletionItemKind, Definition } from "vscode-languageserver";
 import { WorkspaceContext, ScopeContext } from '../../interfaces';
+import { getImportedComponentDefinition } from '../Utils';
 
 export const SupportedComponentFileExtensions = [
     '.svelte',
@@ -91,6 +92,30 @@ export class ComponentPathService extends BaseService {
             }
 
             return result;
+        }
+
+        return null;
+    }
+
+    public getDefinition(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Definition {
+        const prevContent = context.content.substring(0, context.offset);
+        const nextContent = context.content.substring(context.offset);
+            
+        const componentFileNameStartSearchResult = /\b([\w\d_.]+)$/g.exec(prevContent);
+        const componentFileNameEndSearchResult = /^([\w\d_.]+)\s*['"]/g.exec(nextContent);
+            
+        if (componentFileNameStartSearchResult !== null && componentFileNameEndSearchResult !== null) {
+            const componentNameSearchResult = /[^,{]\s*([\w\d_]+)\s*:.+$/g.exec(prevContent);
+            if (componentNameSearchResult !== null) {
+                const componentName = componentNameSearchResult[1];
+                return getImportedComponentDefinition(componentName, document, workspace);
+            }
+
+            const componentImportSearchResult = /import\s{\s*([\w\d_]+)\s}\s*from\s*.+$/g.exec(prevContent);
+            if (componentImportSearchResult !== null) {
+                const componentName = componentImportSearchResult[1];
+                return getImportedComponentDefinition(componentName, document, workspace);
+            }
         }
 
         return null;

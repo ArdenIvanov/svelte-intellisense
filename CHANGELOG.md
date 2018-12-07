@@ -9,7 +9,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - [Added] Auto-completion for HTML tags attribute assign
 - [Added] Sugestions for data properties that have `@type` attribute with union constant types, like `{('plain'|'primary'|'secondary')}`
 - [Added] Definition (go to source file) for component tag in template
-- [Added] Definition (go to source file) for imported component in script
+- [Added] Definition (go to source file) for imported component and import section in script
 
 ## [0.3.1]
 - [Fixed] Issue #8: Your extension is affected by event stream and have been blocked
