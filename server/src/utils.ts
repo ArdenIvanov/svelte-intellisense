@@ -60,6 +60,31 @@ export function fileUriToPath (uri) {
     return host + path;
 }
 
+/**
+ * Path to File URI function.
+ *
+ * @param {String} filePath
+ * @return {String} uri
+ */
+export function pathToFileUri (filePath) {
+    // Require a leading slash, on windows prefixed with drive letter
+    if (!/^(?:[a-z]:)?[\\\/]/i.test(filePath)) {
+        throw new Error(`${filePath} is not an absolute path`);
+    }
+
+    const parts = filePath.split(/[\\\/]/);
+
+    // If the first segment is a Windows drive letter, prefix with a slash and skip encoding
+    let head = parts.shift()!;
+    if (head !== '') {
+        head = '/' + head;
+    } else {
+        head = encodeURIComponent(head);
+    }
+
+    return `file://${head}/${parts.map(encodeURIComponent).join('/')}`;
+}
+
 /** 
  * Checks if svelte file (with .svelte or .html extension) exists based on a given file path and returns its real path. 
  * @param {String} filepath File path with or without extension.

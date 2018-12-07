@@ -1,4 +1,4 @@
-import { CompletionItem, Hover } from 'vscode-languageserver';
+import { CompletionItem, Hover, Definition } from 'vscode-languageserver';
 import { SvelteDocument } from '../SvelteDocument';
 import { WorkspaceContext, ScopeContext } from '../interfaces';
 
@@ -23,6 +23,15 @@ export interface IService {
      * @returns {CompletionItem|null} Returns null, when scope context is not correct for this service compatibility.
      */
     getHover(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Hover;
+
+    /**
+     * Returns definition for required context.
+     * @param document The svelte document.
+     * @param position The current cursor position in specified document.
+     * @param context The workspace context data.
+     * @returns {Definition|null} Returns null, when scope context is not correct for this service compatibility.
+     */
+    getDefinition(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Definition;
 }
 
 export abstract class BaseService implements IService {
@@ -31,6 +40,10 @@ export abstract class BaseService implements IService {
     }
 
     public getHover(_document: SvelteDocument, _context: ScopeContext, _workspace: WorkspaceContext): Hover {
+        return null;
+    }
+
+    public getDefinition(_document: SvelteDocument, _context: ScopeContext, _workspace: WorkspaceContext): Definition {
         return null;
     }
 }

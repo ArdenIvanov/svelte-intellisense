@@ -1,7 +1,7 @@
 import { IService } from "./Common";
 import { SvelteDocument } from "../SvelteDocument";
 import { WorkspaceContext, ScopeContext } from "../interfaces";
-import { CompletionItem, Hover, MarkupContent, MarkedString, MarkupKind } from "vscode-languageserver";
+import { CompletionItem, Hover, MarkupContent, MarkedString, MarkupKind, Definition } from "vscode-languageserver";
 
 /**
  * Implements a composite completion services that find all appliable services
@@ -43,6 +43,17 @@ export class CompositeCompletionService implements IService {
         } else {
             return null;
         }
+    }
+
+    public getDefinition(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Definition {
+        const reducedContext = this.reduceContext(context);
+        if (reducedContext === null) {
+            return null;
+        }
+
+        return this.findServiceResults(
+            service => service.getDefinition(document, reducedContext, workspace)
+        );
     }
 
     protected reduceContext(context: ScopeContext): ScopeContext {

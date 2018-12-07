@@ -1,10 +1,10 @@
 import { BaseService } from "../Common";
 import { SvelteDocument } from "../../SvelteDocument";
 import { findLastOpenTagIndex } from "./TagHelpers";
-import { CompletionItem, Hover, MarkupContent } from "vscode-languageserver";
+import { CompletionItem, Hover, MarkupContent, Definition } from "vscode-languageserver";
 import { ScopeContext, WorkspaceContext } from "../../interfaces";
 import { SpecialComponents, SpecialComponentNamespace } from "../../svelteLanguage";
-import { cloneCompletionItem, getImportedComponentDocumentation } from "../Utils";
+import { cloneCompletionItem, getImportedComponentDocumentation, getImportedComponentDefinition } from "../Utils";
 
 export class OpenTagService extends BaseService {
     private regexIndexOf(content, regex, startpos) {
@@ -60,6 +60,14 @@ export class OpenTagService extends BaseService {
     }
 
     public getHover(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Hover {
+        return getImportedComponentDocumentation(this.getTagContent(context), document, workspace);
+    }
+
+    public getDefinition(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Definition {
+        return getImportedComponentDefinition(this.getTagContent(context), document, workspace);
+    }
+
+    private getTagContent(context: ScopeContext) {
         const openIndex = findLastOpenTagIndex(context.content, context.offset);
         if (openIndex < 0) {
             return null;
@@ -70,8 +78,6 @@ export class OpenTagService extends BaseService {
             return null;
         }
 
-        const tagContent = context.content.substring(openIndex + 1, spaceIndex);
-
-        return getImportedComponentDocumentation(tagContent, document, workspace);
+        return context.content.substring(openIndex + 1, spaceIndex);
     }
 }

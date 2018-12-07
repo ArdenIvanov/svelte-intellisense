@@ -1,6 +1,6 @@
 import { IService, EmptyHoverContent } from './Common';
 import { SvelteDocument } from '../SvelteDocument';
-import { CompletionItem, Hover } from 'vscode-languageserver';
+import { CompletionItem, Hover, Definition } from 'vscode-languageserver';
 import { WorkspaceContext, ScopeContext } from '../interfaces';
 
 export interface ChoosingServiceOptions {
@@ -45,6 +45,18 @@ export class ChoosingService implements IService {
         return this.findServiceResults(
             service => service.getHover(document, reducedContext, workspace),
             EmptyHoverContent
+        );
+    }
+
+    public getDefinition(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Definition {
+        const reducedContext = this.reduceContext(context, document, workspace);
+        if (reducedContext === null) {
+            return null;
+        }
+
+        return this.findServiceResults(
+            service => service.getDefinition(document, reducedContext, workspace),
+            null
         );
     }
 

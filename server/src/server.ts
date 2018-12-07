@@ -7,7 +7,8 @@ import {
 	CompletionItemKind,
     TextDocumentPositionParams,
     TextDocuments,
-    Hover
+    Hover,
+    Definition
 } from 'vscode-languageserver';
 
 import { ConfigurationItem, ComponentMetadata, WorkspaceContext, ScopeContext } from './interfaces';
@@ -47,6 +48,7 @@ connection.onInitialize(() => {
             },
             textDocumentSync: documents.syncKind,
             hoverProvider : true,
+            definitionProvider : true
 		}
 	};
 });
@@ -76,8 +78,8 @@ documents.onDidChangeContent(change => {
         if (sveltedoc.name === null) {
             sveltedoc.name = path.basename(document.path, path.extname(document.path));
         }
-        reloadDocumentImports(document, sveltedoc.components);
-        reloadDocumentMetadata(document, sveltedoc);
+            reloadDocumentImports(document, sveltedoc.components);
+            reloadDocumentMetadata(document, sveltedoc);
     }).catch(() => {
         // supress error
     });
@@ -144,7 +146,7 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
                 filename: importedDocument.path,
                 ignoredVisibilities: []
             }).then(sveltedoc => {
-                reloadDocumentMetadata(importedDocument, sveltedoc);
+                    reloadDocumentMetadata(importedDocument, sveltedoc);
             }).catch(() => {
                 // supress error
             });
@@ -195,6 +197,14 @@ connection.onHover(
     (_textDocumentPosition: TextDocumentPositionParams) : Hover => {
         return executeActionInContext(_textDocumentPosition, (document, scopeContext, workspaceContext) => {
             return svelteDocumentService.getHover(document, scopeContext, workspaceContext);
+        });
+    }
+);
+
+connection.onDefinition(
+    (_textDocumentPosition: TextDocumentPositionParams) : Definition => {
+        return executeActionInContext(_textDocumentPosition, (document, scopeContext, workspaceContext) => {
+            return svelteDocumentService.getDefinition(document, scopeContext, workspaceContext);
         });
     }
 );
