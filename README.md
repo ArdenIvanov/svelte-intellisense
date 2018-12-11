@@ -12,6 +12,19 @@ This extension provides a features for `svelte` language files. For basic suppor
 
 ## Features
 
+### Go to definition
+
+This extension supports a go to defenition VSCode feature to quick navigation between components.
+Just click to component usage in markup or symbol in import section and view source code of them.
+
+![Go to definition](images/goto-definition.gif)
+
+### Hover
+
+Component documentation provider on hover in template markup, import statement and components scope.
+
+![Component hover documentation](images/component-hover.gif)
+
 ### Completion
 
 1. Path resolving for `import` statement in script path
@@ -65,11 +78,6 @@ Also provide auto-completion for `this.refs.`
 
 ![Component methods auto completion](images/component-methods.gif)
 
-### Hover
-
-Component documentation provider on hover in template markup, import statement and components scope.
-
-![Component hover documentation](images/component-hover.gif)
 
 ### JSDoc support
 
@@ -133,7 +141,6 @@ export default {
 
 ## TODO
 
-- Goto definition of imported components
 - Signature help for component tags
 - Hover for data items in template and script
 - Workspace symbol search
