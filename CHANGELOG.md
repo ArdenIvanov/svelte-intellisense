@@ -3,7 +3,7 @@ All notable changes to the "svelte-intellisense" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [Unreleased]
+## [0.4.0]
 - [Fixed] Fixed some crashes of language server completion requests when medatadata of current document is not provided in some cases
 - [Fixed] Update [sveltedoc-parser](https://github.com/alexprey/sveltedoc-parser) library to 1.1.5 version with crash-fixes
 - [Added] Auto-completion for component assign properties

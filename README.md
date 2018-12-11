@@ -8,20 +8,20 @@ Provides intellisense for data, events, slots etc. in components. Utilizes [svel
 
 ## Installation
 
-This extension provides a features for `svelte` language files. For basic support of `svelte` files you should install this extension: [VSCode Svelte](https://marketplace.visualstudio.com/items?itemName=JamesBirtles.svelte-vscode) that provides svelte syntax highlihting and syntax checks.
+This extension provides a features for `svelte` language files. For basic support of `svelte` files you should install this extension: [VSCode Svelte](https://marketplace.visualstudio.com/items?itemName=JamesBirtles.svelte-vscode) that provides svelte syntax highlighting and syntax checks.
 
 ## Features
 
 ### Go to definition
 
-This extension supports a go to defenition VSCode feature to quick navigation between components.
-Just click to component usage in markup or symbol in import section and view source code of them.
+This extension supports a go to definition VSCode feature for quick navigation between components.
+Just click to component usage in markup or symbol in import section and view its source code.
 
 ![Go to definition](images/goto-definition.gif)
 
 ### Hover
 
-Component documentation provider on hover in template markup, import statement and components scope.
+Component documentation is provided on hover in template markup, import statement and components section.
 
 ![Component hover documentation](images/component-hover.gif)
 
@@ -29,7 +29,7 @@ Component documentation provider on hover in template markup, import statement a
 
 1. Path resolving for `import` statement in script path
 
-Allow to you quick search of required files to import, like a script file or svelte component. Also include search into `node_modules` folder, if exist. Files provided from `node_modules` marked with special label.
+Allows to quick search for the required files to import, like a script file or a svelte component. Also includes  `node_modules` folder in search results if it exists. Suggestions from `node_modules` are marked with a special label.
 
 ![Script path completion](images/script-path-resolver.gif)
 
@@ -37,10 +37,11 @@ Allow to you quick search of required files to import, like a script file or sve
 
 ![Component path completion](images/script-component-path-resolver.gif)
 
-3. Standart svelte syntax completion for HTML tags
-- Support autocompletion for `use:`, `transition:`, `in:`, `out:`, `bind:`, `class:`, `ref:`
+3. Standard svelte syntax completion for HTML tags
 
-![HTML tag standart attributes](images/html-tag-attributes.gif)
+- Supports autocompletion for `use:`, `transition:`, `in:`, `out:`, `bind:`, `class:`, `ref:`.
+
+![HTML tag standard attributes](images/html-tag-attributes.gif)
 
 4. Tag-openning completions for svelte special components and imported component
 
@@ -52,50 +53,50 @@ Allow to you quick search of required files to import, like a script file or sve
 
 5. Component events and expressions
 
-![Component events and expresions](images/component-events-expr.gif)
+![Component events and expressions](images/component-events-expr.gif)
 
 6. Svelte template blocks
 
-This extension supports all svelte blocks, like `if`, `each`, `await` with inner branching.
+This extension supports all svelte blocks - `if`, `each`, `await` - with inner branching.
 
 ![Template blocs](images/template-blocks.gif)
 
-7. Data and computed properties provider for component state getter
-
-The same thing are supported for writing a computed properties.
+7. Data and computed properties for component state getter
 
 ![Get properties of component](images/script-getter.gif)
 
+The same is supported for writing a computed property.
+
 ![Computed properties](images/script-computed.gif)
 
-8. Data properties provider for component state setter
+8. Data properties for component state setter
 
 ![Set properties of component](images/script-setter.gif)
 
-9. Svelte methods providers in script section
+9. Svelte methods in script section
 
-Also provide auto-completion for `this.refs.`
+Also provides auto-completion for `this.refs.`
 
 ![Component methods auto completion](images/component-methods.gif)
 
 
 ### JSDoc support
 
-You can make a perfect documentation for your components with JSDoc syntax in comments (see example below). This documentation will shown into completion items and hovers. About all JSDoc features you can read in [sveltedoc-parser](https://github.com/alexprey/sveltedoc-parser/blob/master/README.md) package documentation.
+You can make a perfect documentation for your components with JSDoc syntax in comments (see example below). This documentation will be shown in completion items and on hover. You can read about all JSDoc features in [sveltedoc-parser](https://github.com/alexprey/sveltedoc-parser/blob/master/README.md) package documentation.
 
-Basically, in this extensions supports following JSDoc features:
+Basically, this extensions supports following JSDoc features:
  
 - Component description
 - Methods description
 - Data and computed properties description
-- Respecting of `@private`, `@protected`, `@public` attributes to filter completion items
+- Respect for `@private`, `@protected`, `@public` attributes to filter completion items
 
 ```html
 <button role="button" on:click="handleButtonClick()" disabled={disabled}>
     {#if text}
         {text}
     {:else}
-        <!-- Slot to rendring a custom content when @see text is not specified -->
+        <!-- Slot to render a custom content when @see text is not specified -->
         <slot></slot>
     {/if}
 </button>
@@ -145,4 +146,4 @@ export default {
 - Hover for data items in template and script
 - Workspace symbol search
 - Find all references
-- Renaming
+- Rename symbol
