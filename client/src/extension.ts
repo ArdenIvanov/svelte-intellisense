@@ -19,7 +19,7 @@ export function activate(context: ExtensionContext) {
 	// The debug options for the server
 	// --inspect=6010: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
 	let debugOptions = { execArgv: ['--nolazy', '--inspect=6010'] };
-
+	
 	// If the extension is launched in debug mode then the debug server options are used
 	// Otherwise the run options are used
 	let serverOptions: ServerOptions = {
@@ -31,6 +31,14 @@ export function activate(context: ExtensionContext) {
 		}
 	};
 
+	const lsConfig = workspace.getConfiguration('svelte.language-server');
+	const serverRuntime = lsConfig.get<string>('runtime');
+    if (serverRuntime) {
+        serverOptions.run.runtime = serverRuntime;
+        serverOptions.debug.runtime = serverRuntime;
+        console.log('setting server runtime to', serverRuntime);
+	}
+	
 	let clientOptions: LanguageClientOptions = {
 		// Options to control the language client
 		// Register the server for svelte files
