@@ -1,4 +1,4 @@
-import { ImportedComponent, ComponentMetadata } from './interfaces';
+import { ImportedComponent, ComponentMetadata, ImportResolver } from './interfaces';
 import { SvelteComponentDoc } from 'sveltedoc-parser/typings';
 import { Position } from 'vscode-languageserver';
 
@@ -6,6 +6,7 @@ export class SvelteDocument {
     constructor(path: string) {
         this.path = path;
         this.importedComponents = [];
+        this.importResolver = null;
     }
 
     path: string;
@@ -13,6 +14,7 @@ export class SvelteDocument {
     metadata: ComponentMetadata;
     importedComponents: ImportedComponent[];
     content: string;
+    importResolver: ImportResolver;
 
     public offsetAt(position: Position): number {
         var lineOffsets = this.getLineOffsets();

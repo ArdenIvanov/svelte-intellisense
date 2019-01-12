@@ -11,21 +11,28 @@ import {
     Definition
 } from 'vscode-languageserver';
 
+import cosmic from 'cosmiconfig';
+
 import { ConfigurationItem, ComponentMetadata, WorkspaceContext, ScopeContext } from './interfaces';
 import { SvelteDocument } from './SvelteDocument';
 
 import {parse} from 'sveltedoc-parser';
 import * as path from 'path';
-import * as fs from 'fs';
 import * as utils from './utils';
 import { DocumentService } from './services/DocumentService';
 import { DocumentsCache } from './DocumentsCache';
+import { NodeModulesImportResolver } from './ImportResolvers/NodeModulesImportResolver';
+import { WebpackImportResolver } from './ImportResolvers/WebpackImportResolver';
+import { RollupImportResolver } from './importResolvers/RollupImportResolver';
+
+// run babel for rollup config
+require('@babel/register')({ 
+    only: [ /rollup.config.js/ ], 
+    presets: [ "@babel/preset-env" ], 
+    cwd: __dirname });
 
 let connection = createConnection(ProposedFeatures.all);
 let documents: TextDocuments = new TextDocuments();
-
-let workspaceNodeModulesPath = null;
-let workspaceNodeModulesPathInitialized = false;
 
 const mappingConfigurations: Array<ConfigurationItem> = [
     {completionItemKind: CompletionItemKind.Field, metadataName: 'data', hasPublic: true},
@@ -55,20 +62,13 @@ connection.onInitialize(() => {
 
 const documentsCache: DocumentsCache = new DocumentsCache();
 
+
+const cosmicWebpack = cosmic('webpack', {packageProp: false });
+const cosmicRollup = cosmic('rollup', {packageProp: false });
+
 documents.onDidChangeContent(change => {
     const document = documentsCache.getOrCreateDocumentFromCache(utils.fileUriToPath(change.document.uri));
     
-    if (!workspaceNodeModulesPathInitialized) {
-        workspaceNodeModulesPathInitialized = true;
-        connection.workspace.getWorkspaceFolders()
-            .then(folders => {
-                const workspaceFolder = folders.find(folder => fs.existsSync(path.resolve(utils.fileUriToPath(folder.uri), 'node_modules')));
-                if (workspaceFolder) {
-                    workspaceNodeModulesPath = path.resolve(utils.fileUriToPath(workspaceFolder.uri), 'node_modules');
-                }
-            });
-    }
-
     document.content = change.document.getText();
 
     parse({
@@ -78,8 +78,31 @@ documents.onDidChangeContent(change => {
         if (sveltedoc.name === null) {
             sveltedoc.name = path.basename(document.path, path.extname(document.path));
         }
-            reloadDocumentImports(document, sveltedoc.components);
-            reloadDocumentMetadata(document, sveltedoc);
+        if (document.importResolver === null) {
+            try {
+                const { config } = cosmicWebpack.searchSync(document.path);
+                if (config && config.resolve && config.resolve.alias) {
+                    document.importResolver = new WebpackImportResolver(documentsCache, document.path, config.resolve.alias);
+                }
+            }
+            catch {}
+            if (document.importResolver === null) {
+                try {                    
+                    const { config } = cosmicRollup.searchSync(document.path);
+                    if (config && config.default && config.default.plugins) {
+                        document.importResolver = new RollupImportResolver(documentsCache, document.path, config.default.plugins);
+                    }
+                }
+                catch (er){
+                    console.log(er);
+                }
+            }
+            if (document.importResolver === null) {
+                document.importResolver = new NodeModulesImportResolver(documentsCache, document.path);
+            }
+        }
+        reloadDocumentImports(document, sveltedoc.components);
+        reloadDocumentMetadata(document, sveltedoc);
     }).catch(() => {
         // supress error
     });
@@ -124,20 +147,7 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
     document.importedComponents = [];
 
     components.forEach(c => {
-        let importFilePath = path.resolve(path.dirname(document.path), c.value);
-        let importedDocument = utils.findSvelteDocumentInCache(importFilePath, documentsCache);
-
-        if (importedDocument === null) {
-            importFilePath = utils.findSvelteFile(importFilePath);
-            if (importFilePath !== null) {
-                importedDocument = documentsCache.getOrCreateDocumentFromCache(importFilePath);                        
-            } else if (workspaceNodeModulesPathInitialized){
-                const moduleFilePath = utils.findSvelteFile(path.resolve(workspaceNodeModulesPath, c.value));
-                if (moduleFilePath !== null) {
-                    importedDocument = documentsCache.getOrCreateDocumentFromCache(moduleFilePath);
-                }
-            }
-        }
+        const importedDocument = document.importResolver.resolve(c.value);
 
         if (importedDocument !== null) {
             document.importedComponents.push({name: c.name, filePath: importedDocument.path});
@@ -176,7 +186,6 @@ function executeActionInContext(_textDocumentPosition: TextDocumentPositionParam
     };
 
     const workspaceContext = <WorkspaceContext>{
-        nodeModulesPath: workspaceNodeModulesPath,
         documentsCache: documentsCache
     };
 

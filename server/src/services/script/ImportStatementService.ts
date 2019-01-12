@@ -34,7 +34,7 @@ export class ImportStatementService extends ChoosingService {
             return null;
         }
 
-        const endIndex = context.content.indexOf(';', context.offset);
+        const endIndex = context.content.indexOf(';', startIndex);
 
         const importStatementContent = endIndex < 0
             ? context.content.substring(startIndex)

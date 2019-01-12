@@ -1,5 +1,6 @@
 import { CompletionItem, CompletionItemKind, Position } from 'vscode-languageserver';
 import { DocumentsCache } from './DocumentsCache';
+import { SvelteDocument } from './SvelteDocument';
 
 export interface ConfigurationItem {
     completionItemKind: CompletionItemKind;
@@ -56,6 +57,9 @@ export interface ScopeContext extends GenericScopeContext<any> {
 
 export interface WorkspaceContext {
     documentsCache: DocumentsCache;
-    
-    nodeModulesPath: string|null;
+}
+
+export interface ImportResolver {
+    resolve(importee: string): SvelteDocument;
+    resolvePath(partialPath: string): string;
 }

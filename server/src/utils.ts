@@ -122,3 +122,24 @@ export function findSvelteDocumentInCache(filepath: string, documentsCache: Docu
     }
     return null;
 }
+
+/**
+ * Finds node_modules directory going up from the given directory.
+ * @param startDir Directory to start search from.
+ */
+export function findNodeModules(startDir: string) {
+    let currentDir = startDir;
+    const nodeModulesDir = 'node_modules';
+    while (currentDir !== '.') {
+        const candidate = path.join(currentDir, nodeModulesDir);
+        if (fs.existsSync(candidate)) {
+            return candidate;
+        }
+        const newCurrentDir = path.dirname(currentDir);
+        if (newCurrentDir === currentDir) {
+            break;
+        }
+        currentDir = newCurrentDir;
+    }
+    return null;
+}

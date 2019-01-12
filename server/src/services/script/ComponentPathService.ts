@@ -34,7 +34,7 @@ export class ComponentPathService extends BaseService {
         this._options = Object.assign({}, __defaultOptions, options);
     }
 
-    public getCompletitionItems(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Array<CompletionItem> {
+    public getCompletitionItems(document: SvelteDocument, context: ScopeContext, _workspace: WorkspaceContext): Array<CompletionItem> {
         const prevContent = context.content.substring(0, context.offset);
 
         // Find open quote for component path
@@ -59,7 +59,6 @@ export class ComponentPathService extends BaseService {
             && prevContent.lastIndexOf(quote, openQuoteIndex - 1) <= prevContent.lastIndexOf(':', openQuoteIndex - 1)
         ) {
             const partialPath = prevContent.substring(openQuoteIndex + 1);
-            const baseDocumentPath = path.dirname(document.path);
 
             // Do nothing if partial path started from root folder
             if (partialPath.startsWith('/')) {
@@ -73,24 +72,13 @@ export class ComponentPathService extends BaseService {
 
             const result = [];
 
-            // Search in local folder
-            if (partialPath.startsWith('./') || partialPath.startsWith('../')) {
-                const searchFolderPath = path.resolve(baseDocumentPath, partialPath.endsWith('/') ? partialPath : path.dirname(partialPath));
-
-                if (fs.existsSync(searchFolderPath)) {
-                    result.push(...this.searchFolderItems(searchFolderPath, partialPath, false));
-                }    
-            } else if (!partialPath.startsWith('.')) {
-                // Search in node modules folder
-                if (workspace.nodeModulesPath != null) {
-                    const searchFolderPath = path.resolve(workspace.nodeModulesPath, partialPath.endsWith('/') ? partialPath : path.dirname(partialPath));
-
-                    if (fs.existsSync(searchFolderPath)) {
-                        result.push(...this.searchFolderItems(searchFolderPath, partialPath, true));
-                    }
-                }  
+            if (document.importResolver !== null) {
+                const resolvedPath = document.importResolver.resolvePath(partialPath);
+                if (resolvedPath !== null) {
+                    result.push(...this.searchFolderItems(resolvedPath, partialPath, resolvedPath.indexOf('node_modules') >= 0));
+                }
             }
-
+            
             return result;
         }
 
