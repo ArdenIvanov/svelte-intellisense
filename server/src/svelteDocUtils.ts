@@ -1,4 +1,29 @@
-import { SvelteComponentDoc } from 'sveltedoc-parser/typings';
+import { SvelteComponentDoc, SvelteDataItem } from 'sveltedoc-parser/typings';
+
+export function buildPropertyDocumentation(property: SvelteDataItem) {
+    if (!property) {
+        return null;
+    }
+
+    let result = '``` javascript\n';
+    if (property.description) {
+        result += `/** ${property.description} */\n`;
+    }
+    result += `${property.name}: ${property.type.text}`;
+
+    if (property.value) {
+        const valueType = typeof(property.value);
+        if (valueType === 'string') {
+            result += ` = '${property.value}'`;
+        } else if (valueType === 'number' || valueType === 'boolean') {
+            result += ` = ${property.value}`;
+        }
+    }
+
+    result += '```';
+
+    return result;
+}
 
 export function buildDocumentation(componentDoc: SvelteComponentDoc) {
     if (componentDoc === null || componentDoc === undefined) {

@@ -26,6 +26,10 @@ export function cloneCompletionItem(item: CompletionItem): CompletionItem {
 }
 
 export function getImportedComponentDocumentation(componentName: string, document: SvelteDocument, workspace: WorkspaceContext) {
+    if (componentName === null) {
+        return null;
+    }
+
     const componentDocument = findImportedComponent(componentName, document, workspace);
     
     if (componentDocument === null) {
