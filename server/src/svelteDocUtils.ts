@@ -9,7 +9,11 @@ export function buildPropertyDocumentation(property: SvelteDataItem) {
     if (property.description) {
         result += `/** ${property.description} */\n`;
     }
-    result += `${property.name}: ${property.type.text}`;
+    
+    result += `${property.name}`;
+    if (property.type) {
+        result += `: ${property.type.text}`;
+    }
 
     if (property.value) {
         const valueType = typeof(property.value);
