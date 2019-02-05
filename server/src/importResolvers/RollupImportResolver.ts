@@ -15,7 +15,7 @@ export class RollupImportResolver extends AliasImportResolver {
         this.resolvePlugins.forEach(plugin => {
             try {
                 const resolvedId = plugin.resolveId(partialPath, this.documentPath);
-                if (resolvedId) {
+                if (resolvedId && (typeof resolvedId === 'string')) {
                     importFilePath = resolvedId;
                 }
             } catch {}
