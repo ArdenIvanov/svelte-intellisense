@@ -1,12 +1,12 @@
 export function regexLastIndexOf(content: string, regex: RegExp, startPos?: number): number {
     let index = content.substring(0, startPos || content.length).search(regex);
     while (index >= 0) {
-        let nextIndex = content.substring(0, index).search(regex);
+        let nextIndex = content.substring(index + 1, startPos || content.length).search(regex);
         if (nextIndex < 0) {
             return index + 1;
         }
 
-        index = nextIndex;
+        index += nextIndex + 1;
     }
 
     return -1;
