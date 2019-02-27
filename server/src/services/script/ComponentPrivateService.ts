@@ -31,11 +31,7 @@ export class ComponentPrivateService extends BaseService {
                 ]);
             }
 
-            return  [
-                ...DefaultComponentMethods,
-                DefaultComponentGetMethodCompletionItem,
-                DefaultScriptRefsCompletionItem,
-            ];
+            return  result;
         }
 
         if (/\bthis(\s)*.(\s)*refs(\s)*.(\s)*[\w\d_]*$/g.test(context.content.substring(0, context.offset))) {

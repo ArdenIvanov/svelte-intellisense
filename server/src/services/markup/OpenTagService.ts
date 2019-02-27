@@ -5,20 +5,16 @@ import { CompletionItem, Hover, MarkupContent, Definition } from "vscode-languag
 import { ScopeContext, WorkspaceContext } from "../../interfaces";
 import { SpecialComponents, SpecialComponentNamespace } from "../../svelteLanguage";
 import { cloneCompletionItem, getImportedComponentDocumentation, getImportedComponentDefinition } from "../Utils";
+import { regexIndexOf } from "../../StringHelpers";
 
 export class OpenTagService extends BaseService {
-    private regexIndexOf(content, regex, startpos) {
-        var indexOf = content.substring(startpos || 0).search(regex);
-        return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
-    }
-
     public getCompletitionItems(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Array<CompletionItem> {
         const openIndex = findLastOpenTagIndex(context.content, context.offset);
         if (openIndex < 0) {
             return null;
         }
 
-        const spaceIndex = this.regexIndexOf(context.content, /\s/, openIndex);
+        const spaceIndex = regexIndexOf(context.content, /\s/, openIndex);
         if (spaceIndex > 0 && spaceIndex < context.offset) {
             return null;
         }
@@ -73,7 +69,7 @@ export class OpenTagService extends BaseService {
             return null;
         }
 
-        const spaceIndex = this.regexIndexOf(context.content, /\s/, openIndex);
+        const spaceIndex = regexIndexOf(context.content, /\s/, openIndex);
         if (spaceIndex > 0 && spaceIndex < context.offset) {
             return null;
         }

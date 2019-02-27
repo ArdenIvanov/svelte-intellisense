@@ -991,9 +991,9 @@ supports-color@^5.3.0:
   dependencies:
     has-flag "^3.0.0"
 
-sveltedoc-parser@^1.1.5:
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/sveltedoc-parser/-/sveltedoc-parser-1.1.5.tgz#a3bc66c6754af3bd34a1e7fd1d19a4ea17c8c793"
+sveltedoc-parser@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/sveltedoc-parser/-/sveltedoc-parser-1.2.0.tgz#eb15fb9ab27c5c106136032d388da41654834e7f"
   dependencies:
     espree "^3.5.4"
     htmlparser2 "^3.9.2"

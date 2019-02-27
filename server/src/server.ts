@@ -8,7 +8,8 @@ import {
     TextDocumentPositionParams,
     TextDocuments,
     Hover,
-    Definition
+    Definition,
+    TextDocument
 } from 'vscode-languageserver';
 
 import cosmic from 'cosmiconfig';
@@ -18,6 +19,7 @@ import { SvelteDocument } from './SvelteDocument';
 
 import {parse} from 'sveltedoc-parser';
 import * as path from 'path';
+import * as fs from 'fs';
 import * as utils from './utils';
 import { DocumentService } from './services/DocumentService';
 import { DocumentsCache } from './DocumentsCache';
@@ -68,12 +70,16 @@ const cosmicRollup = cosmic('rollup', {packageProp: false });
 
 documents.onDidChangeContent(change => {
     const document = documentsCache.getOrCreateDocumentFromCache(utils.fileUriToPath(change.document.uri));
+    if (!document.document) {
+        document.document = change.document;
+    }
     
     document.content = change.document.getText();
 
     parse({
         fileContent: document.content,
-        ignoredVisibilities: []
+        ignoredVisibilities: [],
+        includeSourceLocations: true
     }).then(sveltedoc => {
         if (sveltedoc.name === null) {
             sveltedoc.name = path.basename(document.path, path.extname(document.path));
@@ -151,10 +157,20 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
 
         if (importedDocument !== null) {
             document.importedComponents.push({name: c.name, filePath: importedDocument.path});
+            if (!document.document) {
+                const buffer = fs.readFileSync(importedDocument.path);
+                document.document = TextDocument.create(
+                    utils.pathToFileUri(importedDocument.path),
+                    'svelte',
+                    0,
+                    buffer.toString()
+                );
+            }
             
             parse({
                 filename: importedDocument.path,
-                ignoredVisibilities: []
+                ignoredVisibilities: [],
+                includeSourceLocations: true
             }).then(sveltedoc => {
                     reloadDocumentMetadata(importedDocument, sveltedoc);
             }).catch(() => {
@@ -176,7 +192,18 @@ function executeActionInContext(_textDocumentPosition: TextDocumentPositionParam
         return null;
     }
 
-    const document = documentsCache.getOrCreateDocumentFromCache(utils.fileUriToPath(_textDocumentPosition.textDocument.uri));
+    const path = utils.fileUriToPath(_textDocumentPosition.textDocument.uri);
+    const document = documentsCache.getOrCreateDocumentFromCache(path);
+    if (!document.document) {
+        const buffer = fs.readFileSync(path);
+        document.document = TextDocument.create(
+            _textDocumentPosition.textDocument.uri,
+            'svelte',
+            0,
+            buffer.toString()
+        );
+    }
+
     const offset = document.offsetAt(_textDocumentPosition.position);
 
     const scopeContext = <ScopeContext>{
