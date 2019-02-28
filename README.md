@@ -14,16 +14,30 @@ This extension provides a features for `svelte` language files. For basic suppor
 
 ### Go to definition
 
-This extension supports a go to definition VSCode feature for quick navigation between components.
+This extension supports a go to definition VSCode feature for quick navigation between components and references.
+
 Just click to component usage in markup or symbol in import section and view its source code.
 
-![Go to definition](images/goto-definition.gif)
+![Go to component definition](images/goto-definition.gif)
+
+Also that works for component attributes, events, bind, slots:
+
+![Go to component field](images/goto-field-definition.gif)
+![Go to component slot](images/goto-slot-definition.gif)
+
+Awesome navigation for methods calling:
+
+![Go to method](images/goto-method-definition.gif)
 
 ### Hover
 
 Component documentation is provided on hover in template markup, import statement and components section.
 
 ![Component hover documentation](images/component-hover.gif)
+
+Documentation of component events, props and slots provided as well.
+
+![Component props documentation](images/props-hover.gif)
 
 ### Completion
 
