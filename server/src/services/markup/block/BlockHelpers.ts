@@ -10,6 +10,21 @@ export function findLastOpenBlockIndex(content: string, position: number) {
     return openBlockIndex;
 }
 
+export function isInsideOpenBlock(content: string, position: number) {
+    let openBlockIndex = content.lastIndexOf('{#', position);
+    if (openBlockIndex < 0) {
+        openBlockIndex = content.lastIndexOf('{:elseif', position);
+    }
+    if (openBlockIndex < 0) {
+        openBlockIndex = content.lastIndexOf('{:else if', position);
+    }
+    if (openBlockIndex >= 0) {
+        const closeBlockIndex = content.indexOf('}', openBlockIndex);
+        return closeBlockIndex > 0 && closeBlockIndex >= position;
+    }
+    return false;
+}
+
 export function findLastInnerBlockIndex(content: string, position: number): number {
     const openIndex = content.lastIndexOf('{:', position);
     if (openIndex < 0) {

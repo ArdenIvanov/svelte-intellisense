@@ -156,7 +156,7 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
         if (importedDocument !== null) {
             document.importedComponents.push({name: c.name, filePath: importedDocument.path});
             if (!document.document) {
-                document.document = utils.createTextDocument(importedDocument.path)
+                document.document = utils.createTextDocument(importedDocument.path);
             }
             
             parse({

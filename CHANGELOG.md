@@ -3,6 +3,10 @@ All notable changes to the "svelte-intellisense" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [Unreleased] 
+- [Added] Support for aliases in rollup and webpack
+- [Added] Hover and definition (go to source file) for different self and imported components metadata
+
 ## [0.4.1]
 - [Fixed] Fixed some crashes of language server completion requests when medatadata of current document is not provided in some cases
 - [Fixed] Update [sveltedoc-parser](https://github.com/alexprey/sveltedoc-parser) library to 1.1.5 version with crash-fixes

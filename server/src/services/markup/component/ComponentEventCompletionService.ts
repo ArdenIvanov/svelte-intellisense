@@ -1,10 +1,11 @@
 import { SvelteDocument } from "../../../SvelteDocument";
-import { CompletionItem, Hover, Definition, MarkupKind } from "vscode-languageserver";
+import { CompletionItem, Hover, Definition } from "vscode-languageserver";
 import { findLastDirectiveIndex } from "../TagHelpers";
 import { BaseService } from "../../Common";
 import { ComponentScopeContext } from "./ComponentInnerService";
 import { regexLastIndexOf, regexIndexOf } from "../../../StringHelpers";
 import { buildPropertyDocumentation } from "../../../svelteDocUtils";
+import { findItemInSvelteDoc, findLocationForItemInSvelteDoc } from "../../../SvelteItemsHelpers";
 
 export class ComponentEventCompletionService extends BaseService {
 
@@ -23,44 +24,18 @@ export class ComponentEventCompletionService extends BaseService {
     }
 
     public getHover(_document: SvelteDocument, context: ComponentScopeContext): Hover {
-        const name = this.getAttributeEventNameAtOffset(context);
-        if (name === null) {
-            return null;
-        }
-
-        const item = context.data.component.sveltedoc.events.find(item => item.name === name);
-        if (item) {
-            return {
-                contents: {
-                    kind: MarkupKind.Markdown,
-                    value: buildPropertyDocumentation(item)
-                }
-            };
-        }
-
-        return null;
+        return findItemInSvelteDoc([
+            {items: context.data.component.sveltedoc.events, handler: buildPropertyDocumentation}
+        ], this.getAttributeEventNameAtOffset(context));
     }
 
     public getDefinition(_document: SvelteDocument, context: ComponentScopeContext): Definition {
-        const name = this.getAttributeEventNameAtOffset(context);
-        if (name === null) {
-            return null;
-        }
-
-        const externalComponent = context.data.component;
-
-        const item = externalComponent.sveltedoc.events.find(item => item.name === name);
-        if (item && item.loc) {
-            return {
-                uri: externalComponent.document.uri,
-                range: {
-                    start: externalComponent.positionAt(item.loc.start),
-                    end: externalComponent.positionAt(item.loc.end)
-                }
-            };
-        }
-
-        return null;
+        return findLocationForItemInSvelteDoc(
+            context.data.component,
+            [
+                ...context.data.component.sveltedoc.events
+            ], 
+            this.getAttributeEventNameAtOffset(context));
     }
 
     private getAttributeEventNameAtOffset(context: ComponentScopeContext): string {

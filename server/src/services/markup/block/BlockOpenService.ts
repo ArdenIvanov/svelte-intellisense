@@ -1,9 +1,12 @@
 import { BaseService } from "../../Common";
 import { SvelteDocument } from "../../../SvelteDocument";
-import { CompletionItem } from "vscode-languageserver";
+import { CompletionItem, Definition } from "vscode-languageserver";
 import { markupBlockCompletitionItems } from "../../../svelteLanguage";
-import { findLastOpenBlockIndex } from "./BlockHelpers";
+import { findLastOpenBlockIndex, isInsideOpenBlock } from "./BlockHelpers";
 import { ScopeContext } from "../../../interfaces";
+import { buildPropertyDocumentation, buildComputedDocumentation, buildMethodDocumentation } from "../../../svelteDocUtils";
+import { getIdentifierAtOffset } from "../../../StringHelpers";
+import { findItemInSvelteDoc, findLocationForItemInSvelteDoc } from "../../../SvelteItemsHelpers";
 
 export class BlockOpenService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: ScopeContext): Array<CompletionItem> {
@@ -30,5 +33,33 @@ export class BlockOpenService extends BaseService {
         }
 
         return null;
+    }
+
+    public getHover(document: SvelteDocument, context: ScopeContext) {
+        if (!isInsideOpenBlock(context.content, context.offset)) {
+            return null;
+        }
+
+        return findItemInSvelteDoc([
+            {items: document.sveltedoc.helpers, handler: buildMethodDocumentation},
+            {items: document.sveltedoc.computed, handler: buildComputedDocumentation},
+            {items: document.sveltedoc.data, handler: buildPropertyDocumentation}
+        ], getIdentifierAtOffset(context.content, context.offset));
+    }
+
+    public getDefinition(document: SvelteDocument, context: ScopeContext): Definition
+    {
+        if (!isInsideOpenBlock(context.content, context.offset)) {
+            return null;
+        }
+
+        return findLocationForItemInSvelteDoc(
+            document,
+            [
+                ...document.sveltedoc.helpers,
+                ...document.sveltedoc.computed,
+                ...document.sveltedoc.data
+            ], 
+            getIdentifierAtOffset(context.content, context.offset));
     }
 }

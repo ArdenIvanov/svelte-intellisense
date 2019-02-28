@@ -3,6 +3,9 @@ import { BaseService } from "../Common";
 import { ScopeContext } from "../../interfaces";
 import { SvelteDocument } from "../../SvelteDocument";
 import { DefaultComponentMethods } from "../../svelteLanguage";
+import { findItemInSvelteDoc, findLocationForItemInSvelteDoc } from "../../SvelteItemsHelpers";
+import { buildPropertyDocumentation, buildComputedDocumentation, buildMethodDocumentation } from "../../svelteDocUtils";
+import { getIdentifierAtOffset } from "../../StringHelpers";
 
 export class ExpressionCompletionService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: ScopeContext): Array<CompletionItem> {
@@ -28,13 +31,47 @@ export class ExpressionCompletionService extends BaseService {
         return result;
     }
 
+    public getHover(document: SvelteDocument, context: ScopeContext) {
+        if (!this.isInsideExpression(context.content, context.offset)) {
+            return null;
+        }
+
+        return findItemInSvelteDoc([
+            {items: document.sveltedoc.helpers, handler: buildMethodDocumentation},
+            {items: document.sveltedoc.computed, handler: buildComputedDocumentation},
+            {items: document.sveltedoc.data, handler: buildPropertyDocumentation},
+            {items: document.sveltedoc.methods, handler: buildMethodDocumentation},
+        ], getIdentifierAtOffset(context.content, context.offset));
+    }
+
+    public getDefinition(document: SvelteDocument, context: ScopeContext)
+    {
+        if (!this.isInsideExpression(context.content, context.offset)) {
+            return null;
+        }
+
+        return findLocationForItemInSvelteDoc(
+            document,
+            [
+                ...document.sveltedoc.helpers,
+                ...document.sveltedoc.computed,
+                ...document.sveltedoc.data,
+                ...document.sveltedoc.methods
+            ], 
+            getIdentifierAtOffset(context.content, context.offset));
+    }
+
+    private isInsideExpression(content: string, offset: number) {
+        return this.findLastOpenExpressionIndex(content, offset) >= 0;
+    }
+
     private findLastOpenExpressionIndex(content: string, offset: number): number {
         const openIndex = content.lastIndexOf('"', offset);
         if (openIndex < 0) {
             return -1;
         }
 
-        const endIndex = content.indexOf('"', openIndex);
+        const endIndex = content.indexOf('"', openIndex + 1);
         if (endIndex > 0 && endIndex < offset) {
             return -1;
         }

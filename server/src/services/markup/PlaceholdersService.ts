@@ -4,6 +4,9 @@ import { BaseService } from "../Common";
 import { CompletionItem } from "vscode-languageserver";
 import { PlaceholderModifiers } from "../../svelteLanguage";
 import { cloneCompletionItem } from "../Utils";
+import { findItemInSvelteDoc, findLocationForItemInSvelteDoc } from "../../SvelteItemsHelpers";
+import { buildMethodDocumentation, buildComputedDocumentation, buildPropertyDocumentation } from "../../svelteDocUtils";
+import { getIdentifierAtOffset } from "../../StringHelpers";
 
 export class PlaceholdersService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: ScopeContext): Array<CompletionItem> {
@@ -39,6 +42,38 @@ export class PlaceholdersService extends BaseService {
         }
 
         return result;
+    }
+
+    public getHover(document: SvelteDocument, context: ScopeContext) {
+        if (!this.isInsidePlaceholder(context.content, context.offset)) {
+            return null;
+        }
+
+        return findItemInSvelteDoc([
+            {items: document.sveltedoc.helpers, handler: buildMethodDocumentation},
+            {items: document.sveltedoc.computed, handler: buildComputedDocumentation},
+            {items: document.sveltedoc.data, handler: buildPropertyDocumentation},
+        ], getIdentifierAtOffset(context.content, context.offset));
+    }
+
+    public getDefinition(document: SvelteDocument, context: ScopeContext)
+    {
+        if (!this.isInsidePlaceholder(context.content, context.offset)) {
+            return null;
+        }
+
+        return findLocationForItemInSvelteDoc(
+            document,
+            [
+                ...document.sveltedoc.helpers,
+                ...document.sveltedoc.computed,
+                ...document.sveltedoc.data
+            ], 
+            getIdentifierAtOffset(context.content, context.offset));
+    }
+    
+    private isInsidePlaceholder(content: string, offset: number) {
+        return this.findLastOpenPlaceholderIndex(content, offset) >= 0;
     }
 
     private findLastOpenPlaceholderIndex(content: string, offset: number): number {

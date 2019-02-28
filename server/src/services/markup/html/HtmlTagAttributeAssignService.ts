@@ -1,6 +1,9 @@
 import { BaseService } from "../../Common";
 import { SvelteDocument } from "../../../SvelteDocument";
 import { TagScopeContext } from "../TagInnerService";
+import { findItemInSvelteDoc, findLocationForItemInSvelteDoc } from "../../../SvelteItemsHelpers";
+import { getIdentifierAtOffset, isInsideAttributeAssign } from "../../../StringHelpers";
+import { buildMethodDocumentation, buildComputedDocumentation, buildPropertyDocumentation } from "../../../svelteDocUtils";
 
 export class HtmlTagAttributeAssignService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: TagScopeContext) {
@@ -11,18 +14,46 @@ export class HtmlTagAttributeAssignService extends BaseService {
             // When source name are provided we can use 
             //  any valid evaluatable expression with using helpers, data and computed properties
             if (match[1]) {
-                const sourcePropertyName = match[2];
+                const sourcePropertyName = match[3];
 
-                if (match[3].startsWith('"{') || match[3].startsWith('\'{') || match[3].startsWith('{')) {
+                if (sourcePropertyName.startsWith('"{') || sourcePropertyName.startsWith('\'{') || sourcePropertyName.startsWith('{')) {
                     return document.metadata ? [
                         ...document.metadata.helpers,
-                        ...document.metadata.data,
-                        ...document.metadata.computed
+                        ...document.metadata.computed,
+                        ...document.metadata.data
                     ] : [];
                 }
             }
         }
 
         return null;
+    }
+
+    public getHover(document: SvelteDocument, context: TagScopeContext) {
+        if (!isInsideAttributeAssign(context.content, context.offset)) {
+            return null;
+        }
+
+        return findItemInSvelteDoc([
+            {items: document.sveltedoc.helpers, handler: buildMethodDocumentation},
+            {items: document.sveltedoc.computed, handler: buildComputedDocumentation},
+            {items: document.sveltedoc.data, handler: buildPropertyDocumentation}
+        ], getIdentifierAtOffset(context.content, context.offset));
+    }
+
+    public getDefinition(document: SvelteDocument, context: TagScopeContext)
+    {
+        if (!isInsideAttributeAssign(context.content, context.offset)) {
+            return null;
+        }
+
+        return findLocationForItemInSvelteDoc(
+            document,
+            [
+                ...document.sveltedoc.helpers,
+                ...document.sveltedoc.computed,
+                ...document.sveltedoc.data
+            ], 
+            getIdentifierAtOffset(context.content, context.offset));
     }
 }

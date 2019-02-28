@@ -1,4 +1,51 @@
-import { SvelteComponentDoc, SvelteDataItem } from 'sveltedoc-parser/typings';
+import { SvelteComponentDoc, SvelteDataItem, SvelteComputedItem, SvelteMethodItem } from 'sveltedoc-parser/typings';
+
+export function buildMethodDocumentation(method: SvelteMethodItem) {
+    if (!method) {
+        return null;
+    }
+
+    let result = '``` javascript\n';
+    if (method.description) {
+        result += `/** ${method.description} */\n`;
+    }
+    
+    result += `${method.name}(`;
+    method.args.forEach(arg => {
+        if (arg) {
+            result += `${arg},`;
+        }
+    });
+    if (method.args.length > 0) {
+        result = result.substring(0, result.length - 1);
+    }
+
+    result += ')```';
+
+    return result;
+}
+
+export function buildComputedDocumentation(computed: SvelteComputedItem) {
+    if (!computed) {
+        return null;
+    }
+
+    let result = '``` javascript\n';
+    if (computed.description) {
+        result += `/** ${computed.description} */\n`;
+    }
+    
+    result += `${computed.name}: ({`;
+    computed.dependencies.forEach(dependency => {
+        result += `${dependency}, `;
+    });
+    
+    result = result.substring(0, result.length - 2);
+
+    result += '})```';
+
+    return result;
+}
 
 export function buildPropertyDocumentation(property: SvelteDataItem) {
     if (!property) {

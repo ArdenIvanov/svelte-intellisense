@@ -141,7 +141,7 @@ export default {
 ```
 
 ## TODO
-
+- Svelte 3 support
 - Signature help for component tags
 - Hover for data items in template and script
 - Workspace symbol search
