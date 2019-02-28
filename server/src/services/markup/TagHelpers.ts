@@ -1,9 +1,7 @@
 import { SvelteDocument } from "../../SvelteDocument";
 import { DocumentsCache } from "../../DocumentsCache";
 
-import * as fs from 'fs';
-import { TextDocument } from "vscode-languageserver";
-import { pathToFileUri } from "../../utils";
+import { createTextDocument } from "../../utils";
 
 export function findLastOpenTagIndex(content: string, offset: number): number {
     const startIndex = content.lastIndexOf('<', offset);
@@ -126,13 +124,7 @@ export function findImportedComponent(componentName: string, document: SvelteDoc
 
     const externalDocument = documentsCache.has(component.filePath) ? documentsCache.get(component.filePath) : null;
     if (externalDocument && !externalDocument.document) {
-        const buffer = fs.readFileSync(component.filePath);
-        externalDocument.document = TextDocument.create(
-            pathToFileUri(component.filePath),
-            'svelte',
-            0,
-            buffer.toString()
-        );
+        externalDocument.document = createTextDocument(component.filePath);
     }
 
     return externalDocument;

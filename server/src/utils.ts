@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { DocumentsCache } from './DocumentsCache';
 import { SvelteDocument } from './SvelteDocument';
+import { TextDocument } from 'vscode-languageserver';
 
 const sep = path.sep || '/';
 const svelteFileExtensions = [ '', '.svelte', '.html' ];
@@ -142,4 +143,18 @@ export function findNodeModules(startDir: string) {
         currentDir = newCurrentDir;
     }
     return null;
+}
+
+/**
+ * Creates TextDocument for the given file.
+ * @param path Path to the document.
+ */
+export function createTextDocument(path: string, uri?: string) {
+    const buffer = fs.readFileSync(path);
+    return TextDocument.create(
+        uri || pathToFileUri(path),
+        'svelte',
+        0,
+        buffer.toString()
+    );
 }

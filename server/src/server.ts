@@ -8,8 +8,7 @@ import {
     TextDocumentPositionParams,
     TextDocuments,
     Hover,
-    Definition,
-    TextDocument
+    Definition
 } from 'vscode-languageserver';
 
 import cosmic from 'cosmiconfig';
@@ -19,7 +18,6 @@ import { SvelteDocument } from './SvelteDocument';
 
 import {parse} from 'sveltedoc-parser';
 import * as path from 'path';
-import * as fs from 'fs';
 import * as utils from './utils';
 import { DocumentService } from './services/DocumentService';
 import { DocumentsCache } from './DocumentsCache';
@@ -158,13 +156,7 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
         if (importedDocument !== null) {
             document.importedComponents.push({name: c.name, filePath: importedDocument.path});
             if (!document.document) {
-                const buffer = fs.readFileSync(importedDocument.path);
-                document.document = TextDocument.create(
-                    utils.pathToFileUri(importedDocument.path),
-                    'svelte',
-                    0,
-                    buffer.toString()
-                );
+                document.document = utils.createTextDocument(importedDocument.path)
             }
             
             parse({
@@ -195,13 +187,7 @@ function executeActionInContext(_textDocumentPosition: TextDocumentPositionParam
     const path = utils.fileUriToPath(_textDocumentPosition.textDocument.uri);
     const document = documentsCache.getOrCreateDocumentFromCache(path);
     if (!document.document) {
-        const buffer = fs.readFileSync(path);
-        document.document = TextDocument.create(
-            _textDocumentPosition.textDocument.uri,
-            'svelte',
-            0,
-            buffer.toString()
-        );
+        document.document = utils.createTextDocument(path, _textDocumentPosition.textDocument.uri);
     }
 
     const offset = document.offsetAt(_textDocumentPosition.position);
