@@ -1,5 +1,6 @@
 import { BaseService } from "../../Common";
-import { DefaultRefCompletionItem, DefaultBindCompletionItem, DefaultClassCompletionItem, getHtmlTagDefaultBindCompletionItems, DefaultActionCompletionItem, DefaultTransitionCompletionItems, DefaultSlotCompletionItem } from "../../../svelteLanguage";
+import { DefaultBindCompletionItem, getHtmlTagDefaultBindCompletionItems, DefaultTransitionCompletionItems, DefaultSlotCompletionItem } from "../../../svelteLanguage";
+import { svelte2DefaultRefCompletionItem, svelte2DefaultClassCompletionItem, svelte2DefaultActionCompletionItem, svelte2DefaultHtmlTagBindCompletionItems } from "../../../svelte2Language";
 import { SvelteDocument } from "../../../SvelteDocument";
 import { TagScopeContext } from "../TagInnerService";
 import { cloneCompletionItem } from "../../Utils";
@@ -10,9 +11,9 @@ export class HtmlTagDefaultService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: TagScopeContext, workspace: WorkspaceContext) {
         const result = [
             DefaultBindCompletionItem,
-            DefaultClassCompletionItem,
-            DefaultActionCompletionItem,
-            DefaultRefCompletionItem,
+            svelte2DefaultClassCompletionItem,
+            svelte2DefaultActionCompletionItem,
+            svelte2DefaultRefCompletionItem,
             ...DefaultTransitionCompletionItems
         ];
 
@@ -30,7 +31,7 @@ export class HtmlTagDefaultService extends BaseService {
             );
         }
 
-        result.push(...getHtmlTagDefaultBindCompletionItems(context.data.name)
+        result.push(...getHtmlTagDefaultBindCompletionItems(context.data.name, svelte2DefaultHtmlTagBindCompletionItems)
             .map(cloneCompletionItem)
             .map(item => {
                 item.filterText = `bind:${item.label}`;

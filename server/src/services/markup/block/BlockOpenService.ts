@@ -2,6 +2,7 @@ import { BaseService } from "../../Common";
 import { SvelteDocument } from "../../../SvelteDocument";
 import { CompletionItem, Definition } from "vscode-languageserver";
 import { markupBlockCompletitionItems } from "../../../svelteLanguage";
+import { svelte2MarkupBlockCompletitionItems } from "../../../svelte2Language";
 import { findLastOpenBlockIndex, isInsideOpenBlock } from "./BlockHelpers";
 import { ScopeContext } from "../../../interfaces";
 import { buildPropertyDocumentation, buildComputedDocumentation, buildMethodDocumentation } from "../../../svelteDocUtils";
@@ -17,7 +18,7 @@ export class BlockOpenService extends BaseService {
 
         const blockContent = document.content.substring(openBlockIndex, context.offset);
         if (/^{#([\w\d_]*)$/g.test(blockContent)) {
-            return markupBlockCompletitionItems;
+            return [...markupBlockCompletitionItems, ...svelte2MarkupBlockCompletitionItems];
         }
 
         const match = /^{([#:][\w\d_]*)\s*[^}]*/g.exec(blockContent);

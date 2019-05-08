@@ -2,7 +2,7 @@ import { BaseService } from "../Common";
 import { SvelteDocument } from "../../SvelteDocument";
 import { CompletionItem } from "vscode-languageserver";
 import { ScopeContext } from "../../interfaces";
-import { DefaultComponentMethods, DefaultRefCompletionItem, DefaultComponentGetMethodCompletionItem, DefaultScriptRefsCompletionItem } from "../../svelteLanguage";
+import { svelte2DefaultComponentMethods, svelte2DefaultComponentGetMethodCompletionItem, svelte2DefaultScriptRefsCompletionItem } from "../../svelte2Language";
 import { cloneCompletionItem } from "../Utils";
 
 export class ComponentPrivateService extends BaseService {
@@ -10,9 +10,9 @@ export class ComponentPrivateService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: ScopeContext): Array<CompletionItem> {
         if (/\bthis(\s)*.(\s)*[\w\d_]*$/g.test(context.content.substring(0, context.offset))) {
             const result = [
-                ...DefaultComponentMethods,
-                DefaultComponentGetMethodCompletionItem,
-                DefaultScriptRefsCompletionItem,
+                ...svelte2DefaultComponentMethods,
+                svelte2DefaultComponentGetMethodCompletionItem,
+                svelte2DefaultScriptRefsCompletionItem,
             ];
 
             if (document.metadata) {

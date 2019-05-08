@@ -3,7 +3,8 @@ import { SvelteDocument } from "../../SvelteDocument";
 import { findLastOpenTagIndex } from "./TagHelpers";
 import { CompletionItem, Hover, MarkupContent, Definition } from "vscode-languageserver";
 import { ScopeContext, WorkspaceContext } from "../../interfaces";
-import { SpecialComponents, SpecialComponentNamespace } from "../../svelteLanguage";
+import { SpecialComponentNamespace } from "../../svelteLanguage";
+import { svelte2SpecialComponents } from "../../svelte2Language";
 import { cloneCompletionItem, getImportedComponentDocumentation, getImportedComponentDefinition } from "../Utils";
 import { regexIndexOf } from "../../StringHelpers";
 
@@ -26,7 +27,7 @@ export class OpenTagService extends BaseService {
         if (match) {
             if (!document.metadata || match[1] === `${SpecialComponentNamespace}:`) {
                 return [
-                    ...SpecialComponents
+                    ...svelte2SpecialComponents
                 ];
             }
 
@@ -39,7 +40,7 @@ export class OpenTagService extends BaseService {
                             
                             return item;
                         }),
-                    ...SpecialComponents
+                    ...svelte2SpecialComponents
                         .map(cloneCompletionItem)
                         .map(item => {
                             item.filterText = `${SpecialComponentNamespace}:${item.label}`;

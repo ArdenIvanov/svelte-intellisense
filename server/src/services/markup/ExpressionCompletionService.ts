@@ -2,7 +2,7 @@ import { CompletionItem } from "vscode-languageserver";
 import { BaseService } from "../Common";
 import { ScopeContext } from "../../interfaces";
 import { SvelteDocument } from "../../SvelteDocument";
-import { DefaultComponentMethods } from "../../svelteLanguage";
+import { svelte2DefaultComponentMethods } from "../../svelte2Language";
 import { findItemInSvelteDoc, findLocationForItemInSvelteDoc } from "../../SvelteItemsHelpers";
 import { buildPropertyDocumentation, buildComputedDocumentation, buildMethodDocumentation } from "../../svelteDocUtils";
 import { getIdentifierAtOffset } from "../../StringHelpers";
@@ -15,7 +15,7 @@ export class ExpressionCompletionService extends BaseService {
         }
 
         const result = [
-            ...DefaultComponentMethods
+            ...svelte2DefaultComponentMethods
         ];
 
         if (document.metadata) {

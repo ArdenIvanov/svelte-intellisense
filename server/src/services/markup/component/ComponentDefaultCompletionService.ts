@@ -1,5 +1,6 @@
 import { CompletionItemKind, CompletionItem } from "vscode-languageserver";
-import { DefaultRefCompletionItem, DefaultEventHandlerCompletionItem, DefaultBindCompletionItem, DefaultSlotCompletionItem } from "../../../svelteLanguage";
+import { DefaultBindCompletionItem, DefaultSlotCompletionItem } from "../../../svelteLanguage";
+import { svelte2DefaultRefCompletionItem, svelte2DefaultEventHandlerCompletionItem } from "../../../svelte2Language";
 import { cloneCompletionItem } from "../../Utils";
 import { BaseService } from "../../Common";
 import { SvelteDocument } from "../../../SvelteDocument";
@@ -39,8 +40,8 @@ export class ComponentDefaultCompletionService extends BaseService {
 
         result.push(...[
             DefaultBindCompletionItem,
-            DefaultEventHandlerCompletionItem,
-            DefaultRefCompletionItem
+            svelte2DefaultEventHandlerCompletionItem,
+            svelte2DefaultRefCompletionItem
         ]);
 
         const nearestComponent = findNearestOpenComponent(context.documentOffset - context.offset - 1, document, workspace.documentsCache);
