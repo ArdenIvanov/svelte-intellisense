@@ -2,6 +2,19 @@ import {
     CompletionItem, CompletionItemKind,
     MarkupContent, MarkupKind, InsertTextFormat
 } from 'vscode-languageserver';
+import { SvelteDocument } from './SvelteDocument';
+
+export interface VersionSpecific {
+    version: number;
+    specific: any;
+}
+
+export function getVersionSpecificSelection(document: SvelteDocument, versionsSpecific: VersionSpecific[]): any {
+    const requiredVersion = document.svelteVersion();
+    return versionsSpecific.find(versionSpecific => {
+        return versionSpecific.version === requiredVersion;
+    }).specific;
+}
 
 export function getHtmlTagDefaultBindCompletionItems(tagName: string, versionSpecificItems: Array<any>): Array<CompletionItem> {
     const result = [];
@@ -313,5 +326,53 @@ Debug tags only have an effect when compiling with the \`dev: true\` compiler op
 `
         },
         sortText: '2',
+    },
+];
+
+export const EventModifiers: Array<CompletionItem> = [
+    {
+        label: 'preventDefault',
+        kind: CompletionItemKind.Keyword,
+        detail: '[Svelte] Event modifiers',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: `Calls \`event.preventDefault()\` before running the handler`
+        },
+    },
+    {
+        label: 'stopPropagation',
+        kind: CompletionItemKind.Keyword,
+        detail: '[Svelte] Event modifiers',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: `Calls \`event.stopPropagation()\`, preventing the event reaching the next element`
+        },
+    },
+    {
+        label: 'passive',
+        kind: CompletionItemKind.Keyword,
+        detail: '[Svelte] Event modifiers',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: `Improves scrolling performance on touch/wheel events (Svelte will add it automatically where it's safe to do so)`
+        },
+    },
+    {
+        label: 'capture',
+        kind: CompletionItemKind.Keyword,
+        detail: '[Svelte] Event modifiers',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: `Fires the handler during the capture phase instead of the bubbling phase`
+        },
+    },
+    {
+        label: 'once',
+        kind: CompletionItemKind.Keyword,
+        detail: '[Svelte] Event modifiers',
+        documentation: {
+            kind: MarkupKind.Markdown,
+            value: `Removes the handler after the first time it runs`
+        },
     },
 ];

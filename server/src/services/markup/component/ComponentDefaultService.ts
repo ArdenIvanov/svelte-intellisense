@@ -1,14 +1,15 @@
 import { CompletionItemKind, CompletionItem } from "vscode-languageserver";
-import { DefaultBindCompletionItem, DefaultSlotCompletionItem } from "../../../svelteLanguage";
+import { DefaultBindCompletionItem, DefaultSlotCompletionItem, getVersionSpecificSelection } from "../../../svelteLanguage";
 import { svelte2DefaultRefCompletionItem, svelte2DefaultEventHandlerCompletionItem } from "../../../svelte2Language";
+import { svelte3DefaultEventHandlerCompletionItem, svelte3DefaultBindInstanceCompletionItem, svelte3DefaultSlotPropertyCompletionItem } from "../../../svelte3Language";
 import { cloneCompletionItem } from "../../Utils";
 import { BaseService } from "../../Common";
-import { SvelteDocument } from "../../../SvelteDocument";
+import { SvelteDocument, SVELTE_VERSION_2, SVELTE_VERSION_3 } from "../../../SvelteDocument";
 import { ComponentScopeContext } from "./ComponentInnerService";
 import { findNearestOpenComponent } from "../TagHelpers";
 import { WorkspaceContext } from "../../../interfaces";
 
-export class ComponentDefaultCompletionService extends BaseService {
+export class ComponentDefaultService extends BaseService {
 
     public getCompletitionItems(document: SvelteDocument, context: ComponentScopeContext, workspace: WorkspaceContext): Array<CompletionItem> {
         const result = [];
@@ -38,11 +39,22 @@ export class ComponentDefaultCompletionService extends BaseService {
             })
         );
 
+        const versionsSpecific = [
+            { version: SVELTE_VERSION_2, specific: svelte2DefaultEventHandlerCompletionItem },
+            { version: SVELTE_VERSION_3, specific: svelte3DefaultEventHandlerCompletionItem}
+        ];
+
         result.push(...[
             DefaultBindCompletionItem,
-            svelte2DefaultEventHandlerCompletionItem,
-            svelte2DefaultRefCompletionItem
+            getVersionSpecificSelection(document, versionsSpecific),
         ]);
+
+        if (document.svelteVersion() === SVELTE_VERSION_2) {
+            result.push(svelte2DefaultRefCompletionItem);
+        } else if (document.svelteVersion() === SVELTE_VERSION_3) {
+            result.push(svelte3DefaultBindInstanceCompletionItem);
+            result.push(svelte3DefaultSlotPropertyCompletionItem);
+        }
 
         const nearestComponent = findNearestOpenComponent(context.documentOffset - context.offset - 1, document, workspace.documentsCache);
         if (nearestComponent !== null && nearestComponent.metadata.slots.length > 0) {

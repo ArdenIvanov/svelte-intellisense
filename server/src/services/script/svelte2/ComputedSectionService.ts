@@ -1,12 +1,17 @@
-import { ChoosingService } from "../ChoosingService";
-import { ScopeContext } from "../../interfaces";
+import { ChoosingService } from "../../ChoosingService";
+import { ScopeContext } from "../../../interfaces";
 import { ComputedDependencyService } from "./ComputedDependencyService";
+import { SVELTE_VERSION_2 } from "../../../SvelteDocument";
 
 export class ComputedSectionService extends ChoosingService {
     public constructor() {
         super([
             new ComputedDependencyService()
         ]);
+    }
+
+    public getSupportedSvelteVersions() {
+        return [SVELTE_VERSION_2];
     }
 
     protected reduceContext(context: ScopeContext): ScopeContext {

@@ -1,7 +1,8 @@
-import { ChoosingService } from "../ChoosingService";
-import { ScopeContext } from "../../interfaces";
-import { ComponentPathService } from "./ComponentPathService";
-import { ComponentNameService } from "./ComponentNameService";
+import { ChoosingService } from "../../ChoosingService";
+import { ScopeContext } from "../../../interfaces";
+import { ComponentPathService } from "../ComponentPathService";
+import { ComponentNameService } from "../ComponentNameService";
+import { SVELTE_VERSION_2 } from "../../../SvelteDocument";
 
 export class ComponentsSectionService extends ChoosingService {
     public constructor() {
@@ -9,6 +10,10 @@ export class ComponentsSectionService extends ChoosingService {
             new ComponentNameService(),
             new ComponentPathService()
         ]);
+    }
+
+    public getSupportedSvelteVersions() {
+        return [SVELTE_VERSION_2];
     }
 
     protected reduceContext(context: ScopeContext): ScopeContext {

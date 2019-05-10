@@ -113,6 +113,7 @@ Allows to interact with component instances programmatically..
 `
     },
     insertText: 'bind:this={${0:instance}}',
+    insertTextFormat: InsertTextFormat.Snippet,
 };
 
 export const svelte3DefaultSlotPropertyCompletionItem: CompletionItem = {
@@ -222,7 +223,6 @@ An each block can also have an \`{:else}\` clause, which is rendered if the list
         preselect: true
     },
 ];
-
 
 export const svelte3SpecialComponents: Array<CompletionItem> = [
     {

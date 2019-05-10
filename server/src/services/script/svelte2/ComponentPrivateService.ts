@@ -1,11 +1,14 @@
-import { BaseService } from "../Common";
-import { SvelteDocument } from "../../SvelteDocument";
+import { BaseService } from "../../Common";
+import { SvelteDocument, SVELTE_VERSION_2 } from "../../../SvelteDocument";
 import { CompletionItem } from "vscode-languageserver";
-import { ScopeContext } from "../../interfaces";
-import { svelte2DefaultComponentMethods, svelte2DefaultComponentGetMethodCompletionItem, svelte2DefaultScriptRefsCompletionItem } from "../../svelte2Language";
-import { cloneCompletionItem } from "../Utils";
+import { ScopeContext } from "../../../interfaces";
+import { svelte2DefaultComponentMethods, svelte2DefaultComponentGetMethodCompletionItem, svelte2DefaultScriptRefsCompletionItem } from "../../../svelte2Language";
+import { cloneCompletionItem } from "../../Utils";
 
 export class ComponentPrivateService extends BaseService {
+    public getSupportedSvelteVersions() {
+        return [SVELTE_VERSION_2];
+    }
 
     public getCompletitionItems(document: SvelteDocument, context: ScopeContext): Array<CompletionItem> {
         if (/\bthis(\s)*.(\s)*[\w\d_]*$/g.test(context.content.substring(0, context.offset))) {

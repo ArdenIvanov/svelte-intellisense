@@ -22,7 +22,7 @@ export class SvelteDocument {
     document: TextDocument;
     
     public svelteVersion(): number {
-        return this.sveltedoc ? this.sveltedoc.version : SVELTE_VERSION_3;
+        return this.sveltedoc ? this.sveltedoc.version | SVELTE_VERSION_3 : SVELTE_VERSION_3;
     }
 
     public offsetAt(position: Position): number {

@@ -51,7 +51,7 @@ connection.onInitialize(() => {
 	return {
 		capabilities: {
 			completionProvider: {
-                triggerCharacters: ['<', '.', ':', '#', '/', '@', '"']
+                triggerCharacters: ['<', '.', ':', '#', '/', '@', '"', '|']
             },
             textDocumentSync: documents.syncKind,
             hoverProvider : true,

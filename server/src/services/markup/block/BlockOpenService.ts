@@ -1,8 +1,9 @@
 import { BaseService } from "../../Common";
-import { SvelteDocument } from "../../../SvelteDocument";
+import { SvelteDocument, SVELTE_VERSION_2, SVELTE_VERSION_3 } from "../../../SvelteDocument";
 import { CompletionItem, Definition } from "vscode-languageserver";
-import { markupBlockCompletitionItems } from "../../../svelteLanguage";
+import { markupBlockCompletitionItems, getVersionSpecificSelection } from "../../../svelteLanguage";
 import { svelte2MarkupBlockCompletitionItems } from "../../../svelte2Language";
+import { svelte3MarkupBlockCompletitionItems } from "../../../svelte3Language";
 import { findLastOpenBlockIndex, isInsideOpenBlock } from "./BlockHelpers";
 import { ScopeContext } from "../../../interfaces";
 import { buildPropertyDocumentation, buildComputedDocumentation, buildMethodDocumentation } from "../../../svelteDocUtils";
@@ -16,9 +17,14 @@ export class BlockOpenService extends BaseService {
             return null;
         }
 
+        const versionsSpecific = [
+            { version: SVELTE_VERSION_2, specific: svelte2MarkupBlockCompletitionItems },
+            { version: SVELTE_VERSION_3, specific: svelte3MarkupBlockCompletitionItems}
+        ];
+        
         const blockContent = document.content.substring(openBlockIndex, context.offset);
         if (/^{#([\w\d_]*)$/g.test(blockContent)) {
-            return [...markupBlockCompletitionItems, ...svelte2MarkupBlockCompletitionItems];
+            return [...markupBlockCompletitionItems, ...getVersionSpecificSelection(document, versionsSpecific)];
         }
 
         const match = /^{([#:][\w\d_]*)\s*[^}]*/g.exec(blockContent);

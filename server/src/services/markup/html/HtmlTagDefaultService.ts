@@ -1,7 +1,8 @@
 import { BaseService } from "../../Common";
-import { DefaultBindCompletionItem, getHtmlTagDefaultBindCompletionItems, DefaultTransitionCompletionItems, DefaultSlotCompletionItem } from "../../../svelteLanguage";
+import { DefaultBindCompletionItem, getHtmlTagDefaultBindCompletionItems, DefaultTransitionCompletionItems, DefaultSlotCompletionItem, getVersionSpecificSelection } from "../../../svelteLanguage";
 import { svelte2DefaultRefCompletionItem, svelte2DefaultClassCompletionItem, svelte2DefaultActionCompletionItem, svelte2DefaultHtmlTagBindCompletionItems } from "../../../svelte2Language";
-import { SvelteDocument } from "../../../SvelteDocument";
+import { svelte3DefaultClassCompletionItem, svelte3DefaultActionCompletionItem, svelte3DefaultHtmlTagBindCompletionItems } from "../../../svelte3Language";
+import { SvelteDocument, SVELTE_VERSION_2, SVELTE_VERSION_3 } from "../../../SvelteDocument";
 import { TagScopeContext } from "../TagInnerService";
 import { cloneCompletionItem } from "../../Utils";
 import { findNearestOpenComponent } from "../TagHelpers";
@@ -9,13 +10,29 @@ import { WorkspaceContext } from "../../../interfaces";
 
 export class HtmlTagDefaultService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: TagScopeContext, workspace: WorkspaceContext) {
+        const classVersionsSpecific = [
+            { version: SVELTE_VERSION_2, specific: svelte2DefaultClassCompletionItem },
+            { version: SVELTE_VERSION_3, specific: svelte3DefaultClassCompletionItem }
+        ];
+        const actionVersionsSpecific = [
+            { version: SVELTE_VERSION_2, specific: svelte2DefaultActionCompletionItem },
+            { version: SVELTE_VERSION_3, specific: svelte3DefaultActionCompletionItem }
+        ];
+        const htmlTagVersionsSpecific = [
+            { version: SVELTE_VERSION_2, specific: svelte2DefaultHtmlTagBindCompletionItems },
+            { version: SVELTE_VERSION_3, specific: svelte3DefaultHtmlTagBindCompletionItems }
+        ];
+
         const result = [
             DefaultBindCompletionItem,
-            svelte2DefaultClassCompletionItem,
-            svelte2DefaultActionCompletionItem,
-            svelte2DefaultRefCompletionItem,
+            getVersionSpecificSelection(document, classVersionsSpecific),
+            getVersionSpecificSelection(document, actionVersionsSpecific),
             ...DefaultTransitionCompletionItems
         ];
+
+        if (document.svelteVersion() === SVELTE_VERSION_2) {
+            result.push(svelte2DefaultRefCompletionItem);
+        }
 
         // Document metadata can be is not parsed for this moment, we should check
         if (document.metadata) {
@@ -31,7 +48,7 @@ export class HtmlTagDefaultService extends BaseService {
             );
         }
 
-        result.push(...getHtmlTagDefaultBindCompletionItems(context.data.name, svelte2DefaultHtmlTagBindCompletionItems)
+        result.push(...getHtmlTagDefaultBindCompletionItems(context.data.name, getVersionSpecificSelection(document, htmlTagVersionsSpecific))
             .map(cloneCompletionItem)
             .map(item => {
                 item.filterText = `bind:${item.label}`;

@@ -5,14 +5,15 @@ import { HtmlTagActionService } from "./HtmlTagActionService";
 import { HtmlTagTransionService } from "./HtmlTagTransitionService";
 import { HtmlTagTransionOutService } from "./HtmlTagTransitionOutService";
 import { HtmlTagTransionInService } from "./HtmlTagTransitionInService";
-import { ExpressionCompletionService } from "../ExpressionCompletionService";
+import { ExpressionService } from "../ExpressionService";
 import { BindTargetPropertyService } from "../BindTargetPropertyService";
 import { HtmlTagAttributeAssignService } from "./HtmlTagAttributeAssignService";
+import { HtmlTagEventService } from "./HtmlTagEventService";
 
 export class HtmlTagInnerService extends ChoosingService {
     public constructor() {
         super([
-            new ExpressionCompletionService(),
+            new ExpressionService(),
             new HtmlTagBindService(),
             new HtmlTagActionService(),
             new HtmlTagTransionService(),
@@ -21,7 +22,8 @@ export class HtmlTagInnerService extends ChoosingService {
 
             new BindTargetPropertyService(),
             new HtmlTagAttributeAssignService(),
-
+            new HtmlTagEventService(),
+            
             // Fallback service
             new HtmlTagDefaultService()
         ]);

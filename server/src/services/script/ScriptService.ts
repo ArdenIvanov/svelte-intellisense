@@ -1,11 +1,11 @@
 import { ChoosingService } from "../ChoosingService";
 import { ScopeContext } from "../../interfaces";
-import { ComponentsSectionService } from "./ComponentsSectionService";
+import { ComponentsSectionService } from "./svelte2/ComponentsSectionService";
 import { ImportStatementService } from "./ImportStatementService";
-import { ComponentPrivateService } from "./ComponentPrivateService";
-import { ComponentGetDataService } from "./ComponentGetDataService";
-import { ComponentSetDataService } from "./ComponentSetDataService";
-import { ComputedSectionService } from "./ComputedSectionService";
+import { ComponentPrivateService } from "./svelte2/ComponentPrivateService";
+import { ComponentGetDataService } from "./svelte2/ComponentGetDataService";
+import { ComponentSetDataService } from "./svelte2/ComponentSetDataService";
+import { ComputedSectionService } from "./svelte2/ComputedSectionService";
 
 export class ScriptService extends ChoosingService {
     public constructor() {
