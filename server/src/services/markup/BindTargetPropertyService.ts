@@ -8,7 +8,7 @@ import { buildPropertyDocumentation } from "../../svelteDocUtils";
 export class BindTargetPropertyService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: ScopeContext) {
         const contentPart = context.content.substring(0, context.offset);
-        if (/\bbind:[\w\d_]*=[\'\"]?[\w\d_]*$/g.test(contentPart)) {
+        if (/\bbind:[\w\d_]*=[\'\"]?[\{]?[\w\d_]*$/g.test(contentPart)) {
             return document.metadata 
                 ? document.metadata.data 
                 : [];

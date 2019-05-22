@@ -35,14 +35,17 @@ export function buildComputedDocumentation(computed: SvelteComputedItem) {
         result += `/** ${computed.description} */\n`;
     }
     
-    result += `${computed.name}: ({`;
-    computed.dependencies.forEach(dependency => {
-        result += `${dependency}, `;
-    });
-    
-    result = result.substring(0, result.length - 2);
+    result += `${computed.name}`;
 
-    result += '})```';
+    if (computed.dependencies) {
+        result += ': ({';
+        computed.dependencies.forEach(dependency => {
+            result += `${dependency}, `;
+        });
+        result = result.substring(0, result.length - 2);
+        result += '})';
+    }
+    result += '```';
 
     return result;
 }
