@@ -23,7 +23,7 @@ import { DocumentService } from './services/DocumentService';
 import { DocumentsCache } from './DocumentsCache';
 import { NodeModulesImportResolver } from './ImportResolvers/NodeModulesImportResolver';
 import { WebpackImportResolver } from './ImportResolvers/WebpackImportResolver';
-import { RollupImportResolver } from './importResolvers/RollupImportResolver';
+import { RollupImportResolver } from './ImportResolvers/RollupImportResolver';
 
 // run babel for rollup config
 require('@babel/register')({ 
