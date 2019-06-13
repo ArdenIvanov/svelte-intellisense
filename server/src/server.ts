@@ -21,8 +21,8 @@ import * as path from 'path';
 import * as utils from './utils';
 import { DocumentService } from './services/DocumentService';
 import { DocumentsCache } from './DocumentsCache';
-import { NodeModulesImportResolver } from './ImportResolvers/NodeModulesImportResolver';
-import { WebpackImportResolver } from './ImportResolvers/WebpackImportResolver';
+import { NodeModulesImportResolver } from './importResolvers/NodeModulesImportResolver';
+import { WebpackImportResolver } from './importResolvers/WebpackImportResolver';
 import { RollupImportResolver } from './importResolvers/RollupImportResolver';
 
 // run babel for rollup config
