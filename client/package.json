@@ -1,7 +1,7 @@
 {
 	"name": "svelte-intellisense",
 	"engines": {
-		"vscode": "^1.28.2"
+		"vscode": "^1.30.0"
 	},
 	"repository": {
 		"url": "https://github.com/ArdenIvanov/svelte-intellisense.git"
