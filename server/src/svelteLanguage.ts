@@ -2,7 +2,7 @@ import {
     CompletionItem, CompletionItemKind,
     MarkupContent, MarkupKind, InsertTextFormat
 } from 'vscode-languageserver';
-import { SvelteDocument } from './SvelteDocument';
+import { SvelteDocument, SVELTE_VERSION_2 } from './SvelteDocument';
 
 export interface VersionSpecific {
     version: number;
@@ -14,6 +14,20 @@ export function getVersionSpecificSelection(document: SvelteDocument, versionsSp
     return versionsSpecific.find(versionSpecific => {
         return versionSpecific.version === requiredVersion;
     }).specific;
+}
+
+export function getVersionSpecificMetadataForMarkup(document: SvelteDocument) {
+    if (!document.metadata) {
+        return [];
+    }
+    return document.svelteVersion() === SVELTE_VERSION_2 ? document.metadata.helpers : document.metadata.methods;
+}
+
+export function getVersionSpecificDocForMarkup(document: SvelteDocument) {
+    if (!document.sveltedoc) {
+        return [];
+    }
+    return document.svelteVersion() === SVELTE_VERSION_2 ? document.sveltedoc.helpers : document.sveltedoc.methods;
 }
 
 export function getHtmlTagDefaultBindCompletionItems(tagName: string, versionSpecificItems: Array<any>): Array<CompletionItem> {

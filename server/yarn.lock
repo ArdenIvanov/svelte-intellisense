@@ -991,9 +991,9 @@ supports-color@^5.3.0:
   dependencies:
     has-flag "^3.0.0"
 
-"sveltedoc-parser@git://github.com/alexprey/sveltedoc-parser.git#ec5de3d061d63ca64161ec4654bf2cf3e53e8107":
+"sveltedoc-parser@git://github.com/alexprey/sveltedoc-parser.git#23514d87384e781cbf1cf19e4535428e50dcc4cf":
   version "2.0.0"
-  resolved "git://github.com/alexprey/sveltedoc-parser.git#ec5de3d061d63ca64161ec4654bf2cf3e53e8107"
+  resolved "git://github.com/alexprey/sveltedoc-parser.git#23514d87384e781cbf1cf19e4535428e50dcc4cf"
   dependencies:
     espree "^3.5.4"
     htmlparser2 "^3.9.2"

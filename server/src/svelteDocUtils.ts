@@ -10,17 +10,17 @@ export function buildMethodDocumentation(method: SvelteMethodItem) {
         result += `/** ${method.description} */\n`;
     }
     
-    result += `${method.name}(`;
+    result += `function ${method.name}(`;
     method.args.forEach(arg => {
         if (arg) {
-            result += `${arg},`;
+            result += `${arg.name},`;
         }
     });
     if (method.args.length > 0) {
         result = result.substring(0, result.length - 1);
     }
 
-    result += ')```';
+    result += ')\n```';
 
     return result;
 }
@@ -45,7 +45,7 @@ export function buildComputedDocumentation(computed: SvelteComputedItem) {
         result = result.substring(0, result.length - 2);
         result += '})';
     }
-    result += '```';
+    result += '\n```';
 
     return result;
 }
@@ -74,7 +74,7 @@ export function buildPropertyDocumentation(property: SvelteDataItem) {
         }
     }
 
-    result += '```';
+    result += '\n```';
 
     return result;
 }

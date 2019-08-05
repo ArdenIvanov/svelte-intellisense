@@ -24,6 +24,10 @@ export class ComponentEventService extends BaseService {
     }
 
     public getHover(_document: SvelteDocument, context: ComponentScopeContext): Hover {
+        if (!context.data.component.sveltedoc) {
+            return null;
+        }
+        
         return findItemInSvelteDoc([
             {items: context.data.component.sveltedoc.events, handler: buildPropertyDocumentation}
         ], this.getAttributeEventNameAtOffset(context));

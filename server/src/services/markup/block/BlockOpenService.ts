@@ -1,7 +1,7 @@
 import { BaseService } from "../../Common";
 import { SvelteDocument, SVELTE_VERSION_2, SVELTE_VERSION_3 } from "../../../SvelteDocument";
 import { CompletionItem, Definition } from "vscode-languageserver";
-import { markupBlockCompletitionItems, getVersionSpecificSelection } from "../../../svelteLanguage";
+import { markupBlockCompletitionItems, getVersionSpecificSelection, getVersionSpecificMetadataForMarkup, getVersionSpecificDocForMarkup } from "../../../svelteLanguage";
 import { svelte2MarkupBlockCompletitionItems } from "../../../svelte2Language";
 import { svelte3MarkupBlockCompletitionItems } from "../../../svelte3Language";
 import { findLastOpenBlockIndex, isInsideOpenBlock } from "./BlockHelpers";
@@ -34,7 +34,7 @@ export class BlockOpenService extends BaseService {
                 return document.metadata ? [
                     ...document.metadata.data,
                     ...document.metadata.computed,
-                    ...document.metadata.helpers,
+                    ...getVersionSpecificMetadataForMarkup(document)
                 ] : [];
             }
         }
@@ -48,7 +48,7 @@ export class BlockOpenService extends BaseService {
         }
 
         return findItemInSvelteDoc([
-            {items: document.sveltedoc.helpers, handler: buildMethodDocumentation},
+            {items: getVersionSpecificDocForMarkup(document), handler: buildMethodDocumentation},
             {items: document.sveltedoc.computed, handler: buildComputedDocumentation},
             {items: document.sveltedoc.data, handler: buildPropertyDocumentation}
         ], getIdentifierAtOffset(context.content, context.offset));
@@ -63,7 +63,7 @@ export class BlockOpenService extends BaseService {
         return findLocationForItemInSvelteDoc(
             document,
             [
-                ...document.sveltedoc.helpers,
+                ...getVersionSpecificDocForMarkup(document),
                 ...document.sveltedoc.computed,
                 ...document.sveltedoc.data
             ], 
