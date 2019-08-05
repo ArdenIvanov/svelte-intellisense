@@ -1,5 +1,5 @@
 import { IService } from "./Common";
-import { SvelteDocument } from "../SvelteDocument";
+import { SvelteDocument, SVELTE_VERSION_2, SVELTE_VERSION_3 } from "../SvelteDocument";
 import { WorkspaceContext, ScopeContext } from "../interfaces";
 import { CompletionItem, Hover, MarkupContent, MarkedString, MarkupKind, Definition } from "vscode-languageserver";
 import { isArray } from "util";
@@ -22,6 +22,7 @@ export class CompositeCompletionService implements IService {
         }
 
         return this.findServiceResults(
+            document,
             service => service.getCompletitionItems(document, reducedContext, workspace)
         );
     }
@@ -33,6 +34,7 @@ export class CompositeCompletionService implements IService {
         }
 
         const results = this.findServiceResults(
+            document,
             service => service.getHover(document, reducedContext, workspace)
         );
         if (results && results.length > 0) {
@@ -53,18 +55,27 @@ export class CompositeCompletionService implements IService {
         }
 
         return this.findServiceResults(
+            document,
             service => service.getDefinition(document, reducedContext, workspace)
         );
+    }
+
+    public getSupportedSvelteVersions(): number[] {
+        return [SVELTE_VERSION_2, SVELTE_VERSION_3];
     }
 
     protected reduceContext(context: ScopeContext): ScopeContext {
         return context;
     }
 
-    private findServiceResults(callback: (service: IService) => any|null) {
+    private findServiceResults(document: SvelteDocument, callback: (service: IService) => any|null) {
         let result = null;
 
         this._services.forEach(service => {
+            if (service.getSupportedSvelteVersions().indexOf(document.svelteVersion()) < 0) {
+                return;
+            }
+            
             const serviceResult = callback(service);
 
             if (serviceResult !== null) {

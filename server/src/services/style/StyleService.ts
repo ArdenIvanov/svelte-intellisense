@@ -1,6 +1,6 @@
 import { ChoosingService } from "../ChoosingService";
 import { ScopeContext } from "../../interfaces";
-import { RefsStyleService } from "./RefsStyleService";
+import { RefsStyleService } from "./svelte2/RefsStyleService";
 
 export class StyleService extends ChoosingService {
     public constructor() {

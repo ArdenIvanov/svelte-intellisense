@@ -1,5 +1,5 @@
 import { IService, EmptyHoverContent } from './Common';
-import { SvelteDocument } from '../SvelteDocument';
+import { SvelteDocument, SVELTE_VERSION_2, SVELTE_VERSION_3 } from '../SvelteDocument';
 import { CompletionItem, Hover, Definition } from 'vscode-languageserver';
 import { WorkspaceContext, ScopeContext } from '../interfaces';
 
@@ -31,6 +31,7 @@ export class ChoosingService implements IService {
         }
 
         return this.findServiceResults(
+            document,
             service => service.getCompletitionItems(document, reducedContext, workspace),
             []
         );
@@ -43,6 +44,7 @@ export class ChoosingService implements IService {
         }
 
         return this.findServiceResults(
+            document,
             service => service.getHover(document, reducedContext, workspace),
             EmptyHoverContent
         );
@@ -55,9 +57,14 @@ export class ChoosingService implements IService {
         }
 
         return this.findServiceResults(
+            document,
             service => service.getDefinition(document, reducedContext, workspace),
             null
         );
+    }
+
+    public getSupportedSvelteVersions(): number[] {
+        return [SVELTE_VERSION_2, SVELTE_VERSION_3];
     }
 
     protected reduceContext(context: ScopeContext, _document: SvelteDocument, _workspace: WorkspaceContext): ScopeContext {
@@ -65,12 +72,17 @@ export class ChoosingService implements IService {
     }
 
     private findServiceResults(
+        document: SvelteDocument,
         callback: (service: IService) => any|null,
         emptyValue: any
     ) {
         let result = null;
 
         this._services.some(service => {
+            if (service.getSupportedSvelteVersions().indexOf(document.svelteVersion()) < 0) {
+                return false;
+            }
+            
             const serviceResult = callback(service);
             
             if (serviceResult) {

@@ -3,6 +3,7 @@ import { SvelteDocument } from "../../../SvelteDocument";
 import { ComponentScopeContext } from "./ComponentInnerService";
 import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
 import { JSDocType } from "sveltedoc-parser/typings";
+import { getVersionSpecificMetadataForMarkup } from "../../../svelteLanguage";
 
 export class ComponentDataAssignService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: ComponentScopeContext) {
@@ -18,7 +19,7 @@ export class ComponentDataAssignService extends BaseService {
 
                 if (match[3].startsWith('"{') || match[3].startsWith('\'{') || match[3].startsWith('{')) {
                     return document.metadata ? [
-                        ...document.metadata.helpers,
+                        ...getVersionSpecificMetadataForMarkup(document),
                         ...document.metadata.data,
                         ...document.metadata.computed
                     ] : [];

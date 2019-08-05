@@ -4,6 +4,7 @@ import { TagScopeContext } from "../TagInnerService";
 import { findItemInSvelteDoc, findLocationForItemInSvelteDoc } from "../../../SvelteItemsHelpers";
 import { getIdentifierAtOffset, isInsideAttributeAssign } from "../../../StringHelpers";
 import { buildMethodDocumentation, buildComputedDocumentation, buildPropertyDocumentation } from "../../../svelteDocUtils";
+import { getVersionSpecificMetadataForMarkup, getVersionSpecificDocForMarkup } from "../../../svelteLanguage";
 
 export class HtmlTagAttributeAssignService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: TagScopeContext) {
@@ -18,7 +19,7 @@ export class HtmlTagAttributeAssignService extends BaseService {
 
                 if (sourcePropertyName.startsWith('"{') || sourcePropertyName.startsWith('\'{') || sourcePropertyName.startsWith('{')) {
                     return document.metadata ? [
-                        ...document.metadata.helpers,
+                        ...getVersionSpecificMetadataForMarkup(document),
                         ...document.metadata.computed,
                         ...document.metadata.data
                     ] : [];
@@ -35,7 +36,7 @@ export class HtmlTagAttributeAssignService extends BaseService {
         }
 
         return findItemInSvelteDoc([
-            {items: document.sveltedoc.helpers, handler: buildMethodDocumentation},
+            {items: getVersionSpecificDocForMarkup(document), handler: buildMethodDocumentation},
             {items: document.sveltedoc.computed, handler: buildComputedDocumentation},
             {items: document.sveltedoc.data, handler: buildPropertyDocumentation}
         ], getIdentifierAtOffset(context.content, context.offset));
@@ -50,7 +51,7 @@ export class HtmlTagAttributeAssignService extends BaseService {
         return findLocationForItemInSvelteDoc(
             document,
             [
-                ...document.sveltedoc.helpers,
+                ...getVersionSpecificDocForMarkup(document),
                 ...document.sveltedoc.computed,
                 ...document.sveltedoc.data
             ], 

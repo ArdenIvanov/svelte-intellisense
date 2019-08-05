@@ -2,7 +2,7 @@ import { SvelteDocument } from "../../SvelteDocument";
 import { ScopeContext } from "../../interfaces";
 import { BaseService } from "../Common";
 import { CompletionItem } from "vscode-languageserver";
-import { PlaceholderModifiers } from "../../svelteLanguage";
+import { PlaceholderModifiers, getVersionSpecificMetadataForMarkup, getVersionSpecificDocForMarkup } from "../../svelteLanguage";
 import { cloneCompletionItem } from "../Utils";
 import { findItemInSvelteDoc, findLocationForItemInSvelteDoc } from "../../SvelteItemsHelpers";
 import { buildMethodDocumentation, buildComputedDocumentation, buildPropertyDocumentation } from "../../svelteDocUtils";
@@ -27,7 +27,7 @@ export class PlaceholdersService extends BaseService {
             result.push(...[
                 ...document.metadata.data,
                 ...document.metadata.computed,
-                ...document.metadata.helpers,
+                ...getVersionSpecificMetadataForMarkup(document),
             ]);
         }
 
@@ -50,7 +50,7 @@ export class PlaceholdersService extends BaseService {
         }
 
         return findItemInSvelteDoc([
-            {items: document.sveltedoc.helpers, handler: buildMethodDocumentation},
+            {items: getVersionSpecificDocForMarkup(document), handler: buildMethodDocumentation},
             {items: document.sveltedoc.computed, handler: buildComputedDocumentation},
             {items: document.sveltedoc.data, handler: buildPropertyDocumentation},
         ], getIdentifierAtOffset(context.content, context.offset));
@@ -65,7 +65,7 @@ export class PlaceholdersService extends BaseService {
         return findLocationForItemInSvelteDoc(
             document,
             [
-                ...document.sveltedoc.helpers,
+                ...getVersionSpecificDocForMarkup(document),
                 ...document.sveltedoc.computed,
                 ...document.sveltedoc.data
             ], 

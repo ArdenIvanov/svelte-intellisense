@@ -1,11 +1,11 @@
 import { SvelteDocument } from "../../../SvelteDocument";
 import { WorkspaceContext, GenericScopeContext } from "../../../interfaces";
-import { ComponentEventCompletionService } from "./ComponentEventCompletionService";
-import { ComponentDataCompletionService } from "./ComponentDataCompletionService";
-import { ComponentBindCompletionService } from "./ComponentBindCompletionService";
-import { ComponentDefaultCompletionService } from "./ComponentDefaultCompletionService";
+import { ComponentEventService } from "./ComponentEventService";
+import { ComponentDataService } from "./ComponentDataService";
+import { ComponentBindService } from "./ComponentBindService";
+import { ComponentDefaultService } from "./ComponentDefaultService";
 import { CompositeCompletionService } from "../../CompositeService";
-import { ExpressionCompletionService } from "../ExpressionCompletionService";
+import { ExpressionService } from "../ExpressionService";
 import { ChoosingService } from "../../ChoosingService";
 import { TagData, TagScopeContext } from "../TagInnerService";
 import { findImportedComponent } from "../TagHelpers";
@@ -21,16 +21,16 @@ export interface ComponentScopeContext extends GenericScopeContext<ComponentTagD
 export class ComponentInnerService extends ChoosingService {
     public constructor() {
         super([
-            new ExpressionCompletionService(),
-            new ComponentEventCompletionService(),
-            new ComponentBindCompletionService(),
+            new ExpressionService(),
+            new ComponentEventService(),
+            new ComponentBindService(),
             new BindTargetPropertyService(),
             new ComponentDataAssignService(),
 
             // Fallback
             new CompositeCompletionService([
-                new ComponentDataCompletionService(),
-                new ComponentDefaultCompletionService()
+                new ComponentDataService(),
+                new ComponentDefaultService()
             ])
         ]);
     }

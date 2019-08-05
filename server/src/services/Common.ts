@@ -1,5 +1,5 @@
 import { CompletionItem, Hover, Definition } from 'vscode-languageserver';
-import { SvelteDocument } from '../SvelteDocument';
+import { SvelteDocument, SVELTE_VERSION_2, SVELTE_VERSION_3 } from '../SvelteDocument';
 import { WorkspaceContext, ScopeContext } from '../interfaces';
 
 /**
@@ -32,6 +32,11 @@ export interface IService {
      * @returns {Definition|null} Returns null, when scope context is not correct for this service compatibility.
      */
     getDefinition(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Definition;
+
+    /**
+     * Returns list of supported svelte versions.
+     */
+    getSupportedSvelteVersions(): number[];
 }
 
 export abstract class BaseService implements IService {
@@ -45,6 +50,10 @@ export abstract class BaseService implements IService {
 
     public getDefinition(_document: SvelteDocument, _context: ScopeContext, _workspace: WorkspaceContext): Definition {
         return null;
+    }
+
+    public getSupportedSvelteVersions(): number[] {
+        return [SVELTE_VERSION_2, SVELTE_VERSION_3];
     }
 }
 

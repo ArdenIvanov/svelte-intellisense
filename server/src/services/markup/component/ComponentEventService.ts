@@ -7,7 +7,7 @@ import { regexLastIndexOf, regexIndexOf } from "../../../StringHelpers";
 import { buildPropertyDocumentation } from "../../../svelteDocUtils";
 import { findItemInSvelteDoc, findLocationForItemInSvelteDoc } from "../../../SvelteItemsHelpers";
 
-export class ComponentEventCompletionService extends BaseService {
+export class ComponentEventService extends BaseService {
 
     public getCompletitionItems(_document: SvelteDocument, context: ComponentScopeContext): Array<CompletionItem> {
         const index = findLastDirectiveIndex(context.content, context.offset, 'on');
@@ -24,6 +24,10 @@ export class ComponentEventCompletionService extends BaseService {
     }
 
     public getHover(_document: SvelteDocument, context: ComponentScopeContext): Hover {
+        if (!context.data.component.sveltedoc) {
+            return null;
+        }
+        
         return findItemInSvelteDoc([
             {items: context.data.component.sveltedoc.events, handler: buildPropertyDocumentation}
         ], this.getAttributeEventNameAtOffset(context));

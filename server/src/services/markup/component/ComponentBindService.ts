@@ -7,7 +7,7 @@ import { regexLastIndexOf, regexIndexOf } from "../../../StringHelpers";
 import { buildPropertyDocumentation } from "../../../svelteDocUtils";
 import { findItemInSvelteDoc, findLocationForItemInSvelteDoc } from "../../../SvelteItemsHelpers";
 
-export class ComponentBindCompletionService extends BaseService {
+export class ComponentBindService extends BaseService {
 
     public getCompletitionItems(_document: SvelteDocument, context: ComponentScopeContext): Array<CompletionItem> {
         const index = findLastDirectiveIndex(context.content, context.offset, 'bind');

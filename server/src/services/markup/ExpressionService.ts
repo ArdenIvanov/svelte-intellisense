@@ -1,22 +1,24 @@
 import { CompletionItem } from "vscode-languageserver";
 import { BaseService } from "../Common";
 import { ScopeContext } from "../../interfaces";
-import { SvelteDocument } from "../../SvelteDocument";
-import { DefaultComponentMethods } from "../../svelteLanguage";
+import { SvelteDocument, SVELTE_VERSION_2 } from "../../SvelteDocument";
+import { svelte2DefaultComponentMethods } from "../../svelte2Language";
 import { findItemInSvelteDoc, findLocationForItemInSvelteDoc } from "../../SvelteItemsHelpers";
 import { buildPropertyDocumentation, buildComputedDocumentation, buildMethodDocumentation } from "../../svelteDocUtils";
 import { getIdentifierAtOffset } from "../../StringHelpers";
 
-export class ExpressionCompletionService extends BaseService {
+export class ExpressionService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: ScopeContext): Array<CompletionItem> {
         const index = this.findLastOpenExpressionIndex(context.content, context.offset);
         if (index < 0) {
             return null;
         }
 
-        const result = [
-            ...DefaultComponentMethods
-        ];
+        const result = [];
+
+        if (document.svelteVersion() === SVELTE_VERSION_2) {
+            result.push(...svelte2DefaultComponentMethods);
+        }
 
         if (document.metadata) {
             result.push(...[

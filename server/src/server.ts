@@ -14,15 +14,15 @@ import {
 import cosmic from 'cosmiconfig';
 
 import { ConfigurationItem, ComponentMetadata, WorkspaceContext, ScopeContext } from './interfaces';
-import { SvelteDocument } from './SvelteDocument';
+import { SvelteDocument, SVELTE_VERSION_3 } from './SvelteDocument';
 
 import {parse} from 'sveltedoc-parser';
 import * as path from 'path';
 import * as utils from './utils';
 import { DocumentService } from './services/DocumentService';
 import { DocumentsCache } from './DocumentsCache';
-import { NodeModulesImportResolver } from './ImportResolvers/NodeModulesImportResolver';
-import { WebpackImportResolver } from './ImportResolvers/WebpackImportResolver';
+import { NodeModulesImportResolver } from './importResolvers/NodeModulesImportResolver';
+import { WebpackImportResolver } from './importResolvers/WebpackImportResolver';
 import { RollupImportResolver } from './importResolvers/RollupImportResolver';
 
 // run babel for rollup config
@@ -51,7 +51,7 @@ connection.onInitialize(() => {
 	return {
 		capabilities: {
 			completionProvider: {
-                triggerCharacters: ['<', '.', ':', '#', '/', '@', '"']
+                triggerCharacters: ['<', '.', ':', '#', '/', '@', '"', '|']
             },
             textDocumentSync: documents.syncKind,
             hoverProvider : true,
@@ -77,7 +77,8 @@ documents.onDidChangeContent(change => {
     parse({
         fileContent: document.content,
         ignoredVisibilities: [],
-        includeSourceLocations: true
+        includeSourceLocations: true,
+        defaultVersion: SVELTE_VERSION_3
     }).then(sveltedoc => {
         if (sveltedoc.name === null) {
             sveltedoc.name = path.basename(document.path, path.extname(document.path));
@@ -98,14 +99,14 @@ documents.onDidChangeContent(change => {
                     }
                 }
                 catch (er){
-                    console.log(er);
+                    //console.log(er);
                 }
             }
             if (document.importResolver === null) {
                 document.importResolver = new NodeModulesImportResolver(documentsCache, document.path);
             }
         }
-        reloadDocumentImports(document, sveltedoc.components);
+        reloadDocumentImports(document, sveltedoc.components || []);
         reloadDocumentMetadata(document, sveltedoc);
     }).catch(() => {
         // supress error
@@ -129,6 +130,9 @@ function reloadDocumentMetadata(document: SvelteDocument, componentMetadata: any
             metadata['public_' + value.metadataName] = [];
         }
 
+        if (!componentMetadata[value.metadataName]) {
+            componentMetadata[value.metadataName] = [];
+        }
         componentMetadata[value.metadataName].forEach((item) => {
             const completionItem = <CompletionItem>{
                 label: item.name,
@@ -162,7 +166,8 @@ function reloadDocumentImports(document: SvelteDocument, components: any[]) {
             parse({
                 filename: importedDocument.path,
                 ignoredVisibilities: [],
-                includeSourceLocations: true
+                includeSourceLocations: true,
+                defaultVersion: SVELTE_VERSION_3
             }).then(sveltedoc => {
                     reloadDocumentMetadata(importedDocument, sveltedoc);
             }).catch(() => {

@@ -1,9 +1,11 @@
 import { BaseService } from "../Common";
-import { SvelteDocument } from "../../SvelteDocument";
+import { SvelteDocument, SVELTE_VERSION_2, SVELTE_VERSION_3 } from "../../SvelteDocument";
 import { findLastOpenTagIndex } from "./TagHelpers";
 import { CompletionItem, Hover, MarkupContent, Definition } from "vscode-languageserver";
 import { ScopeContext, WorkspaceContext } from "../../interfaces";
-import { SpecialComponents, SpecialComponentNamespace } from "../../svelteLanguage";
+import { SpecialComponentNamespace, getVersionSpecificSelection } from "../../svelteLanguage";
+import { svelte2SpecialComponents } from "../../svelte2Language";
+import { svelte3SpecialComponents } from "../../svelte3Language";
 import { cloneCompletionItem, getImportedComponentDocumentation, getImportedComponentDefinition } from "../Utils";
 import { regexIndexOf } from "../../StringHelpers";
 
@@ -22,11 +24,16 @@ export class OpenTagService extends BaseService {
         const tagContent = context.content.substring(openIndex, context.offset);
 
         const match = /<([\w\d_]+:)?[\w\d_]*$/g.exec(tagContent);
+        
+        const versionsSpecific = [
+            { version: SVELTE_VERSION_2, specific: svelte2SpecialComponents },
+            { version: SVELTE_VERSION_3, specific: svelte3SpecialComponents}
+        ];
 
         if (match) {
             if (!document.metadata || match[1] === `${SpecialComponentNamespace}:`) {
                 return [
-                    ...SpecialComponents
+                    ...getVersionSpecificSelection(document, versionsSpecific)
                 ];
             }
 
@@ -39,7 +46,7 @@ export class OpenTagService extends BaseService {
                             
                             return item;
                         }),
-                    ...SpecialComponents
+                    ...svelte2SpecialComponents
                         .map(cloneCompletionItem)
                         .map(item => {
                             item.filterText = `${SpecialComponentNamespace}:${item.label}`;

@@ -2,7 +2,11 @@ import { ImportedComponent, ComponentMetadata, ImportResolver } from './interfac
 import { SvelteComponentDoc } from 'sveltedoc-parser/typings';
 import { Position, TextDocument } from 'vscode-languageserver';
 
+export const SVELTE_VERSION_2 = 2;
+export const SVELTE_VERSION_3 = 3;
+
 export class SvelteDocument {
+    
     constructor(path: string) {
         this.path = path;
         this.importedComponents = [];
@@ -16,6 +20,10 @@ export class SvelteDocument {
     content: string;
     importResolver: ImportResolver;
     document: TextDocument;
+    
+    public svelteVersion(): number {
+        return this.sveltedoc ? this.sveltedoc.version | SVELTE_VERSION_3 : SVELTE_VERSION_3;
+    }
 
     public offsetAt(position: Position): number {
         return this.document.offsetAt(position);
