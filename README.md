@@ -20,12 +20,12 @@ Just click to component usage in markup or symbol in import section and view its
 
 ![Go to component definition](images/goto-definition.gif)
 
-Also that works for component attributes, events, bind, slots:
+Also that works for component attributes, events, bind, slots (Svelte 2 only for now):
 
 ![Go to component field](images/goto-field-definition.gif)
 ![Go to component slot](images/goto-slot-definition.gif)
 
-Awesome navigation for methods calling:
+Awesome navigation for methods calling (Svelte 2 only for now):
 
 ![Go to method](images/goto-method-definition.gif)
 
@@ -47,7 +47,7 @@ Allows to quick search for the required files to import, like a script file or a
 
 ![Script path completion](images/script-path-resolver.gif)
 
-2. Path resolving for `components:` import statement
+2. Path resolving for `components:` import statement (Svelte 2 only)
 
 ![Component path completion](images/script-component-path-resolver.gif)
 
@@ -65,7 +65,7 @@ Allows to quick search for the required files to import, like a script file or a
 
 ![Component data and slots](images/component-data-slots.gif)
 
-5. Component events and expressions
+5. Component events (Svelte 2 only for now) and expressions
 
 ![Component events and expressions](images/component-events-expr.gif)
 
@@ -75,7 +75,7 @@ This extension supports all svelte blocks - `if`, `each`, `await` - with inner b
 
 ![Template blocs](images/template-blocks.gif)
 
-7. Data and computed properties for component state getter
+7. Data and computed properties for component state getter (Svelte 2 only)
 
 ![Get properties of component](images/script-getter.gif)
 
@@ -83,13 +83,13 @@ The same is supported for writing a computed property.
 
 ![Computed properties](images/script-computed.gif)
 
-8. Data properties for component state setter
+8. Data properties for component state setter (Svelte 2 only)
 
 ![Set properties of component](images/script-setter.gif)
 
-9. Svelte methods in script section
+9. Svelte methods in script section (Svelte 2 only)
 
-Also provides auto-completion for `this.refs.`
+Also provides auto-completion for `this.refs.` (Svelte 2 only)
 
 ![Component methods auto completion](images/component-methods.gif)
 
@@ -155,7 +155,7 @@ export default {
 ```
 
 ## TODO
-- Svelte 3 support
+- More Svelte 3 support
 - Signature help for component tags
 - Workspace symbol search
 - Find all references

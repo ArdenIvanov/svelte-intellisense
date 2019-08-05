@@ -6,7 +6,7 @@
 	"repository": {
 		"url": "https://github.com/ArdenIvanov/svelte-intellisense.git"
 	},
-	"version": "0.5.0",
+	"version": "0.6.0",
 	"publisher": "ardenivanov",
 	"keywords": [
 		"svelte",
@@ -15,7 +15,7 @@
 	"author": "Aleksandr Ivanov",
 	"license": "MIT",
 	"engines": {
-		"vscode": "^1.28.2"
+		"vscode": "^1.30.0"
 	},
 	"categories": [
 		"Programming Languages",
@@ -58,6 +58,6 @@
 		"@types/node": "^8.10.25",
 		"tslint": "^5.8.0",
 		"typescript": "^2.6.1",
-		"vscode": "^1.1.22"
+		"vscode": "^1.1.36"
 	}
 }
