@@ -10,7 +10,7 @@ export class HtmlTagAttributeAssignService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: TagScopeContext) {
         const contentPart = context.content.substring(0, context.offset);
 
-        const match = /\s+(([\w\d_]+)=)?(['"]?\{[^}]*|'[^']*|"[^"]*)$/.exec(contentPart);
+        const match = /\s+(([\w\d_:]+)=)?(['"]?\{[^}]*|'[^']*|"[^"]*)$/.exec(contentPart);
         if (match) {
             // When source name are provided we can use 
             //  any valid evaluatable expression with using helpers, data and computed properties

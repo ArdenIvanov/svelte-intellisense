@@ -26,6 +26,22 @@ export class ComponentDefaultService extends BaseService {
             })
         );
 
+        const defaultSlotMetadata = context.data.component.metadata.slotsMetadata.find(s => s.name === 'default');
+        if (defaultSlotMetadata) {
+            result.push(...defaultSlotMetadata.parameters
+                .map(cloneCompletionItem)
+                .map(item => {
+                    item.kind = CompletionItemKind.Property;
+                    item.detail = '[Svelte] Slot prop';
+                    item.filterText = `let:${item.label}`;
+                    item.sortText = `let:${item.label}`;
+                    item.insertText = `let:${item.label}`;
+                    item.commitCharacters = ['='];
+                    return item;
+                })
+            );
+        }
+
         result.push(...context.data.component.metadata.public_data
             .map(cloneCompletionItem)
             .map(item => {

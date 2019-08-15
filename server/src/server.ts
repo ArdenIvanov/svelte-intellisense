@@ -13,7 +13,7 @@ import {
 
 import cosmic from 'cosmiconfig';
 
-import { ConfigurationItem, ComponentMetadata, WorkspaceContext, ScopeContext } from './interfaces';
+import { ConfigurationItem, ComponentMetadata, WorkspaceContext, ScopeContext, SlotMetadata } from './interfaces';
 import { SvelteDocument, SVELTE_VERSION_3 } from './SvelteDocument';
 
 import {parse} from 'sveltedoc-parser';
@@ -24,6 +24,7 @@ import { DocumentsCache } from './DocumentsCache';
 import { NodeModulesImportResolver } from './importResolvers/NodeModulesImportResolver';
 import { WebpackImportResolver } from './importResolvers/WebpackImportResolver';
 import { RollupImportResolver } from './importResolvers/RollupImportResolver';
+import { SvelteComponentDoc } from 'sveltedoc-parser/typings';
 
 // run babel for rollup config
 require('@babel/register')({ 
@@ -120,7 +121,7 @@ documents.onDidClose(event => {
     // TODO remove also document or imported documents which are not required in other opened documents
 });
 
-function reloadDocumentMetadata(document: SvelteDocument, componentMetadata: any) {
+function reloadDocumentMetadata(document: SvelteDocument, componentMetadata: SvelteComponentDoc) {
     document.sveltedoc = componentMetadata;
 
     let metadata = {};
@@ -147,6 +148,25 @@ function reloadDocumentMetadata(document: SvelteDocument, componentMetadata: any
             }
         });
     });
+
+    // Special handling for slots and parameters
+    metadata['slotsMetadata'] = [];
+    if (componentMetadata.slots && componentMetadata.slots.length > 0) {
+        componentMetadata.slots.forEach((slot) => {
+            const slotMetadata = <SlotMetadata>{
+                name: slot.name,
+                parameters: slot.parameters.map((param) => {
+                    return <CompletionItem>{
+                        label: param.name,
+                        kind: CompletionItemKind.Field,
+                        documentation: param.description,
+                        preselect: true
+                    };
+                })
+            };
+            metadata['slotsMetadata'].push(slotMetadata);
+        });
+    }
 
     document.metadata = <ComponentMetadata>metadata;
 }

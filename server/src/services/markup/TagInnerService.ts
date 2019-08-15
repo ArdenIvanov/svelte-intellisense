@@ -4,6 +4,7 @@ import { findLastOpenTag } from "./TagHelpers";
 import { ComponentInnerService } from "./component/ComponentInnerService";
 import { HtmlTagInnerService } from "./html/HtmlTagInnerService";
 import { SlotService } from "./SlotService";
+import { NamedSlotParamsService } from "./NamedSlotParamsService";
 
 export interface TagData {
     name: string;
@@ -16,6 +17,7 @@ export class TagInnerService extends ChoosingService {
     public constructor() {
         super([
             new SlotService(),
+            new NamedSlotParamsService(),
             new ComponentInnerService(),
             new HtmlTagInnerService
         ]);

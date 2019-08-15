@@ -5,11 +5,11 @@ import { CompletionItem, CompletionItemKind } from "vscode-languageserver";
 import { JSDocType } from "sveltedoc-parser/typings";
 import { getVersionSpecificMetadataForMarkup } from "../../../svelteLanguage";
 
-export class ComponentDataAssignService extends BaseService {
+export class ComponentAttributeAssignService extends BaseService {
     public getCompletitionItems(document: SvelteDocument, context: ComponentScopeContext) {
         const contentPart = context.content.substring(0, context.offset);
 
-        const match = /\s+(([\w\d_]+)=)?(['"]?\{[^}]*|'[^']*|"[^"]*)$/.exec(contentPart);
+        const match = /\s+(([\w\d_:]+)=)?(['"]?\{[^}]*|'[^']*|"[^"]*)$/.exec(contentPart);
 
         if (match) {
             // When source name are provided we can use 

@@ -8,6 +8,10 @@ import { buildPropertyDocumentation, buildComputedDocumentation, buildMethodDocu
 import { getIdentifierAtOffset } from "../../StringHelpers";
 
 export class ExpressionService extends BaseService {
+    public getSupportedSvelteVersions(): number[] {
+        return [SVELTE_VERSION_2];
+    }
+
     public getCompletitionItems(document: SvelteDocument, context: ScopeContext): Array<CompletionItem> {
         const index = this.findLastOpenExpressionIndex(context.content, context.offset);
         if (index < 0) {
@@ -16,12 +20,9 @@ export class ExpressionService extends BaseService {
 
         const result = [];
 
-        if (document.svelteVersion() === SVELTE_VERSION_2) {
-            result.push(...svelte2DefaultComponentMethods);
-        }
-
         if (document.metadata) {
             result.push(...[
+                ...svelte2DefaultComponentMethods,
                 ...document.metadata.data,
                 ...document.metadata.computed,
                 ...document.metadata.methods,
@@ -78,8 +79,8 @@ export class ExpressionService extends BaseService {
             return -1;
         }
 
-        const spaceIndex = content.lastIndexOf(' ', openIndex);
-        if (spaceIndex < 0) {
+        const spaceIndex = content.lastIndexOf(' ', offset);
+        if (spaceIndex < 0 || spaceIndex > openIndex) {
             return -1;
         }
 

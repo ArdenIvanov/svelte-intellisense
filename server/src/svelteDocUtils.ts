@@ -1,4 +1,4 @@
-import { SvelteComponentDoc, SvelteDataItem, SvelteComputedItem, SvelteMethodItem } from 'sveltedoc-parser/typings';
+import { SvelteComponentDoc, SvelteDataItem, SvelteComputedItem, SvelteMethodItem, ISvelteItem } from 'sveltedoc-parser/typings';
 
 export function buildMethodDocumentation(method: SvelteMethodItem) {
     if (!method) {
@@ -129,6 +129,21 @@ export function buildDocumentation(componentDoc: SvelteComponentDoc) {
     }
 
     result += '```';
+
+    return result;
+}
+
+export function buildSlotPerameterDocumentation(parameter: ISvelteItem) {
+    if (!parameter) {
+        return null;
+    }
+
+    let result = '``` javascript\n';
+    if (parameter.description) {
+        result += `/** ${parameter.description} */\n`;
+    }
+    result += `${parameter.name}`;
+    result += '\n```';
 
     return result;
 }

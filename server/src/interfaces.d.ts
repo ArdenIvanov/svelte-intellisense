@@ -13,6 +13,11 @@ export interface ImportedComponent {
     filePath: string;
 }
 
+export interface SlotMetadata {
+    name: string;
+    parameters: CompletionItem[];
+}
+
 export interface ComponentMetadata {
     data: CompletionItem[];
     public_data: CompletionItem[];
@@ -33,6 +38,8 @@ export interface ComponentMetadata {
     computed: CompletionItem[];
     helpers: CompletionItem[];
     components: CompletionItem[];
+
+    slotsMetadata: SlotMetadata[];
 }
 
 export interface DocumentPosition extends Position {

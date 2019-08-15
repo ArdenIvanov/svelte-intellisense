@@ -10,7 +10,8 @@ import { ChoosingService } from "../../ChoosingService";
 import { TagData, TagScopeContext } from "../TagInnerService";
 import { findImportedComponent } from "../TagHelpers";
 import { BindTargetPropertyService } from "../BindTargetPropertyService";
-import { ComponentDataAssignService } from "./ComponentDataAssignService";
+import { ComponentAttributeAssignService } from "./ComponentAttributeAssignService";
+import { ComponentDefaultSlotParamsService } from "./ComponentDefaultSlotParamsService";
 
 export interface ComponentTagData extends TagData {
     component: SvelteDocument;
@@ -24,8 +25,9 @@ export class ComponentInnerService extends ChoosingService {
             new ExpressionService(),
             new ComponentEventService(),
             new ComponentBindService(),
+            new ComponentDefaultSlotParamsService(),
             new BindTargetPropertyService(),
-            new ComponentDataAssignService(),
+            new ComponentAttributeAssignService(),
 
             // Fallback
             new CompositeCompletionService([
@@ -37,7 +39,7 @@ export class ComponentInnerService extends ChoosingService {
 
     protected reduceContext(context: TagScopeContext, document: SvelteDocument, workspace: WorkspaceContext): ComponentScopeContext {
         const component = findImportedComponent(context.data.name, document, workspace.documentsCache);
-        if (component === null) {
+        if (component === null || !component.metadata) {
             return null;
         }
 

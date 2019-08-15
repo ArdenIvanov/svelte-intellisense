@@ -1,11 +1,11 @@
 import { BaseService } from "../../Common";
 import { DefaultBindCompletionItem, getHtmlTagDefaultBindCompletionItems, DefaultTransitionCompletionItems, DefaultSlotCompletionItem, getVersionSpecificSelection } from "../../../svelteLanguage";
 import { svelte2DefaultRefCompletionItem, svelte2DefaultClassCompletionItem, svelte2DefaultActionCompletionItem, svelte2DefaultHtmlTagBindCompletionItems } from "../../../svelte2Language";
-import { svelte3DefaultClassCompletionItem, svelte3DefaultActionCompletionItem, svelte3DefaultHtmlTagBindCompletionItems } from "../../../svelte3Language";
+import { svelte3DefaultClassCompletionItem, svelte3DefaultActionCompletionItem, svelte3DefaultHtmlTagBindCompletionItems, svelte3DefaultSlotPropertyCompletionItem } from "../../../svelte3Language";
 import { SvelteDocument, SVELTE_VERSION_2, SVELTE_VERSION_3 } from "../../../SvelteDocument";
 import { TagScopeContext } from "../TagInnerService";
 import { cloneCompletionItem } from "../../Utils";
-import { findNearestOpenComponent } from "../TagHelpers";
+import { findNearestOpenComponent, getNamedSlotName } from "../TagHelpers";
 import { WorkspaceContext } from "../../../interfaces";
 
 export class HtmlTagDefaultService extends BaseService {
@@ -73,6 +73,25 @@ export class HtmlTagDefaultService extends BaseService {
                         return item;
                     })
             );
+
+            const slotName = getNamedSlotName(context.content);
+            if (slotName) {
+                const namedSlotMetadata = nearestComponent.metadata.slotsMetadata.find(s => s.name === slotName);
+                if (namedSlotMetadata) {
+                    result.push(
+                        svelte3DefaultSlotPropertyCompletionItem,
+                        ...namedSlotMetadata.parameters
+                            .map(cloneCompletionItem)
+                            .map(item => {
+                                item.detail = `[Svelte] Prop of slot ${namedSlotMetadata.name} for ${nearestComponent.sveltedoc.name}`;
+                                item.filterText = `let:${item.label}`;
+                                item.sortText = `let:"${item.label}`;
+                                item.insertText = `let:${item.label}`;
+                                return item;
+                            })
+                    );
+                }
+            }
         }
 
         return result;

@@ -2,6 +2,8 @@ import { SvelteDocument } from "../../SvelteDocument";
 import { DocumentsCache } from "../../DocumentsCache";
 
 import { createTextDocument } from "../../utils";
+import { regexLastIndexOf, regexIndexOf } from "../../StringHelpers";
+import { ScopeContext } from "../../interfaces";
 
 export function findLastOpenTagIndex(content: string, offset: number): number {
     const startIndex = content.lastIndexOf('<', offset);
@@ -93,7 +95,18 @@ export function findLastOpenTag(content: string, offset: number) {
 }
 
 export function findTagInnerEndIndex(content: string, offset: number) {
-    return content.indexOf('>', offset);
+    const tagCloseIndex = content.indexOf('>', offset);
+
+    if (tagCloseIndex >= 0) {
+        // Check if it is inside expression
+        const expressionStartIndex = content.lastIndexOf('{', tagCloseIndex);
+        const expressionEndIndex = content.lastIndexOf('}', tagCloseIndex);
+        if (expressionStartIndex > offset && expressionStartIndex > expressionEndIndex) {
+            return findTagInnerEndIndex(content, tagCloseIndex + 1);
+        }
+    }
+
+    return tagCloseIndex;
 }
 
 export function findLastDirectiveIndex(content: string, offset: number, directiveName: string) {
@@ -133,4 +146,34 @@ export function findImportedComponent(componentName: string, document: SvelteDoc
 export function findNearestOpenComponent(offset: number, document: SvelteDocument, documentsCache: DocumentsCache) {
     const prevTag = findNearestOpenTag(document.content, offset);
     return prevTag === null ? null : findImportedComponent(prevTag.tagName, document, documentsCache);
+}
+
+export function getAttributeLetNameAtOffset(context: ScopeContext): string {
+    const startIndex = regexLastIndexOf(context.content, /\slet:/, context.offset);
+    let endIndex = regexIndexOf(context.content, /[\s=]/, context.offset);
+    if (endIndex < 0) {
+        endIndex = context.content.length;
+    }
+
+    if (startIndex < 0 || endIndex < 0 || endIndex < startIndex) {
+        return null;
+    }
+
+    const name = context.content.substring(startIndex, endIndex);
+    const match = /^let:([\w\d_]+)$/.exec(name);
+
+    if (match) {
+        return match[1];
+    }
+
+    return null;
+}
+
+export function getNamedSlotName(content: string) {
+    const match = content.match(/\sslot\s*=?\s*[\'|\"]([\w\d_$]*)[\'|\"]/)
+    if (!match) {
+        return null;
+    } else {
+        return match[1];
+    }
 }
