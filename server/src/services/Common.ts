@@ -25,13 +25,13 @@ export interface IService {
     getHover(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Hover;
 
     /**
-     * Returns definition for required context.
+     * Returns definitions for required context.
      * @param document The svelte document.
      * @param position The current cursor position in specified document.
      * @param context The workspace context data.
-     * @returns {Definition|null} Returns null, when scope context is not correct for this service compatibility.
+     * @returns {Definition[]|null} Returns null, when scope context is not correct for this service compatibility.
      */
-    getDefinition(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Definition;
+    getDefinitions(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Definition[];
 
     /**
      * Returns list of supported svelte versions.
@@ -48,7 +48,7 @@ export abstract class BaseService implements IService {
         return null;
     }
 
-    public getDefinition(_document: SvelteDocument, _context: ScopeContext, _workspace: WorkspaceContext): Definition {
+    public getDefinitions(_document: SvelteDocument, _context: ScopeContext, _workspace: WorkspaceContext): Definition[] {
         return null;
     }
 

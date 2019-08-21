@@ -47,7 +47,7 @@ export class ExpressionService extends BaseService {
         ], getIdentifierAtOffset(context.content, context.offset));
     }
 
-    public getDefinition(document: SvelteDocument, context: ScopeContext)
+    public getDefinitions(document: SvelteDocument, context: ScopeContext)
     {
         if (!this.isInsideExpression(context.content, context.offset)) {
             return null;

@@ -50,7 +50,7 @@ export class ChoosingService implements IService {
         );
     }
 
-    public getDefinition(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Definition {
+    public getDefinitions(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Definition[] {
         const reducedContext = this.reduceContext(context, document, workspace);
         if (reducedContext === null) {
             return null;
@@ -58,7 +58,7 @@ export class ChoosingService implements IService {
 
         return this.findServiceResults(
             document,
-            service => service.getDefinition(document, reducedContext, workspace),
+            service => service.getDefinitions(document, reducedContext, workspace),
             null
         );
     }

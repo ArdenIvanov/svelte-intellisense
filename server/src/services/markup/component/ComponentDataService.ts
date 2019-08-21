@@ -18,7 +18,7 @@ export class ComponentDataService extends BaseService {
         ], this.getAttributeNameAtOffset(context));
     }
 
-    public getDefinition(_document: SvelteDocument, context: ComponentScopeContext): Definition {
+    public getDefinitions(_document: SvelteDocument, context: ComponentScopeContext): Definition[] {
         return findLocationForItemInSvelteDoc(
             context.data.component,
             [

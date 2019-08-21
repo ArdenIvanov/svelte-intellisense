@@ -251,7 +251,7 @@ connection.onHover(
 connection.onDefinition(
     (_textDocumentPosition: TextDocumentPositionParams) : Definition => {
         return executeActionInContext(_textDocumentPosition, (document, scopeContext, workspaceContext) => {
-            return svelteDocumentService.getDefinition(document, scopeContext, workspaceContext);
+            return svelteDocumentService.getDefinitions(document, scopeContext, workspaceContext);
         });
     }
 );

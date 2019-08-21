@@ -25,20 +25,22 @@ export function findItemInSvelteDoc(itemsWithHandlers: Array<IItemsWithHandlers>
     return null;
 }
 
-export function findLocationForItemInSvelteDoc(document: SvelteDocument, items: Array<ISvelteItem>, name: string) : Definition {
+export function findLocationForItemInSvelteDoc(document: SvelteDocument, items: Array<ISvelteItem>, name: string) : Definition[] {
     if (!name) {
         return null;
     }
 
     let item = items.find(item => item.name === name);
-    if (item && item.loc) {
-        return {
-            uri: document.document.uri,
-            range: {
-                start: document.positionAt(item.loc.start),
-                end: document.positionAt(item.loc.end)
-            }
-        };
+    if (item && item.locations && item.locations.length > 0) {
+        return item.locations.map((loc) => {
+            return {
+                uri: document.document.uri,
+                range: {
+                    start: document.positionAt(loc.start),
+                    end: document.positionAt(loc.end)
+                }
+            };
+        });
     }
 
     return null;

@@ -42,7 +42,7 @@ export class HtmlTagAttributeAssignService extends BaseService {
         ], getIdentifierAtOffset(context.content, context.offset));
     }
 
-    public getDefinition(document: SvelteDocument, context: TagScopeContext)
+    public getDefinitions(document: SvelteDocument, context: TagScopeContext)
     {
         if (!isInsideAttributeAssign(context.content, context.offset)) {
             return null;

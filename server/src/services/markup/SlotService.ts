@@ -45,7 +45,7 @@ export class SlotService extends BaseService {
         ], getIdentifierAtOffset(context.content, context.offset));
     }
 
-    public getDefinition(document: SvelteDocument, context: TagScopeContext, workspace: WorkspaceContext)
+    public getDefinitions(document: SvelteDocument, context: TagScopeContext, workspace: WorkspaceContext)
     {
         if (!this.isInsideSlot(context.content, context.offset)) {
             return null;

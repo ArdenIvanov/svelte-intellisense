@@ -65,7 +65,7 @@ export class NamedSlotParamsService extends BaseService {
         ], getAttributeLetNameAtOffset(context));
     }
 
-    public getDefinition(document: SvelteDocument, context: TagScopeContext, workspace: WorkspaceContext)
+    public getDefinitions(document: SvelteDocument, context: TagScopeContext, workspace: WorkspaceContext)
     {
         const slotName = getNamedSlotName(context.content);
         if (!slotName) {

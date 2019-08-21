@@ -33,7 +33,7 @@ export class ComponentEventService extends BaseService {
         ], this.getAttributeEventNameAtOffset(context));
     }
 
-    public getDefinition(_document: SvelteDocument, context: ComponentScopeContext): Definition {
+    public getDefinitions(_document: SvelteDocument, context: ComponentScopeContext): Definition[] {
         return findLocationForItemInSvelteDoc(
             context.data.component,
             [

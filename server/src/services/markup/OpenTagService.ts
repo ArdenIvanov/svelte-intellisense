@@ -66,7 +66,7 @@ export class OpenTagService extends BaseService {
         return getImportedComponentDocumentation(this.getTagContent(context), document, workspace);
     }
 
-    public getDefinition(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Definition {
+    public getDefinitions(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Definition[] {
         return getImportedComponentDefinition(this.getTagContent(context), document, workspace);
     }
 

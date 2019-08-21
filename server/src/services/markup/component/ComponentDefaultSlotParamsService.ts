@@ -41,7 +41,7 @@ export class ComponentDefaultSlotParamsService extends BaseService {
         ], getAttributeLetNameAtOffset(context));
     }
 
-    public getDefinition(_document: SvelteDocument, context: ComponentScopeContext): Definition {
+    public getDefinitions(_document: SvelteDocument, context: ComponentScopeContext): Definition[] {
         const defaultSlotDoc = this.getDefaultSlotDocumentation(context);
         if (!defaultSlotDoc) {
             return null;

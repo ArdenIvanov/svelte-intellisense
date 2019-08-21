@@ -56,7 +56,7 @@ export class PlaceholdersService extends BaseService {
         ], getIdentifierAtOffset(context.content, context.offset));
     }
 
-    public getDefinition(document: SvelteDocument, context: ScopeContext)
+    public getDefinitions(document: SvelteDocument, context: ScopeContext)
     {
         if (!this.isInsidePlaceholder(context.content, context.offset)) {
             return null;

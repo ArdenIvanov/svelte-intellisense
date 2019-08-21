@@ -51,7 +51,7 @@ export function getImportedComponentDefinition(componentName: string, document: 
         return null;
     }
 
-    return Location.create(pathToFileUri(componentDocument.path), Range.create(0, 0, 0, 0));
+    return [Location.create(pathToFileUri(componentDocument.path), Range.create(0, 0, 0, 0))];
 }
 
 function findImportedComponent(componentName: string, document: SvelteDocument, workspace: WorkspaceContext) {

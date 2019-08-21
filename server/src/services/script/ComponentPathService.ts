@@ -85,7 +85,7 @@ export class ComponentPathService extends BaseService {
         return null;
     }
 
-    public getDefinition(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Definition {
+    public getDefinitions(document: SvelteDocument, context: ScopeContext, workspace: WorkspaceContext): Definition[] {
         const prevContent = context.content.substring(0, context.offset);
         const nextContent = context.content.substring(context.offset);
             

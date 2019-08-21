@@ -54,7 +54,7 @@ export class BlockOpenService extends BaseService {
         ], getIdentifierAtOffset(context.content, context.offset));
     }
 
-    public getDefinition(document: SvelteDocument, context: ScopeContext): Definition
+    public getDefinitions(document: SvelteDocument, context: ScopeContext): Definition[]
     {
         if (!isInsideOpenBlock(context.content, context.offset)) {
             return null;

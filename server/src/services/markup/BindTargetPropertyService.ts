@@ -27,7 +27,7 @@ export class BindTargetPropertyService extends BaseService {
         ], getIdentifierAtOffset(context.content, context.offset));
     }
 
-    public getDefinition(document: SvelteDocument, context: ScopeContext)
+    public getDefinitions(document: SvelteDocument, context: ScopeContext)
     {
         if (!this.isInsideBindTarget(context.content, context.offset)) {
             return null;
