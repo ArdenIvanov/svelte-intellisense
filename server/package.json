@@ -9,7 +9,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"vscode-languageserver": "^5.2.1",
-		"sveltedoc-parser": "git://github.com/alexprey/sveltedoc-parser.git#65bfbe94f0e4d03a2fdac9266c332bc6a10a7932",
+		"sveltedoc-parser": "^2.3.0",
 		"cosmiconfig": "^5.2.1",
 		"@babel/register": "^7.5.5",
 		"@babel/core": "7.5.5",
