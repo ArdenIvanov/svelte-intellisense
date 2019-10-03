@@ -3,6 +3,11 @@ All notable changes to the "svelte-intellisense" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+
+## [0.7.0] 
+- [Added] Support for locations in Svelte v3.
+- [Added] Support for events in Svelte v3.
+
 ## [0.6.0] 
 - [Added] Partial support for Svelte v3 - syntax, data, methods, components, slots.
 

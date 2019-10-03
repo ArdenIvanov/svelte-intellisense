@@ -20,12 +20,12 @@ Just click to component usage in markup or symbol in import section and view its
 
 ![Go to component definition](images/goto-definition.gif)
 
-Also that works for component attributes, events, bind, slots (Svelte 2 only for now):
+Also that works for component attributes, events, bind, slots:
 
 ![Go to component field](images/goto-field-definition.gif)
 ![Go to component slot](images/goto-slot-definition.gif)
 
-Awesome navigation for methods calling (Svelte 2 only for now):
+Awesome navigation for methods calling:
 
 ![Go to method](images/goto-method-definition.gif)
 
@@ -65,7 +65,7 @@ Allows to quick search for the required files to import, like a script file or a
 
 ![Component data and slots](images/component-data-slots.gif)
 
-5. Component events (Svelte 2 only for now) and expressions
+5. Component events and expressions
 
 ![Component events and expressions](images/component-events-expr.gif)
 
@@ -155,7 +155,6 @@ export default {
 ```
 
 ## TODO
-- More Svelte 3 support
 - Signature help for component tags
 - Workspace symbol search
 - Find all references
