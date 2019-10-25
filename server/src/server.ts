@@ -8,7 +8,8 @@ import {
     TextDocumentPositionParams,
     TextDocuments,
     Hover,
-    Definition
+    Definition,
+    TextDocument
 } from 'vscode-languageserver';
 
 import cosmic from 'cosmiconfig';
@@ -68,13 +69,25 @@ const cosmicWebpack = cosmic('webpack', {packageProp: false });
 const cosmicRollup = cosmic('rollup', {packageProp: false });
 
 documents.onDidChangeContent(change => {
-    const document = documentsCache.getOrCreateDocumentFromCache(utils.fileUriToPath(change.document.uri));
+    reloadDocument(change.document);
+});
+
+documents.onDidClose(event => {
+    const document = documentsCache.getOrCreateDocumentFromCache(utils.fileUriToPath(event.document.uri));
+    // remove content to free some space
+    document.content = null;
+    // TODO remove also document or imported documents which are not required in other opened documents
+});
+
+function reloadDocument(textDocument: TextDocument) {
+    const document = documentsCache.getOrCreateDocumentFromCache(utils.fileUriToPath(textDocument.uri));
     if (!document.document) {
-        document.document = change.document;
+        document.document = textDocument;
     }
     
-    document.content = change.document.getText();
-
+    document.content = textDocument.getText();
+    document.sveltedoc = undefined;
+    
     parse({
         fileContent: document.content,
         ignoredVisibilities: [],
@@ -112,14 +125,7 @@ documents.onDidChangeContent(change => {
     }).catch(() => {
         // supress error
     });
-});
-
-documents.onDidClose(event => {
-    const document = documentsCache.getOrCreateDocumentFromCache(utils.fileUriToPath(event.document.uri));
-    // remove content to free some space
-    document.content = null;
-    // TODO remove also document or imported documents which are not required in other opened documents
-});
+}
 
 function reloadDocumentMetadata(document: SvelteDocument, componentMetadata: SvelteComponentDoc) {
     document.sveltedoc = componentMetadata;
@@ -211,8 +217,11 @@ function executeActionInContext(_textDocumentPosition: TextDocumentPositionParam
 
     const path = utils.fileUriToPath(_textDocumentPosition.textDocument.uri);
     const document = documentsCache.getOrCreateDocumentFromCache(path);
-    if (!document.document) {
-        document.document = utils.createTextDocument(path, _textDocumentPosition.textDocument.uri);
+    if (!document.sveltedoc) {
+        reloadDocument(utils.createTextDocument(path, _textDocumentPosition.textDocument.uri));
+
+        // Ignore this request until document is loaded
+        return null;
     }
 
     const offset = document.offsetAt(_textDocumentPosition.position);

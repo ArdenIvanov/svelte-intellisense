@@ -3,6 +3,8 @@ All notable changes to the "svelte-intellisense" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.7.1] 
+- [Fixed] Issue with "Request textDocument/hover failed with message: Cannot read property 'helpers' of undefined" and similar issues
 
 ## [0.7.0] 
 - [Added] Support for locations in Svelte v3.
