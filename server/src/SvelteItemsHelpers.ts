@@ -14,11 +14,13 @@ export function findItemInSvelteDoc(itemsWithHandlers: Array<IItemsWithHandlers>
 
     for (let index = 0; index < itemsWithHandlers.length; index++) {
         const itemTypeAndHandler = itemsWithHandlers[index];
-        let foundItem = itemTypeAndHandler.items.find(item => item.name === name);
-        if (foundItem) {
-            return {
-                contents: { kind: MarkupKind.Markdown, value: itemTypeAndHandler.handler(foundItem)}
-            };
+        if (itemTypeAndHandler.items) {
+            let foundItem = itemTypeAndHandler.items.find(item => item.name === name);
+            if (foundItem) {
+                return {
+                    contents: { kind: MarkupKind.Markdown, value: itemTypeAndHandler.handler(foundItem)}
+                };
+            }
         }
     }
 
@@ -27,6 +29,10 @@ export function findItemInSvelteDoc(itemsWithHandlers: Array<IItemsWithHandlers>
 
 export function findLocationForItemInSvelteDoc(document: SvelteDocument, items: Array<ISvelteItem>, name: string) : Definition[] {
     if (!name) {
+        return null;
+    }
+
+    if (!items) {
         return null;
     }
 
